@@ -6,39 +6,44 @@ import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/wrappers.proto";
 
-option go_package = "github.com/olezhek28/microservices_course/week_1/grpc/pkg/note_v1;note_v1";
+option go_package = "github.com/Ippolid/auth/tree/main/grpc/auth_v1;auth_v1";
 
-service NoteV1 {
+service AuthV1 {
   rpc Create(CreateRequest) returns (CreateResponse);
   rpc Get(GetRequest) returns (GetResponse);
-  rpc List(ListRequest) returns (ListResponse);
   rpc Update(UpdateRequest) returns (google.protobuf.Empty);
   rpc Delete(DeleteRequest) returns (google.protobuf.Empty);
 }
 
-message NoteInfo {
-  string title = 1;
-  string content = 2;
-  string author = 3;
-  bool is_public = 4;
+
+enum Role {
+  USER = 0;
+  ADMIN = 1;
 }
 
-message Note {
+message UserInfo {
+  string name = 1;
+  string email = 2;
+}
+
+message UserInfoCreate{
+  UserInfo user=1;
+  string password = 2;
+  string password_confirm = 3;
+  Role role = 4;
+}
+
+message UserGet {
   int64 id = 1;
-  NoteInfo info = 2;
-  google.protobuf.Timestamp created_at = 3;
-  google.protobuf.Timestamp updated_at = 4;
+  UserInfo info = 2;
+  Role role = 3;
+  google.protobuf.Timestamp created_at = 4;
+  google.protobuf.Timestamp updated_at = 5;
 }
 
-message UpdateNoteInfo {
-  google.protobuf.StringValue title = 1;
-  google.protobuf.StringValue context = 2;
-  google.protobuf.StringValue author = 3;
-  google.protobuf.BoolValue is_public = 4;
-}
 
 message CreateRequest {
-  NoteInfo info = 1;
+  UserInfoCreate info = 1;
 }
 
 message CreateResponse {
@@ -50,21 +55,12 @@ message GetRequest {
 }
 
 message GetResponse {
-  Note note = 1;
-}
-
-message ListRequest {
-  int64 limit = 1;
-  int64 offset = 2;
-}
-
-message ListResponse {
-  repeated Note notes = 1;
+  UserGet note = 1;
 }
 
 message UpdateRequest {
   int64 id = 1;
-  UpdateNoteInfo info = 2;
+  UserInfo info = 2;
 }
 
 message DeleteRequest {
