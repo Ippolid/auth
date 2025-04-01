@@ -64,10 +64,7 @@ output:
   print-linter-name: true
 
 linters-settings:
-  govet:
-    settings:
-      shadow:
-        enabled: true  # Исправлено: shadow теперь объект с полем enabled
+  govet:  # Исправлено: убрали settings.shadow
   dupl:
     threshold: 100
   goconst:
