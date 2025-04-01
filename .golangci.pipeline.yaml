@@ -51,7 +51,6 @@
 #    - don't use an underscore in package name
 
 
-# More info on config here: https://golangci-lint.run/usage/configuration/#config-file
 run:
   concurrency: 8
   timeout: 10m
@@ -59,13 +58,16 @@ run:
   tests: true
 
 output:
-  formats: colored-line-number
+  formats:
+    - format: colored-line-number
   print-issued-lines: true
   print-linter-name: true
 
 linters-settings:
   govet:
-    shadow: true  # Включаем проверку shadowing через govet
+    settings:
+      shadow:
+        enabled: true  # Исправлено: shadow теперь объект с полем enabled
   dupl:
     threshold: 100
   goconst:
@@ -84,7 +86,6 @@ linters:
     - revive
     - typecheck
     - unused
-    # shadow убран, так как он больше не поддерживается
 
 issues:
   exclude-files:
