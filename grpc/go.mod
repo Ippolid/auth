@@ -3,6 +3,7 @@ module github.com/Ippolid/auth/tree/main/grpc
 go 1.23.3
 
 require (
+	github.com/brianvoe/gofakeit v3.18.0+incompatible
 	google.golang.org/grpc v1.71.1
 	google.golang.org/protobuf v1.36.6
 )
