@@ -10,13 +10,13 @@ get-deps:
 
 
 generate:
-	make generate-note-api
+	make generate-auth-api
 
-generate-note-api:
-	mkdir -p pkg/note_v1
-	protoc --proto_path api/note_v1 \
-	--go_out=pkg/note_v1 --go_opt=paths=source_relative \
+generate-auth-api:
+	mkdir -p pkg/auth_v1
+	protoc --proto_path api/auth_v1 \
+	--go_out=pkg/auth_v1 --go_opt=paths=source_relative \
 	--plugin=protoc-gen-go=bin/protoc-gen-go \
-	--go-grpc_out=pkg/note_v1 --go-grpc_opt=paths=source_relative \
+	--go-grpc_out=pkg/auth_v1 --go-grpc_opt=paths=source_relative \
 	--plugin=protoc-gen-go-grpc=bin/protoc-gen-go-grpc \
-	api/note_v1/note.proto
+	api/auth_v1/auth.proto
