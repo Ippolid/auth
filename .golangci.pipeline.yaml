@@ -63,8 +63,7 @@ output:
   print-issued-lines: true
   print-linter-name: true
 
-linters-settings:
-  govet:  # Исправлено: убрали settings.shadow
+linters-settings:  # Исправлено: убрали settings.shadow
   dupl:
     threshold: 100
   goconst:
