@@ -12,22 +12,23 @@ import (
 	"google.golang.org/grpc/reflection"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	desc "github.com/Ippolid/auth/tree/main/grpc/pkg/auth_v1"
+	"github.com/Ippolid/auth/tree/main/grpc/pkg/auth_v1"
 )
 
 const grpcPort = 50051
 
 type server struct {
-	desc.UnimplementedAuthV1Server
+	auth_v1.UnimplementedAuthV1Server
 }
 
 // Get ...
-func (s *server) Get(ctx context.Context, req *desc.GetRequest) (*desc.GetResponse, error) {
+func (s *server) Get(ctx context.Context, req *auth_v1.GetRequest) (*auth_v1.GetResponse, error) {
 	log.Printf("Note id: %d", req.GetId())
-	return &desc.GetResponse{
-		Note: &desc.UserGet{
+
+	return &auth_v1.GetResponse{
+		Note: &auth_v1.UserGet{
 			Id: req.GetId(),
-			Info: &desc.UserInfo{
+			Info: &auth_v1.UserInfo{
 				Name:  gofakeit.BeerName(),
 				Email: gofakeit.Email(),
 			},
@@ -37,16 +38,16 @@ func (s *server) Get(ctx context.Context, req *desc.GetRequest) (*desc.GetRespon
 	}, nil
 }
 
-func (s *server) Create(ctx context.Context, req *desc.CreateRequest) (*desc.CreateResponse, error) {
+func (s *server) Create(ctx context.Context, req *auth_v1.CreateRequest) (*auth_v1.CreateResponse, error) {
 	//чето делается
 	fmt.Printf("name +%v\n", req.Info)
 
-	return &desc.CreateResponse{
+	return &auth_v1.CreateResponse{
 		Id: gofakeit.Int64(),
 	}, nil
 }
 
-func (s *server) Update(ctx context.Context, req *desc.UpdateRequest) (*emptypb.Empty, error) {
+func (s *server) Update(ctx context.Context, req *auth_v1.UpdateRequest) (*emptypb.Empty, error) {
 	//чето делается
 	fmt.Printf("User id: %d", req.GetId())
 	fmt.Printf("name +%v\n", req.Info)
@@ -54,9 +55,10 @@ func (s *server) Update(ctx context.Context, req *desc.UpdateRequest) (*emptypb.
 	return &emptypb.Empty{}, nil
 }
 
-func (s *server) Delete(ctx context.Context, req *desc.DeleteRequest) (*emptypb.Empty, error) {
+func (s *server) Delete(ctx context.Context, req *auth_v1.DeleteRequest) (*emptypb.Empty, error) {
 	//чето делается
 	fmt.Printf("User id: %d", req.GetId())
+
 	return &emptypb.Empty{}, nil
 }
 
@@ -68,7 +70,7 @@ func main() {
 
 	s := grpc.NewServer()
 	reflection.Register(s)
-	desc.RegisterAuthV1Server(s, &server{})
+	auth_v1.RegisterAuthV1Server(s, &server{})
 
 	log.Printf("server listening at %v", lis.Addr())
 
