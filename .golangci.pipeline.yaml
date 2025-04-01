@@ -1,61 +1,19 @@
-# More info on config here: https://golangci-lint.run/usage/configuration/#config-file
-run:
-  concurrency: 8
-  timeout: 10m
-  issues-exit-code: 1
-  tests: true
-  issues:
-    exclude-files:
-      - \.pb\.go$
-      - \.pb\.gw\.go$
-    exclude-dirs:
-      - bin
-      - vendor
-      - var
-      - tmp
-      - .cache
-
-output:
-  formats: colored-line-number
-  print-issued-lines: true
-  print-linter-name: true
-
-linters-settings:
-  govet:
-    shadow: true
-  dupl:
-    threshold: 100
-  goconst:
-    min-len: 2
-    min-occurrences: 2
-
-linters:
-  disable-all: true
-  enable:
-    - errcheck
-    - goconst
-    - goimports
-    - gosec
-    - govet
-    - ineffassign
-    - revive
-    - typecheck
-    - unused
-
-issues:
-  exclude-use-default: false
-  exclude:
-    - G104 # _ instead of err checks
-    - exported func .* returns unexported type .*, which can be annoying to use
-    - should have a package comment
-    - don't use an underscore in package name
-#More info on config here: https://golangci-lint.run/usage/configuration/#config-file
-
+## More info on config here: https://golangci-lint.run/usage/configuration/#config-file
 #run:
 #  concurrency: 8
 #  timeout: 10m
 #  issues-exit-code: 1
 #  tests: true
+#  issues:
+#    exclude-files:
+#      - \.pb\.go$
+#      - \.pb\.gw\.go$
+#    exclude-dirs:
+#      - bin
+#      - vendor
+#      - var
+#      - tmp
+#      - .cache
 #
 #output:
 #  formats: colored-line-number
@@ -63,6 +21,8 @@ issues:
 #  print-linter-name: true
 #
 #linters-settings:
+#  govet:
+#    shadow: true
 #  dupl:
 #    threshold: 100
 #  goconst:
@@ -81,21 +41,64 @@ issues:
 #    - revive
 #    - typecheck
 #    - unused
-#    - shadow   # Если нужен линтер shadow, включаем его здесь
 #
 #issues:
-#  exclude-files:
-#    - \.pb\.go$
-#    - \.pb\.gw\.go$
-#  exclude-dirs:
-#    - bin
-#    - vendor
-#    - var
-#    - tmp
-#    - .cache
 #  exclude-use-default: false
 #  exclude:
 #    - G104 # _ instead of err checks
 #    - exported func .* returns unexported type .*, which can be annoying to use
 #    - should have a package comment
 #    - don't use an underscore in package name
+
+
+# More info on config here: https://golangci-lint.run/usage/configuration/#config-file
+run:
+  concurrency: 8
+  timeout: 10m
+  issues-exit-code: 1
+  tests: true
+
+output:
+  formats: colored-line-number
+  print-issued-lines: true
+  print-linter-name: true
+
+linters-settings:
+  govet:
+    shadow: true  # Включаем проверку shadowing через govet
+  dupl:
+    threshold: 100
+  goconst:
+    min-len: 2
+    min-occurrences: 2
+
+linters:
+  disable-all: true
+  enable:
+    - errcheck
+    - goconst
+    - goimports
+    - gosec
+    - govet
+    - ineffassign
+    - revive
+    - typecheck
+    - unused
+    # shadow убран, так как он больше не поддерживается
+
+issues:
+  exclude-files:
+    - \.pb\.go$
+    - \.pb\.gw\.go$
+  exclude-dirs:
+    - bin
+    - vendor
+    - var
+    - tmp
+    - .cache
+  exclude-use-default: false
+  exclude:
+    - G104 # _ instead of err checks
+    - exported func .* returns unexported type .*, which can be annoying to use
+    - should have a package comment
+    - don't use an underscore in package name
