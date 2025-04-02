@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/Ippolid/auth/grpc/pkg/auth_v1"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"log"
 	"net"
@@ -11,8 +12,6 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	"google.golang.org/protobuf/types/known/timestamppb"
-
-	"github.com/Ippolid/auth/tree/main/grpc/pkg/auth_v1"
 )
 
 const grpcPort = 50051
