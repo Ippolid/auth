@@ -3,10 +3,11 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/Ippolid/auth/grpc/pkg/auth_v1"
-	"google.golang.org/protobuf/types/known/emptypb"
 	"log"
 	"net"
+
+	"github.com/Ippolid/auth/grpc/pkg/auth_v1"
+	"google.golang.org/protobuf/types/known/emptypb"
 
 	"github.com/brianvoe/gofakeit"
 	"google.golang.org/grpc"
@@ -21,7 +22,7 @@ type server struct {
 }
 
 // Get ...
-func (s *server) Get(ctx context.Context, req *auth_v1.GetRequest) (*auth_v1.GetResponse, error) {
+func (s *server) Get(_ context.Context, req *auth_v1.GetRequest) (*auth_v1.GetResponse, error) {
 	log.Printf("Note id: %d", req.GetId())
 
 	return &auth_v1.GetResponse{
@@ -37,7 +38,7 @@ func (s *server) Get(ctx context.Context, req *auth_v1.GetRequest) (*auth_v1.Get
 	}, nil
 }
 
-func (s *server) Create(ctx context.Context, req *auth_v1.CreateRequest) (*auth_v1.CreateResponse, error) {
+func (s *server) Create(_ context.Context, req *auth_v1.CreateRequest) (*auth_v1.CreateResponse, error) {
 	//чето делается
 	fmt.Printf("name +%v\n", req.Info)
 
@@ -46,7 +47,7 @@ func (s *server) Create(ctx context.Context, req *auth_v1.CreateRequest) (*auth_
 	}, nil
 }
 
-func (s *server) Update(ctx context.Context, req *auth_v1.UpdateRequest) (*emptypb.Empty, error) {
+func (s *server) Update(_ context.Context, req *auth_v1.UpdateRequest) (*emptypb.Empty, error) {
 	//чето делается
 	fmt.Printf("User id: %d", req.GetId())
 	fmt.Printf("name +%v\n", req.Info)
@@ -54,7 +55,7 @@ func (s *server) Update(ctx context.Context, req *auth_v1.UpdateRequest) (*empty
 	return &emptypb.Empty{}, nil
 }
 
-func (s *server) Delete(ctx context.Context, req *auth_v1.DeleteRequest) (*emptypb.Empty, error) {
+func (s *server) Delete(_ context.Context, req *auth_v1.DeleteRequest) (*emptypb.Empty, error) {
 	//чето делается
 	fmt.Printf("User id: %d", req.GetId())
 
