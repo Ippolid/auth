@@ -39,7 +39,7 @@ func NewAuthV1Client(cc grpc.ClientConnInterface) AuthV1Client {
 
 func (c *authV1Client) Create(ctx context.Context, in *CreateRequest, opts ...grpc.CallOption) (*CreateResponse, error) {
 	out := new(CreateResponse)
-	err := c.cc.Invoke(ctx, "/note_v1.AuthV1/Create", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/auth_v1.AuthV1/Create", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -48,7 +48,7 @@ func (c *authV1Client) Create(ctx context.Context, in *CreateRequest, opts ...gr
 
 func (c *authV1Client) Get(ctx context.Context, in *GetRequest, opts ...grpc.CallOption) (*GetResponse, error) {
 	out := new(GetResponse)
-	err := c.cc.Invoke(ctx, "/note_v1.AuthV1/Get", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/auth_v1.AuthV1/Get", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -57,7 +57,7 @@ func (c *authV1Client) Get(ctx context.Context, in *GetRequest, opts ...grpc.Cal
 
 func (c *authV1Client) Update(ctx context.Context, in *UpdateRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, "/note_v1.AuthV1/Update", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/auth_v1.AuthV1/Update", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -66,7 +66,7 @@ func (c *authV1Client) Update(ctx context.Context, in *UpdateRequest, opts ...gr
 
 func (c *authV1Client) Delete(ctx context.Context, in *DeleteRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, "/note_v1.AuthV1/Delete", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/auth_v1.AuthV1/Delete", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -123,7 +123,7 @@ func _AuthV1_Create_Handler(srv interface{}, ctx context.Context, dec func(inter
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/note_v1.AuthV1/Create",
+		FullMethod: "/auth_v1.AuthV1/Create",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(AuthV1Server).Create(ctx, req.(*CreateRequest))
@@ -141,7 +141,7 @@ func _AuthV1_Get_Handler(srv interface{}, ctx context.Context, dec func(interfac
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/note_v1.AuthV1/Get",
+		FullMethod: "/auth_v1.AuthV1/Get",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(AuthV1Server).Get(ctx, req.(*GetRequest))
@@ -159,7 +159,7 @@ func _AuthV1_Update_Handler(srv interface{}, ctx context.Context, dec func(inter
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/note_v1.AuthV1/Update",
+		FullMethod: "/auth_v1.AuthV1/Update",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(AuthV1Server).Update(ctx, req.(*UpdateRequest))
@@ -177,7 +177,7 @@ func _AuthV1_Delete_Handler(srv interface{}, ctx context.Context, dec func(inter
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/note_v1.AuthV1/Delete",
+		FullMethod: "/auth_v1.AuthV1/Delete",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(AuthV1Server).Delete(ctx, req.(*DeleteRequest))
@@ -189,7 +189,7 @@ func _AuthV1_Delete_Handler(srv interface{}, ctx context.Context, dec func(inter
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var AuthV1_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "note_v1.AuthV1",
+	ServiceName: "auth_v1.AuthV1",
 	HandlerType: (*AuthV1Server)(nil),
 	Methods: []grpc.MethodDesc{
 		{
