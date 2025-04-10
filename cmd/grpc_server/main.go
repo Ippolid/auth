@@ -3,10 +3,10 @@ package main
 import (
 	"context"
 	"fmt"
+	auth_v2 "github.com/Ippolid/auth/pkg/auth_v1"
 	"log"
 	"net"
 
-	"github.com/Ippolid/auth/grpc/pkg/auth_v1"
 	"google.golang.org/protobuf/types/known/emptypb"
 
 	"github.com/brianvoe/gofakeit"
@@ -18,17 +18,17 @@ import (
 const grpcPort = 50051
 
 type server struct {
-	auth_v1.UnimplementedAuthV1Server
+	auth_v2.UnimplementedAuthV1Server
 }
 
 // Get ...
-func (s *server) Get(_ context.Context, req *auth_v1.GetRequest) (*auth_v1.GetResponse, error) {
+func (s *server) Get(_ context.Context, req *auth_v2.GetRequest) (*auth_v2.GetResponse, error) {
 	log.Printf("Note id: %d", req.GetId())
 
-	return &auth_v1.GetResponse{
-		Note: &auth_v1.UserGet{
+	return &auth_v2.GetResponse{
+		Note: &auth_v2.UserGet{
 			Id: req.GetId(),
-			Info: &auth_v1.UserInfo{
+			Info: &auth_v2.UserInfo{
 				Name:  gofakeit.BeerName(),
 				Email: gofakeit.Email(),
 			},
@@ -38,16 +38,16 @@ func (s *server) Get(_ context.Context, req *auth_v1.GetRequest) (*auth_v1.GetRe
 	}, nil
 }
 
-func (s *server) Create(_ context.Context, req *auth_v1.CreateRequest) (*auth_v1.CreateResponse, error) {
+func (s *server) Create(_ context.Context, req *auth_v2.CreateRequest) (*auth_v2.CreateResponse, error) {
 	//чето делается
 	fmt.Printf("name +%v\n", req.Info)
 
-	return &auth_v1.CreateResponse{
+	return &auth_v2.CreateResponse{
 		Id: gofakeit.Int64(),
 	}, nil
 }
 
-func (s *server) Update(_ context.Context, req *auth_v1.UpdateRequest) (*emptypb.Empty, error) {
+func (s *server) Update(_ context.Context, req *auth_v2.UpdateRequest) (*emptypb.Empty, error) {
 	//чето делается
 	fmt.Printf("User id: %d", req.GetId())
 	fmt.Printf("name +%v\n", req.Info)
@@ -55,7 +55,7 @@ func (s *server) Update(_ context.Context, req *auth_v1.UpdateRequest) (*emptypb
 	return &emptypb.Empty{}, nil
 }
 
-func (s *server) Delete(_ context.Context, req *auth_v1.DeleteRequest) (*emptypb.Empty, error) {
+func (s *server) Delete(_ context.Context, req *auth_v2.DeleteRequest) (*emptypb.Empty, error) {
 	//чето делается
 	fmt.Printf("User id: %d", req.GetId())
 
@@ -70,7 +70,7 @@ func main() {
 
 	s := grpc.NewServer()
 	reflection.Register(s)
-	auth_v1.RegisterAuthV1Server(s, &server{})
+	auth_v2.RegisterAuthV1Server(s, &server{})
 
 	log.Printf("server listening at %v", lis.Addr())
 
