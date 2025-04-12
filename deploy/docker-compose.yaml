@@ -6,17 +6,19 @@ volumes:
 services:
   pg-local:
     image: postgres:14-alpine3.17
-    env_file:
-      - "local.env"
+    environment:
+      - "POSTGRES_DB=${PG_DATABASE_NAME}"
+      - "POSTGRES_USER=${PG_USER}"
+      - "POSTGRES_PASSWORD=${PG_PASSWORD}"
     ports:
-      - "54321:5432"
+        - "${PG_PORT}:5432"
     volumes:
       - postgres_volume_local:/var/lib/postgresql/data
 
   migrator-local:
     build:
-      context: .
-      dockerfile: migration_local.Dockerfile
+      context: ..
+      dockerfile: deploy/migration.Dockerfile
     restart: on-failure
     environment:
       DB_HOST: pg-local

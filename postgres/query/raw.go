@@ -2,6 +2,7 @@ package query
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"time"
 
@@ -29,38 +30,30 @@ type User struct {
 	CreatedAt time.Time
 }
 
-func GetUsers(ctx context.Context, con *pgx.Conn, id int) ([]User, error) {
-	rows, err := con.Query(ctx, "SELECT name,email,role,created_at FROM users_table WHERE id=$1", id)
-	if err != nil {
-		log.Fatalf("failed to select notes: %v", err)
-	}
-	defer rows.Close()
-	var users []User
-	for rows.Next() {
-		var user User
-		var id int
-		var name, email string
-		var role bool
-		var createdAt time.Time
-
-		err = rows.Scan(&id, &name, &email, &role, &createdAt)
-		if err != nil {
-			log.Fatalf("failed to scan note: %v", err)
-		}
-
-		user = User{
-			ID:        id,
-			Name:      name,
-			Email:     email,
-			Role:      role,
-			CreatedAt: createdAt,
-		}
-
-		log.Printf("id: %d, title: %s, body: %s, created_at: %v, updated_at: %v\n", id, name, email, createdAt)
-		users = append(users, user)
+func GetUser(ctx context.Context, con *pgx.Conn, id int) (User, error) {
+	row := con.QueryRow(ctx, "SELECT name,email,role,created_at FROM users_table WHERE id=$1", id)
+	if row == nil {
+		log.Fatalf("failed to get user: %v", row)
 	}
 
-	return users, nil
+	var user User
+	var name, email string
+	var role bool
+	var createdAt time.Time
+	if err := row.Scan(&name, &email, &role, &createdAt); err != nil {
+		log.Fatalf("failed to scan user: %v", err)
+		return User{}, err
+	}
+	user = User{
+		ID:        id,
+		Name:      name,
+		Email:     email,
+		Role:      role,
+		CreatedAt: createdAt,
+	}
+	fmt.Println("111", user)
+
+	return user, nil
 }
 
 func DeleteUser(ctx context.Context, con *pgx.Conn, id int) error {
@@ -68,16 +61,15 @@ func DeleteUser(ctx context.Context, con *pgx.Conn, id int) error {
 	if err != nil {
 		log.Fatalf("failed to delete note: %v", err)
 	}
-
 	return nil
 }
 
-func UpdateUser(ctx context.Context, con *pgx.Conn, name, email, password string, role bool) (int, error) {
-	_, err := con.Exec(ctx, "UPDATE users_table SET name=$1,email=$2,password=$3,role=$4 WHERE id=$5", name, email, password, role)
+func UpdateUser(ctx context.Context, con *pgx.Conn, id int, name, email string) error {
+	_, err := con.Exec(ctx, "UPDATE users_table SET name=$1,email=$2 WHERE id=$3", name, email, id)
 	if err != nil {
 		log.Fatalf("failed to update note: %v", err)
 	}
 
-	return 0, nil
+	return nil
 
 }
