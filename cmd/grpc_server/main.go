@@ -102,7 +102,7 @@ func (s *server) Delete(_ context.Context, req *auth_v1.DeleteRequest) (*emptypb
 func main() {
 	ctx := context.Background()
 
-	err := config.Load("../../deploy/.env")
+	err := config.Load("./.env")
 	if err != nil {
 		log.Fatalf("failed to load config: %v", err)
 	}

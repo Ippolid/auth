@@ -11,5 +11,6 @@ FROM alpine:latest
 
 WORKDIR /root/
 COPY --from=builder /github.com/Ippolid/auth/source/bin/server .
+COPY ./deploy/.env .env
 
 CMD ["./server"]

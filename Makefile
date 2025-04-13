@@ -1,4 +1,5 @@
-include deploy/local.env
+include deploy/.env
+include deploy/secret.env
 LOCAL_BIN:=$(CURDIR)/bin
 LOCAL_MIGRATION_DIR=$(MIGRATION_DIR)
 LOCAL_MIGRATION_DSN="host=localhost port=$(PG_PORT) dbname=$(PG_DATABASE_NAME) user=$(PG_USER) password=$(PG_PASSWORD) sslmode=disable"
@@ -61,3 +62,16 @@ local-migration-up:
 
 local-migration-down:
 	$(LOCAL_BIN)/goose -dir ${LOCAL_MIGRATION_DIR} postgres ${LOCAL_MIGRATION_DSN} down -v
+
+build:
+	GOOS=linux GOARCH=amd64 go build -o service_linux cmd/grpc_server/main.go
+copy-to-server:
+	scp service_linux root@$(IP_SERVER):
+
+docker-build-and-push:
+	docker buildx build --no-cache --platform linux/amd64 -t $(REGESTRY)/server:v0.0.1 -f deploy/Dockerfile .
+	docker login -u $(USERNAME) -p $(PASSWORD) $(REGESTRY)
+	docker push $(REGESTRY)/server:v0.0.1
+
+# docker login -u token -p CRgAAAAAvIAuFS4nvxZLXgGuADxvE8fNkorUo591 cr.selcloud.ru/ippolid
+#docker pull cr.selcloud.ru/ippolid/server:v0.0.1

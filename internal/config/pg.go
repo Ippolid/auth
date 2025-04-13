@@ -5,10 +5,6 @@ import (
 	"os"
 )
 
-const (
-	dsnEnvName = "PG_DSN"
-)
-
 type PGConfig interface {
 	DSN() string
 }
