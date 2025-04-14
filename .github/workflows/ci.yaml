@@ -226,48 +226,42 @@ jobs:
             docker volume create $PG_VOLUME_NAME || true
             docker network create pg-network || true
             
-            # Если контейнер PostgreSQL уже существует, то:
-            # - Если он запущен, то используем его.
-            # - Если он остановлен, то запускаем.
             if [ "$(docker ps -q -f name=^$PG_CONTAINER_NAME$)" ]; then
-              echo "Контейнер $PG_CONTAINER_NAME уже запущен."
+            echo "Контейнер $PG_CONTAINER_NAME уже запущен."
             elif [ "$(docker ps -aq -f name=^$PG_CONTAINER_NAME$)" ]; then
-              echo "Контейнер $PG_CONTAINER_NAME существует, запускаем его..."
-              docker start $PG_CONTAINER_NAME
+            echo "Контейнер $PG_CONTAINER_NAME существует, запускаем его..."
+            docker start $PG_CONTAINER_NAME
             else
-              echo "Создаем новый контейнер $PG_CONTAINER_NAME..."
-              docker run -d \
-                --name $PG_CONTAINER_NAME \
-                --network pg-network \
-                -e POSTGRES_DB=$PG_DB \
-                -e POSTGRES_USER=$PG_USER \
-                -e POSTGRES_PASSWORD=$PG_PASSWORD \
-                -v $PG_VOLUME_NAME:/var/lib/postgresql/data \
-                -p $PG_PORT:5432 \
-                postgres:14-alpine3.17
+            echo "Создаем новый контейнер $PG_CONTAINER_NAME..."
+            docker run -d \
+            --name $PG_CONTAINER_NAME \
+            --network pg-network \
+            -e POSTGRES_DB=$PG_DB \
+            -e POSTGRES_USER=$PG_USER \
+            -e POSTGRES_PASSWORD=$PG_PASSWORD \
+            -v $PG_VOLUME_NAME:/var/lib/postgresql/data \
+            -p $PG_PORT:5432 \
+            postgres:14-alpine3.17
             fi
-
+            
             # Выполнение миграций (хост базы данных — имя контейнера PostgreSQL)
             docker run --rm \
-              --network pg-network \
-              -e DB_HOST=$PG_CONTAINER_NAME \
-              $REGISTRY/$IMAGE_NAME_MIGRATOR:$TAG_NAME
+            --network pg-network \
+            -e DB_HOST=$PG_CONTAINER_NAME \
+            $REGISTRY/$IMAGE_NAME_MIGRATOR:$TAG_NAME
             
-            # Останавливаем и удаляем старый контейнер сервиса (если существует)
-            if [ "$(docker ps -q -f name=^$CONTAINER_NAME$)" ]; then
-              docker stop $CONTAINER_NAME || true
-              docker rm $CONTAINER_NAME || true
-            fi
+            # Принудительное удаление старого контейнера сервиса (если существует)
+            docker rm -f $CONTAINER_NAME || true
             
             # Запускаем новый контейнер основного сервиса
             docker run -d \
-              --network pg-network \
-              -p 50051:50051 \
-              --name $CONTAINER_NAME \
-              -e PG_HOST=$PG_CONTAINER_NAME \
-              -e PG_PORT=5432 \
-              -e PG_USER=$PG_USER \
-              -e PG_PASSWORD=$PG_PASSWORD \
-              -e PG_DATABASE_NAME=$PG_DB \
-              -e DB_HOST=$PG_CONTAINER_NAME \
-              $REGISTRY/$IMAGE_NAME_SERVER:$TAG_NAME
+            --network pg-network \
+            -p 50051:50051 \
+            --name $CONTAINER_NAME \
+            -e PG_HOST=$PG_CONTAINER_NAME \
+            -e PG_PORT=5432 \
+            -e PG_USER=$PG_USER \
+            -e PG_PASSWORD=$PG_PASSWORD \
+            -e PG_DATABASE_NAME=$PG_DB \
+            -e DB_HOST=$PG_CONTAINER_NAME \
+            $REGISTRY/$IMAGE_NAME_SERVER:$TAG_NAME
