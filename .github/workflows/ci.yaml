@@ -244,10 +244,11 @@ jobs:
             postgres:14-alpine3.17
             fi
             
-            # Выполнение миграций (хост базы данных — имя контейнера PostgreSQL)
+            # Выполнение миграций (хост базы данных — имя контейнера PostgreSQL, порт внутри сети 5432)
             docker run --rm \
             --network pg-network \
             -e DB_HOST=$PG_CONTAINER_NAME \
+            -e DB_PORT=5432 \
             $REGISTRY/$IMAGE_NAME_MIGRATOR:$TAG_NAME
             
             # Принудительное удаление старого контейнера сервиса (если существует)
@@ -260,6 +261,7 @@ jobs:
             --name $CONTAINER_NAME \
             -e PG_HOST=$PG_CONTAINER_NAME \
             -e PG_PORT=5432 \
+            -e DB_PORT=5432 \
             -e PG_USER=$PG_USER \
             -e PG_PASSWORD=$PG_PASSWORD \
             -e PG_DATABASE_NAME=$PG_DB \
