@@ -3,17 +3,17 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/Ippolid/auth/internal/config"
-	"github.com/Ippolid/auth/pkg/auth_v1"
-	"github.com/Ippolid/auth/postgres/query"
-	"github.com/jackc/pgx/v4"
-	"google.golang.org/protobuf/types/known/emptypb"
 	"log"
 	"net"
 
+	"github.com/Ippolid/auth/internal/config"
+	"github.com/Ippolid/auth/pkg/auth_v1"
+	"github.com/Ippolid/auth/postgres/query"
 	"github.com/brianvoe/gofakeit"
+	"github.com/jackc/pgx/v4"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
+	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -117,7 +117,13 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to connect to database: %v", err)
 	}
-	defer con.Close(ctx)
+
+	defer func(con *pgx.Conn, ctx context.Context) {
+		err := con.Close(ctx)
+		if err != nil {
+			log.Fatalf("failed to close connection: %v", err)
+		}
+	}(con, ctx)
 
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", grpcPort))
 	if err != nil {

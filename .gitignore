@@ -3,4 +3,4 @@
 /grpc/bin/
 service_linux
 /deploy/secret.env
-/cmd/grpc_server/main1.go
+/cmd/grpc_server/main1.txt

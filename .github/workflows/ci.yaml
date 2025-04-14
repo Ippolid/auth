@@ -73,7 +73,7 @@ env:
   IMAGE_NAME_SERVER: "server"
   IMAGE_NAME_MIGRATOR: "migration"
   CONTAINER_NAME: "server-container"
-  PG_CONTAINER_NAME: "pg-standalone"
+  PG_CONTAINER_NAME: "pg-local"
   PG_VOLUME_NAME: "postgres_volume_local"
   PG_DB: "auth"
   PG_USER: "auth-user"

@@ -9,6 +9,7 @@ import (
 	"github.com/jackc/pgx/v4"
 )
 
+// InsertUser вставляет нового пользователя в базу данных и возвращает его ID
 func InsertUser(ctx context.Context, con *pgx.Conn, name, email, password string, role bool) (int, error) {
 	var id int
 	err := con.QueryRow(ctx,
@@ -22,6 +23,7 @@ func InsertUser(ctx context.Context, con *pgx.Conn, name, email, password string
 	return id, nil
 }
 
+// User представляет структуру пользователя
 type User struct {
 	ID        int
 	Name      string
@@ -30,6 +32,7 @@ type User struct {
 	CreatedAt time.Time
 }
 
+// GetUser получает пользователя по ID из базы данных
 func GetUser(ctx context.Context, con *pgx.Conn, id int) (User, error) {
 	row := con.QueryRow(ctx, "SELECT name,email,role,created_at FROM users_table WHERE id=$1", id)
 	if row == nil {
@@ -56,6 +59,7 @@ func GetUser(ctx context.Context, con *pgx.Conn, id int) (User, error) {
 	return user, nil
 }
 
+// DeleteUser удаляет пользователя по ID из базы данных
 func DeleteUser(ctx context.Context, con *pgx.Conn, id int) error {
 	_, err := con.Exec(ctx, "DELETE FROM users_table WHERE id=$1", id)
 	if err != nil {
@@ -64,6 +68,7 @@ func DeleteUser(ctx context.Context, con *pgx.Conn, id int) error {
 	return nil
 }
 
+// UpdateUser обновляет информацию о пользователе в базе данных
 func UpdateUser(ctx context.Context, con *pgx.Conn, id int, name, email string) error {
 	_, err := con.Exec(ctx, "UPDATE users_table SET name=$1,email=$2 WHERE id=$3", name, email, id)
 	if err != nil {
