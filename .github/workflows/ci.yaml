@@ -263,5 +263,8 @@ jobs:
             -e PG_USER=$PG_USER \
             -e PG_PASSWORD=$PG_PASSWORD \
             -e PG_DATABASE_NAME=$PG_DB \
-            -e DB_HOST=$PG_CONTAINER_NAME \
             $REGISTRY/$IMAGE_NAME_SERVER:$TAG_NAME
+            
+            # Отладка: Вывод логов (можно убрать, если не требуется постоянный вывод)
+            echo "Логи сервера:"
+            docker logs $CONTAINER_NAME
