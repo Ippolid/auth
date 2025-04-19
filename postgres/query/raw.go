@@ -2,6 +2,7 @@ package query
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"time"
@@ -10,10 +11,10 @@ import (
 )
 
 // InsertUser вставляет нового пользователя в базу данных и возвращает его ID
-func InsertUser(ctx context.Context, con *pgx.Conn, name, email, password string, role bool) (int, error) {
+func (d *Db) InsertUser(ctx context.Context, user User, password string, role bool) (int, error) {
 	var id int
-	err := con.QueryRow(ctx,
-		"INSERT INTO users_table (name,email,password,role) VALUES ($1,$2,$3,$4) RETURNING id", name, email, password, role).Scan(&id)
+	err := d.db.QueryRow(ctx,
+		"INSERT INTO users_table (name,email,password,role) VALUES ($1,$2,$3,$4) RETURNING id", user.Name, user.Email, password, role).Scan(&id)
 
 	if err != nil {
 
@@ -24,55 +25,51 @@ func InsertUser(ctx context.Context, con *pgx.Conn, name, email, password string
 }
 
 // User представляет структуру пользователя
-type User struct {
-	ID        int
-	Name      string
-	Email     string
-	Role      bool
-	CreatedAt time.Time
-}
 
 // GetUser получает пользователя по ID из базы данных
-func GetUser(ctx context.Context, con *pgx.Conn, id int) (User, error) {
-	row := con.QueryRow(ctx, "SELECT name,email,role,created_at FROM users_table WHERE id=$1", id)
-	if row == nil {
-		log.Fatalf("failed to get user: %v", row)
-	}
+func (d *Db) GetUser(ctx context.Context, id int) (UserGET, error) {
+	row := d.db.QueryRow(ctx, "SELECT name,email,role,created_at FROM users_table WHERE id=$1", id)
 
+	var userg UserGET
 	var user User
 	var name, email string
 	var role bool
 	var createdAt time.Time
 	if err := row.Scan(&name, &email, &role, &createdAt); err != nil {
-		log.Fatalf("failed to scan user: %v", err)
-		return User{}, err
+		if errors.Is(err, pgx.ErrNoRows) {
+			log.Printf("no user found with id: %d", id)
+			return UserGET{}, err
+		}
+		return UserGET{}, fmt.Errorf("failed to scan user: %w", err)
 	}
 	user = User{
+		Name:  name,
+		Email: email,
+	}
+	userg = UserGET{
 		ID:        id,
-		Name:      name,
-		Email:     email,
+		User:      user,
 		Role:      role,
 		CreatedAt: createdAt,
 	}
-	fmt.Println("111", user)
 
-	return user, nil
+	return userg, nil
 }
 
 // DeleteUser удаляет пользователя по ID из базы данных
-func DeleteUser(ctx context.Context, con *pgx.Conn, id int) error {
-	_, err := con.Exec(ctx, "DELETE FROM users_table WHERE id=$1", id)
+func (d *Db) DeleteUser(ctx context.Context, id int) error {
+	_, err := d.db.Exec(ctx, "DELETE FROM users_table WHERE id=$1", id)
 	if err != nil {
-		log.Fatalf("failed to delete note: %v", err)
+		return fmt.Errorf("failed to delete user: %w", err)
 	}
 	return nil
 }
 
 // UpdateUser обновляет информацию о пользователе в базе данных
-func UpdateUser(ctx context.Context, con *pgx.Conn, id int, name, email string) error {
-	_, err := con.Exec(ctx, "UPDATE users_table SET name=$1,email=$2 WHERE id=$3", name, email, id)
+func (d *Db) UpdateUser(ctx context.Context, id int, user User) error {
+	_, err := d.db.Exec(ctx, "UPDATE users_table SET name=$1,email=$2 WHERE id=$3", user.Name, user.Email, id)
 	if err != nil {
-		log.Fatalf("failed to update note: %v", err)
+		return fmt.Errorf("failed to update user: %w", err)
 	}
 
 	return nil

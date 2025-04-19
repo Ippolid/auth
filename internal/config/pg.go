@@ -5,6 +5,10 @@ import (
 	"os"
 )
 
+const (
+	DSNKey = "PG_DSN"
+)
+
 // PGConfig представляет интерфейс для получения строки подключения к PostgreSQL
 type PGConfig interface {
 	DSN() string
@@ -16,7 +20,7 @@ type pgConfig struct {
 
 // NewPGConfig создает новый экземпляр PGConfig, получая DSN из переменной окружения
 func NewPGConfig() (PGConfig, error) {
-	dsn := os.Getenv("PG_DSN")
+	dsn := os.Getenv(DSNKey)
 	if len(dsn) == 0 {
 		return nil, errors.New("pg dsn not found")
 	}
