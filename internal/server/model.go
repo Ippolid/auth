@@ -3,7 +3,7 @@ package server
 import (
 	"github.com/Ippolid/auth/pkg/auth_v1"
 	"github.com/Ippolid/auth/postgres/query"
-	"github.com/jackc/pgx/v4"
+	"github.com/jackc/pgx/v5"
 )
 
 // Server представляет структуру сервера

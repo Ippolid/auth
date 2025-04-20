@@ -10,7 +10,7 @@ import (
 
 	"github.com/Ippolid/auth/internal/config"
 	"github.com/Ippolid/auth/pkg/auth_v1"
-	"github.com/jackc/pgx/v4"
+	"github.com/jackc/pgx/v5"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )

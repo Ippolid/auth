@@ -7,7 +7,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/jackc/pgx/v4"
+	"github.com/jackc/pgx/v5"
 )
 
 // InsertUser вставляет нового пользователя в базу данных и возвращает его ID
