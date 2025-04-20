@@ -6,6 +6,7 @@ import (
 )
 
 const (
+	// DSNKey - ключ для строки подключения к PostgreSQL
 	DSNKey = "PG_DSN"
 )
 

@@ -3,6 +3,8 @@ package server
 import (
 	"context"
 	"fmt"
+	"log"
+
 	"github.com/Ippolid/auth/pkg/auth_v1"
 	"github.com/Ippolid/auth/postgres/query"
 	"github.com/brianvoe/gofakeit"
@@ -10,10 +12,9 @@ import (
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
-	"log"
 )
 
-// Get ...
+// Get возвращает информацию о пользователе по ID
 func (s *Server) Get(_ context.Context, req *auth_v1.GetRequest) (*auth_v1.GetResponse, error) {
 	log.Printf("User id: %d", req.GetId())
 
@@ -37,6 +38,7 @@ func (s *Server) Get(_ context.Context, req *auth_v1.GetRequest) (*auth_v1.GetRe
 	}, nil
 }
 
+// Create создает нового пользователя
 func (s *Server) Create(_ context.Context, req *auth_v1.CreateRequest) (*auth_v1.CreateResponse, error) {
 	//чето делается
 	name := req.GetInfo().GetUser().Name
@@ -62,6 +64,7 @@ func (s *Server) Create(_ context.Context, req *auth_v1.CreateRequest) (*auth_v1
 	}, nil
 }
 
+// Update обновляет информацию о пользователе
 func (s *Server) Update(_ context.Context, req *auth_v1.UpdateRequest) (*emptypb.Empty, error) {
 	//чето делается
 	fmt.Printf("User id: %d", req.GetId())
@@ -82,6 +85,7 @@ func (s *Server) Update(_ context.Context, req *auth_v1.UpdateRequest) (*emptypb
 	return &emptypb.Empty{}, nil
 }
 
+// Delete удаляет пользователя по ID
 func (s *Server) Delete(_ context.Context, req *auth_v1.DeleteRequest) (*emptypb.Empty, error) {
 	//чето делается
 	fmt.Printf("User id: %d", req.GetId())

@@ -3,9 +3,10 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/Ippolid/auth/internal/server"
 	"log"
 	"net"
+
+	"github.com/Ippolid/auth/internal/server"
 
 	"github.com/Ippolid/auth/internal/config"
 	"github.com/Ippolid/auth/pkg/auth_v1"
