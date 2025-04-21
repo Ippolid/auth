@@ -72,6 +72,3 @@ docker-build-and-push:
 	docker buildx build --no-cache --platform linux/amd64 -t $(REGESTRY)/server:v0.0.1 -f deploy/Dockerfile .
 	docker login -u $(USERNAME) -p $(PASSWORD) $(REGESTRY)
 	docker push $(REGESTRY)/server:v0.0.1
-
-# docker login -u token -p CRgAAAAAvIAuFS4nvxZLXgGuADxvE8fNkorUo591 cr.selcloud.ru/ippolid
-#docker pull cr.selcloud.ru/ippolid/server:v0.0.1
