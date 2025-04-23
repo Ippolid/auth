@@ -3,10 +3,10 @@ package server
 import (
 	"context"
 	"fmt"
+	"github.com/Ippolid/auth/internal/repository"
 	"log"
 
 	"github.com/Ippolid/auth/pkg/auth_v1"
-	"github.com/Ippolid/auth/postgres/query"
 	"github.com/brianvoe/gofakeit"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -48,7 +48,7 @@ func (s *Server) Create(_ context.Context, req *auth_v1.CreateRequest) (*auth_v1
 	role := req.GetInfo().GetRole() > 0
 
 	ctx := context.Background()
-	user := query.User{
+	user := repository.User{
 		Name:  name,
 		Email: email,
 	}
@@ -71,7 +71,7 @@ func (s *Server) Update(_ context.Context, req *auth_v1.UpdateRequest) (*emptypb
 	fmt.Printf("name +%v\n", req.Info)
 	name := req.Info.Name
 	email := req.Info.Email
-	user := query.User{
+	user := repository.User{
 		Name:  name,
 		Email: email,
 	}
