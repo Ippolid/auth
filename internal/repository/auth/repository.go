@@ -2,12 +2,11 @@ package auth
 
 import (
 	"context"
-	"errors"
 	"fmt"
-	"log"
-	"time"
-
-	"github.com/jackc/pgx/v5"
+	"github.com/Ippolid/auth/internal/client/db"
+	"github.com/Ippolid/auth/internal/model"
+	"github.com/Ippolid/auth/internal/repository"
+	sq "github.com/Masterminds/squirrel"
 )
 
 const (
@@ -17,7 +16,7 @@ const (
 	nameColumn      = "name"
 	emailColumn     = "email"
 	createdAtColumn = "created_at"
-	roleAtColumn    = "role"
+	roleColumn      = "role"
 	passwordColumn  = "password"
 )
 
@@ -25,70 +24,117 @@ type repo struct {
 	db db.Client
 }
 
-func NewRepository(db db.Client) repository.NoteRepository {
+func NewRepository(db db.Client) repository.AuthRepository {
 	return &repo{db: db}
 }
 
 // InsertUser вставляет нового пользователя в базу данных и возвращает его ID
-func (d *Db) InsertUser(ctx context.Context, user User, password string, role bool) (int, error) {
-	var id int
-	err := d.db.QueryRow(ctx,
-		"INSERT INTO users_table (name,email,password,role) VALUES ($1,$2,$3,$4) RETURNING id", user.Name, user.Email, password, role).Scan(&id)
+func (r *repo) InsertUser(ctx context.Context, user model.User) (int64, error) {
+	builder := sq.Insert(tableName).
+		PlaceholderFormat(sq.Dollar).
+		Columns(nameColumn, emailColumn, passwordColumn, roleColumn).
+		Values(user.User.Name, user.User.Email, user.Password, user.Role).
+		Suffix("RETURNING id")
 
+	query, args, err := builder.ToSql()
 	if err != nil {
-
 		return 0, err
 	}
 
+	q := db.Query{
+		Name:     "auth_repository.Create_User",
+		QueryRaw: query,
+	}
+
+	var id int64
+	err = r.db.DB().QueryRowContext(ctx, q, args...).Scan(&id)
+	if err != nil {
+		return 0, err
+	}
+	
 	return id, nil
 }
 
-// User представляет структуру пользователя
-
 // GetUser получает пользователя по ID из базы данных
-func (d *Db) GetUser(ctx context.Context, id int) (UserGET, error) {
-	row := d.db.QueryRow(ctx, "SELECT name,email,role,created_at FROM users_table WHERE id=$1", id)
+func (r *repo) GetUser(ctx context.Context, id int) (*model.User, error) {
+	builder := sq.Select(nameColumn, emailColumn, roleColumn, createdAtColumn).
+		From(tableName).
+		PlaceholderFormat(sq.Dollar).
+		Where(sq.Eq{idColumn: id})
 
-	var userg UserGET
-	var user User
-	var name, email string
-	var role bool
-	var createdAt time.Time
-	if err := row.Scan(&name, &email, &role, &createdAt); err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			log.Printf("no user found with id: %d", id)
-			return UserGET{}, err
-		}
-		return UserGET{}, fmt.Errorf("failed to scan user: %w", err)
-	}
-	user = User{
-		Name:  name,
-		Email: email,
-	}
-	userg = UserGET{
-		ID:        id,
-		User:      user,
-		Role:      role,
-		CreatedAt: createdAt,
+	query, args, err := builder.ToSql()
+	if err != nil {
+		return nil, err
 	}
 
-	return userg, nil
+	q := db.Query{
+		Name:     "auth_repository.Get_User",
+		QueryRaw: query,
+	}
+
+	var user model.User
+	err = r.db.DB().ScanOneContext(ctx, &user, q, args...)
+	if err != nil {
+		return nil, err
+	}
+
+	return &user, nil
 }
 
 // DeleteUser удаляет пользователя по ID из базы данных
-func (d *Db) DeleteUser(ctx context.Context, id int) error {
-	_, err := d.db.Exec(ctx, "DELETE FROM users_table WHERE id=$1", id)
+func (r *repo) DeleteUser(ctx context.Context, id int) error {
+	builder := sq.Delete(tableName).
+		PlaceholderFormat(sq.Dollar).
+		Where(sq.Eq{idColumn: id})
+
+	query, args, err := builder.ToSql()
 	if err != nil {
-		return fmt.Errorf("failed to delete user: %w", err)
+		return err
 	}
+
+	q := db.Query{
+		Name:     "auth_repository.Delete_User",
+		QueryRaw: query,
+	}
+
+	tag, err := r.db.DB().ExecContext(ctx, q, args...)
+	if err != nil {
+		return err
+	}
+
+	// Опционально: проверка, что запись действительно была удалена
+	if tag.RowsAffected() == 0 {
+		return fmt.Errorf("user with id %d not found", id)
+	}
+
 	return nil
 }
 
 // UpdateUser обновляет информацию о пользователе в базе данных
-func (d *Db) UpdateUser(ctx context.Context, id int, user User) error {
-	_, err := d.db.Exec(ctx, "UPDATE users_table SET name=$1,email=$2 WHERE id=$3", user.Name, user.Email, id)
+func (r *repo) UpdateUser(ctx context.Context, id int, info model.UserInfo) error {
+	builder := sq.Update(tableName).
+		PlaceholderFormat(sq.Dollar).
+		Set(nameColumn, info.Name).
+		Set(emailColumn, info.Email).
+		Where(sq.Eq{idColumn: id})
+
+	query, args, err := builder.ToSql()
 	if err != nil {
-		return fmt.Errorf("failed to update user: %w", err)
+		return fmt.Errorf("failed to build update query: %w", err)
+	}
+
+	q := db.Query{
+		Name:     "auth_repository.Update_User",
+		QueryRaw: query,
+	}
+
+	tag, err := r.db.DB().ExecContext(ctx, q, args...)
+	if err != nil {
+		return err
+	}
+
+	if tag.RowsAffected() == 0 {
+		return fmt.Errorf("user with id %d not found", id)
 	}
 
 	return nil

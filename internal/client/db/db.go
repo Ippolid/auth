@@ -3,8 +3,8 @@ package db
 import (
 	"context"
 
-	"github.com/jackc/pgconn"
-	"github.com/jackc/pgx/v4"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 )
 
 // Handler - функция, которая выполняется в транзакции
@@ -35,8 +35,8 @@ type Transactor interface {
 
 // SQLExecer комбинирует NamedExecer и QueryExecer
 type SQLExecer interface {
-	NamedExecer
-	QueryExecer
+	NamedExecer //Интерфейс для выполнения запросов с автоматическим сканированием результатов в структуры Go
+	QueryExecer // Интерфейс для выполнения сырых запросов
 }
 
 // NamedExecer интерфейс для работы с именованными запросами с помощью тегов в структурах

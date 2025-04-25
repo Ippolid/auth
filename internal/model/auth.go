@@ -5,9 +5,10 @@ import (
 )
 
 type User struct {
-	ID        int       `db:"id"`
+	ID        int64     `db:"id"`
 	User      UserInfo  `db:""`
 	Role      bool      `db:"role"`
+	Password  string    `db:"password"`
 	CreatedAt time.Time `db:"created_at"`
 }
 type UserInfo struct {

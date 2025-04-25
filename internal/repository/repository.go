@@ -1,10 +1,13 @@
 package repository
 
-import "context"
+import (
+	"context"
+	"github.com/Ippolid/auth/internal/model"
+)
 
 type AuthRepository interface {
-	InsertUser(ctx context.Context, user User, password string, role bool) (int, error)
-	GetUser(ctx context.Context, id int) (UserGET, error)
+	InsertUser(ctx context.Context, user model.User) (int64, error)
+	GetUser(ctx context.Context, id int) (*model.User, error)
 	DeleteUser(ctx context.Context, id int) error
-	UpdateUser(ctx context.Context, id int, user User) error
+	UpdateUser(ctx context.Context, id int, info model.UserInfo) error
 }
