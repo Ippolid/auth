@@ -3,7 +3,7 @@ package server
 import (
 	"context"
 	"fmt"
-	"github.com/Ippolid/auth/internal/repository"
+	"github.com/Ippolid/auth/internal/model"
 	"log"
 
 	"github.com/Ippolid/auth/pkg/auth_v1"
@@ -48,11 +48,17 @@ func (s *Server) Create(_ context.Context, req *auth_v1.CreateRequest) (*auth_v1
 	role := req.GetInfo().GetRole() > 0
 
 	ctx := context.Background()
-	user := repository.User{
+	userInfo := model.UserInfo{
 		Name:  name,
 		Email: email,
 	}
-	id, err := s.db.InsertUser(ctx, user, password, role)
+	user:= model.User{
+		User:     userInfo,
+		Password: password,
+		Role:     role,
+	}
+
+	id, err := s.db.InsertUser(ctx, user)
 	if err != nil {
 		log.Printf("failed to insert user: %v", err)
 		return nil, status.Errorf(codes.Internal, "failed to insert user: %v", err)
@@ -60,7 +66,7 @@ func (s *Server) Create(_ context.Context, req *auth_v1.CreateRequest) (*auth_v1
 	fmt.Printf("User id: %d", id)
 
 	return &auth_v1.CreateResponse{
-		Id: int64(id),
+		Id: id,
 	}, nil
 }
 
@@ -71,7 +77,7 @@ func (s *Server) Update(_ context.Context, req *auth_v1.UpdateRequest) (*emptypb
 	fmt.Printf("name +%v\n", req.Info)
 	name := req.Info.Name
 	email := req.Info.Email
-	user := repository.User{
+	user := model.UserInfo{
 		Name:  name,
 		Email: email,
 	}

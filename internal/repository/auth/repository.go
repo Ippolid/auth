@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	tableName = "auth"
+	tableName = "users_table"
 
 	idColumn        = "id"
 	nameColumn      = "name"
@@ -51,7 +51,7 @@ func (r *repo) InsertUser(ctx context.Context, user model.User) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-	
+
 	return id, nil
 }
 

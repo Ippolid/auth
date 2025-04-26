@@ -46,7 +46,7 @@ func main() {
 		log.Fatalf("failed to listen: %v", err)
 	}
 
-	serv := server.NewServer(con)
+	serv := server.NewServer(dsn.DSN())
 	s := grpc.NewServer()
 	reflection.Register(s)
 	auth_v1.RegisterAuthV1Server(s, serv)
