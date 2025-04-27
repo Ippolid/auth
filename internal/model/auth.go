@@ -15,3 +15,9 @@ type UserInfo struct {
 	Name  string `db:"name"`
 	Email string `db:"email"`
 }
+
+type Log struct {
+	Method    string    `db:"method_name"`
+	CreatedAt time.Time `db:"created_at"`
+	Ctx       string    `db:"ctx"`
+}

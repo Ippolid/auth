@@ -18,6 +18,9 @@ const (
 	createdAtColumn = "created_at"
 	roleColumn      = "role"
 	passwordColumn  = "password"
+	tableLogName    = "logs"
+	methodColumn    = "method_name"
+	ctxColumn       = "ctx"
 )
 
 type repo struct {
@@ -139,4 +142,28 @@ func (r *repo) UpdateUser(ctx context.Context, id int64, info model.UserInfo) er
 
 	return nil
 
+}
+
+func (r *repo) MakeLog(ctx context.Context, info model.Log) error {
+	builder := sq.Insert(tableLogName).
+		PlaceholderFormat(sq.Dollar).
+		Columns(methodColumn, createdAtColumn, ctxColumn).
+		Values(info.Method, info.CreatedAt, info.Ctx)
+
+	query, args, err := builder.ToSql()
+	if err != nil {
+		return err
+	}
+
+	q := db.Query{
+		Name:     "auth_repository.Log",
+		QueryRaw: query,
+	}
+
+	_, err = r.db.DB().ExecContext(ctx, q, args...)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

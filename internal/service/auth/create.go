@@ -2,7 +2,9 @@ package auth
 
 import (
 	"context"
+	"fmt"
 	"github.com/Ippolid/auth/internal/model"
+	"time"
 )
 
 func (s *serv) Create(ctx context.Context, info *model.User) (int64, error) {
@@ -14,6 +16,14 @@ func (s *serv) Create(ctx context.Context, info *model.User) (int64, error) {
 			return errTx
 		}
 
+		err := s.authRepository.MakeLog(ctx, model.Log{
+			Method:    "Create",
+			CreatedAt: time.Now(),
+			Ctx:       fmt.Sprintf("%v", ctx),
+		})
+		if err != nil {
+			return err
+		}
 		_, errTx = s.authRepository.GetUser(ctx, id)
 		if errTx != nil {
 			return errTx

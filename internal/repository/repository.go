@@ -10,4 +10,5 @@ type AuthRepository interface {
 	GetUser(ctx context.Context, id int64) (*model.User, error)
 	DeleteUser(ctx context.Context, id int64) error
 	UpdateUser(ctx context.Context, id int64, info model.UserInfo) error
+	MakeLog(ctx context.Context, log model.Log) error
 }
