@@ -1,31 +1,52 @@
 package converter
 
-import "google.golang.org/protobuf/types/known/timestamppb"
+import (
+	"github.com/Ippolid/auth/internal/model"
+	"github.com/Ippolid/auth/pkg/auth_v1"
+	"google.golang.org/protobuf/types/known/timestamppb"
+)
 
-func ToNoteFromService(note *model.Note) *desc.Note {
-	var updatedAt *timestamppb.Timestamp
-	if note.UpdatedAt.Valid {
-		updatedAt = timestamppb.New(note.UpdatedAt.Time)
+func ToUserInfoFromService(req *auth_v1.UpdateRequest) *model.UserInfo {
+	name := req.Info.Name
+	email := req.Info.Email
+	user := model.UserInfo{
+		Name:  name,
+		Email: email,
 	}
 
-	return &desc.Note{
-		Id:        note.ID,
-		Info:      ToNoteInfoFromService(note.Info),
-		CreatedAt: timestamppb.New(note.CreatedAt),
-		UpdatedAt: updatedAt,
+	return &user
+}
+
+func ToDescFromAuthGet(req *model.User) *auth_v1.GetResponse {
+	return &auth_v1.GetResponse{
+		User: &auth_v1.UserGet{
+			Id: req.ID,
+			Info: &auth_v1.UserInfo{
+				Name:  req.User.Name,
+				Email: req.User.Email,
+			},
+			CreatedAt: timestamppb.New(req.CreatedAt),
+			UpdatedAt: timestamppb.New(req.CreatedAt),
+		},
 	}
 }
 
-func ToNoteInfoFromService(info model.NoteInfo) *desc.NoteInfo {
-	return &desc.NoteInfo{
-		Title:   info.Title,
-		Content: info.Content,
-	}
-}
+func ToAuthCreateFromDesc(req *auth_v1.CreateRequest) *model.User {
+	name := req.GetInfo().GetUser().Name
+	email := req.GetInfo().GetUser().Email
+	password := req.GetInfo().GetPassword()
+	// Преобразуем Role в bool (предполагая, что Role - это enum или int32)
+	role := req.GetInfo().GetRole() > 0
 
-func ToNoteInfoFromDesc(info *desc.NoteInfo) *model.NoteInfo {
-	return &model.NoteInfo{
-		Title:   info.Title,
-		Content: info.Content,
+	userInfo := model.UserInfo{
+		Name:  name,
+		Email: email,
 	}
+
+	user := model.User{
+		User:     userInfo,
+		Password: password,
+		Role:     role,
+	}
+	return &user
 }

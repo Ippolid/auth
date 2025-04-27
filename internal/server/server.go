@@ -19,7 +19,7 @@ func (s *Server) Get(_ context.Context, req *auth_v1.GetRequest) (*auth_v1.GetRe
 	log.Printf("User id: %d", req.GetId())
 
 	ctx := context.Background()
-	user, err := s.db.GetUser(ctx, int(req.GetId()))
+	user, err := s.db.GetUser(ctx, req.GetId())
 	if err != nil {
 		log.Printf("failed to get user: %v", err)
 		return nil, status.Errorf(codes.Internal, "failed to get user: %v", err)
@@ -52,13 +52,13 @@ func (s *Server) Create(_ context.Context, req *auth_v1.CreateRequest) (*auth_v1
 		Name:  name,
 		Email: email,
 	}
-	user:= model.User{
+	user := model.User{
 		User:     userInfo,
 		Password: password,
 		Role:     role,
 	}
 
-	id, err := s.db.InsertUser(ctx, user)
+	id, err := s.db.CreateUser(ctx, user)
 	if err != nil {
 		log.Printf("failed to insert user: %v", err)
 		return nil, status.Errorf(codes.Internal, "failed to insert user: %v", err)
@@ -82,7 +82,7 @@ func (s *Server) Update(_ context.Context, req *auth_v1.UpdateRequest) (*emptypb
 		Email: email,
 	}
 	ctx := context.Background()
-	err := s.db.UpdateUser(ctx, int(req.GetId()), user)
+	err := s.db.UpdateUser(ctx, req.GetId(), user)
 	if err != nil {
 		log.Printf("failed to update user: %v", err)
 		return nil, status.Errorf(codes.Internal, "failed to update user: %v", err)
@@ -97,7 +97,7 @@ func (s *Server) Delete(_ context.Context, req *auth_v1.DeleteRequest) (*emptypb
 	fmt.Printf("User id: %d", req.GetId())
 
 	ctx := context.Background()
-	err := s.db.DeleteUser(ctx, int(req.GetId()))
+	err := s.db.DeleteUser(ctx, req.GetId())
 	if err != nil {
 		log.Printf("failed to delete user: %v", err)
 		return nil, status.Errorf(codes.Internal, "failed to delete user: %v", err)

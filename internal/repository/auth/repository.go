@@ -29,7 +29,7 @@ func NewRepository(db db.Client) repository.AuthRepository {
 }
 
 // InsertUser вставляет нового пользователя в базу данных и возвращает его ID
-func (r *repo) InsertUser(ctx context.Context, user model.User) (int64, error) {
+func (r *repo) CreateUser(ctx context.Context, user model.User) (int64, error) {
 	builder := sq.Insert(tableName).
 		PlaceholderFormat(sq.Dollar).
 		Columns(nameColumn, emailColumn, passwordColumn, roleColumn).
@@ -56,7 +56,7 @@ func (r *repo) InsertUser(ctx context.Context, user model.User) (int64, error) {
 }
 
 // GetUser получает пользователя по ID из базы данных
-func (r *repo) GetUser(ctx context.Context, id int) (*model.User, error) {
+func (r *repo) GetUser(ctx context.Context, id int64) (*model.User, error) {
 	builder := sq.Select(nameColumn, emailColumn, roleColumn, createdAtColumn).
 		From(tableName).
 		PlaceholderFormat(sq.Dollar).
@@ -82,7 +82,7 @@ func (r *repo) GetUser(ctx context.Context, id int) (*model.User, error) {
 }
 
 // DeleteUser удаляет пользователя по ID из базы данных
-func (r *repo) DeleteUser(ctx context.Context, id int) error {
+func (r *repo) DeleteUser(ctx context.Context, id int64) error {
 	builder := sq.Delete(tableName).
 		PlaceholderFormat(sq.Dollar).
 		Where(sq.Eq{idColumn: id})
@@ -111,7 +111,7 @@ func (r *repo) DeleteUser(ctx context.Context, id int) error {
 }
 
 // UpdateUser обновляет информацию о пользователе в базе данных
-func (r *repo) UpdateUser(ctx context.Context, id int, info model.UserInfo) error {
+func (r *repo) UpdateUser(ctx context.Context, id int64, info model.UserInfo) error {
 	builder := sq.Update(tableName).
 		PlaceholderFormat(sq.Dollar).
 		Set(nameColumn, info.Name).
