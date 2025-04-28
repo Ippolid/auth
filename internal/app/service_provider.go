@@ -2,6 +2,8 @@ package app
 
 import (
 	"context"
+	"log"
+
 	"github.com/Ippolid/auth/internal/api/auth"
 	"github.com/Ippolid/auth/internal/client/db"
 	"github.com/Ippolid/auth/internal/client/db/pg"
@@ -12,7 +14,6 @@ import (
 	auth2 "github.com/Ippolid/auth/internal/repository/auth"
 	"github.com/Ippolid/auth/internal/service"
 	auth3 "github.com/Ippolid/auth/internal/service/auth"
-	"log"
 )
 
 type serviceProvider struct {

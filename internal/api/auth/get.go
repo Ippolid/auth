@@ -2,9 +2,10 @@ package auth
 
 import (
 	"context"
+	"log"
+
 	"github.com/Ippolid/auth/internal/converter"
 	"github.com/Ippolid/auth/pkg/auth_v1"
-	"log"
 )
 
 // Get реализует метод получения пользователя по ID

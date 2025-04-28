@@ -2,11 +2,12 @@ package auth
 
 import (
 	"context"
+	"log"
+
 	"github.com/Ippolid/auth/pkg/auth_v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
-	"log"
 )
 
 // Delete реализует метод удаления пользователя

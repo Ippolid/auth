@@ -2,6 +2,7 @@ package transaction
 
 import (
 	"context"
+
 	"github.com/Ippolid/auth/internal/client/db/pg"
 
 	"github.com/jackc/pgx/v5"

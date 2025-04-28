@@ -3,8 +3,9 @@ package auth
 import (
 	"context"
 	"fmt"
-	"github.com/Ippolid/auth/internal/model"
 	"time"
+
+	"github.com/Ippolid/auth/internal/model"
 )
 
 func (s *serv) Delete(ctx context.Context, id int64) error {

@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+
 	"github.com/Ippolid/auth/internal/converter"
 	"github.com/Ippolid/auth/pkg/auth_v1"
 

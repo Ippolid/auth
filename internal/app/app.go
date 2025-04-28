@@ -3,13 +3,14 @@ package app
 import (
 	"context"
 	"fmt"
+	"log"
+	"net"
+
 	"github.com/Ippolid/auth/internal/closer"
 	"github.com/Ippolid/auth/internal/config"
 	"github.com/Ippolid/auth/pkg/auth_v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
-	"log"
-	"net"
 )
 
 // App представляет собой основное приложение

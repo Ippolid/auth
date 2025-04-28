@@ -2,12 +2,13 @@ package auth
 
 import (
 	"context"
+	"log"
+
 	"github.com/Ippolid/auth/internal/converter"
 	"github.com/Ippolid/auth/pkg/auth_v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
-	"log"
 )
 
 // Update реализует метод обновления пользователя

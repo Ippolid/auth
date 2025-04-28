@@ -2,8 +2,9 @@ package main
 
 import (
 	"context"
-	"github.com/Ippolid/auth/internal/app"
 	"log"
+
+	"github.com/Ippolid/auth/internal/app"
 )
 
 func main() {
