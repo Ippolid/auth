@@ -2,6 +2,8 @@ package auth
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 	"fmt"
 
 	"github.com/Ippolid/auth/internal/client/db"
@@ -80,6 +82,9 @@ func (r *repo) GetUser(ctx context.Context, id int64) (*model.User, error) {
 	var user model.User
 	err = r.db.DB().ScanOneContext(ctx, &user, q, args...)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, fmt.Errorf("user with id %d not found", id)
+		}
 		return nil, err
 	}
 

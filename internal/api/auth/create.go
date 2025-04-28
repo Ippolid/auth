@@ -10,7 +10,7 @@ import (
 )
 
 // Create реализует метод создания пользователя
-func (i *Implementation) Create(ctx context.Context, req *auth_v1.CreateRequest) (*auth_v1.CreateResponse, error) {
+func (i *Controller) Create(ctx context.Context, req *auth_v1.CreateRequest) (*auth_v1.CreateResponse, error) {
 	id, err := i.authService.Create(ctx, converter.ToAuthCreateFromDesc(req))
 	if err != nil {
 		return nil, err

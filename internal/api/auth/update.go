@@ -12,7 +12,7 @@ import (
 )
 
 // Update реализует метод обновления пользователя
-func (i *Implementation) Update(ctx context.Context, req *auth_v1.UpdateRequest) (*emptypb.Empty, error) {
+func (i *Controller) Update(ctx context.Context, req *auth_v1.UpdateRequest) (*emptypb.Empty, error) {
 	user := converter.ToUserInfoFromService(req)
 	err := i.authService.Update(ctx, req.GetId(), user)
 	if err != nil {
