@@ -7,10 +7,12 @@ import (
 )
 
 const (
-	PlaceholderDollar   = "$"
-	PlaceholderQuestion = "?"
+	//PlaceholderDollar   = "$"
+	PlaceholderDollar = "$"
+	//PlaceholderQuestion = "?"
 )
 
+// Pretty форматирует SQL-запрос, заменяя плейсхолдеры на значения аргументов.
 func Pretty(query string, placeholder string, args ...any) string {
 	for i, param := range args {
 		var value string

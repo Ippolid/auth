@@ -6,6 +6,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
+// ToUserInfoFromService преобразует UpdateRequest в UserInfo
 func ToUserInfoFromService(req *auth_v1.UpdateRequest) *model.UserInfo {
 	name := req.Info.Name
 	email := req.Info.Email
@@ -17,6 +18,7 @@ func ToUserInfoFromService(req *auth_v1.UpdateRequest) *model.UserInfo {
 	return &user
 }
 
+// ToDescFromAuthGet преобразует ListResponse в UserList
 func ToDescFromAuthGet(req *model.User) *auth_v1.GetResponse {
 	return &auth_v1.GetResponse{
 		User: &auth_v1.UserGet{
@@ -31,6 +33,7 @@ func ToDescFromAuthGet(req *model.User) *auth_v1.GetResponse {
 	}
 }
 
+// ToAuthCreateFromDesc преобразует CreateRequest в User
 func ToAuthCreateFromDesc(req *auth_v1.CreateRequest) *model.User {
 	name := req.GetInfo().GetUser().Name
 	email := req.GetInfo().GetUser().Email

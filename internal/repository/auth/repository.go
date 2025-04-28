@@ -27,6 +27,7 @@ type repo struct {
 	db db.Client
 }
 
+// NewRepository создает новый экземпляр репозитория
 func NewRepository(db db.Client) repository.AuthRepository {
 	return &repo{db: db}
 }

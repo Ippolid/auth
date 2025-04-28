@@ -7,7 +7,8 @@ import (
 
 const (
 	// DSNKey - ключ для строки подключения к PostgreSQL
-	DSNKey    = "PG_DSN"
+	DSNKey = "PG_DSN"
+	//DSNlogger - ключ для строки подключения к Дб ЛОгера
 	DSNlogger = "PG_DSN_LOGER"
 )
 

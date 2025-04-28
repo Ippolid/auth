@@ -12,11 +12,13 @@ import (
 	"net"
 )
 
+// App представляет собой основное приложение
 type App struct {
 	serviceProvider *serviceProvider
 	grpcServer      *grpc.Server
 }
 
+// NewApp создает новое приложение
 func NewApp(ctx context.Context) (*App, error) {
 	log.Println("Creating new App...")
 	a := &App{}
@@ -30,6 +32,7 @@ func NewApp(ctx context.Context) (*App, error) {
 	return a, nil
 }
 
+// Run запускает приложение
 func (a *App) Run() error {
 	defer func() {
 		closer.CloseAll()

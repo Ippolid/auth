@@ -11,6 +11,7 @@ type serv struct {
 	txManager      db.TxManager
 }
 
+// NewService создает новый экземпляр AuthService
 func NewService(
 	authRepository repository.AuthRepository,
 	txManager db.TxManager,

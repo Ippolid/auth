@@ -3,9 +3,10 @@ package pg
 import (
 	"context"
 	"fmt"
+	"log"
+
 	"github.com/Ippolid/auth/internal/client/db"
 	"github.com/Ippolid/auth/internal/client/db/prettier"
-	"log"
 
 	"github.com/georgysavva/scany/v2/pgxscan"
 	"github.com/jackc/pgx/v5"
@@ -16,6 +17,7 @@ import (
 type key string
 
 const (
+	// TxKey ключ для хранения транзакции в контексте
 	TxKey key = "tx"
 )
 
@@ -23,6 +25,7 @@ type pg struct {
 	dbc *pgxpool.Pool
 }
 
+// NewDB создает новый экземпляр db.DB
 func NewDB(dbc *pgxpool.Pool) db.DB {
 	return &pg{
 		dbc: dbc,
@@ -96,6 +99,7 @@ func (p *pg) Close() {
 	p.dbc.Close()
 }
 
+// MakeContextTx создает новый контекст с транзакцией
 func MakeContextTx(ctx context.Context, tx pgx.Tx) context.Context {
 	return context.WithValue(ctx, TxKey, tx)
 }

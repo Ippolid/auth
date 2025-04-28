@@ -7,6 +7,7 @@ import (
 	"log"
 )
 
+// Get реализует метод получения пользователя по ID
 func (i *Implementation) Get(ctx context.Context, req *auth_v1.GetRequest) (*auth_v1.GetResponse, error) {
 	log.Printf("User id: %d", req.GetId())
 

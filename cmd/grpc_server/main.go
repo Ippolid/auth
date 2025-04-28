@@ -6,8 +6,6 @@ import (
 	"log"
 )
 
-const grpcPort = 50051
-
 func main() {
 	ctx := context.Background()
 
