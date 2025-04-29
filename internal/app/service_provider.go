@@ -106,7 +106,7 @@ func (s *serviceProvider) AuthService(ctx context.Context) service.AuthService {
 	return s.noteService
 }
 
-func (s *serviceProvider) NoteImpl(ctx context.Context) *auth.Controller {
+func (s *serviceProvider) NoteContrl(ctx context.Context) *auth.Controller {
 	if s.noteImpl == nil {
 		s.noteImpl = auth.NewController(s.AuthService(ctx))
 	}
