@@ -79,7 +79,7 @@ func (a *App) initGRPCServer(ctx context.Context) error {
 
 	reflection.Register(a.grpcServer)
 
-	auth_v1.RegisterAuthV1Server(a.grpcServer, a.serviceProvider.NoteContrl(ctx))
+	auth_v1.RegisterAuthV1Server(a.grpcServer, a.serviceProvider.NoteController(ctx))
 
 	return nil
 }

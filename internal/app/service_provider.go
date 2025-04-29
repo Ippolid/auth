@@ -26,7 +26,7 @@ type serviceProvider struct {
 
 	noteService service.AuthService
 
-	noteImpl *auth.Controller
+	noteController *auth.Controller
 }
 
 func newServiceProvider() *serviceProvider {
@@ -106,10 +106,10 @@ func (s *serviceProvider) AuthService(ctx context.Context) service.AuthService {
 	return s.noteService
 }
 
-func (s *serviceProvider) NoteContrl(ctx context.Context) *auth.Controller {
-	if s.noteImpl == nil {
-		s.noteImpl = auth.NewController(s.AuthService(ctx))
+func (s *serviceProvider) NoteController(ctx context.Context) *auth.Controller {
+	if s.noteController == nil {
+		s.noteController = auth.NewController(s.AuthService(ctx))
 	}
 
-	return s.noteImpl
+	return s.noteController
 }
