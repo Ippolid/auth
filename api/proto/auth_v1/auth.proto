@@ -55,7 +55,7 @@ message GetRequest {
 }
 
 message GetResponse {
-  UserGet note = 1;
+  UserGet user = 1;
 }
 
 message UpdateRequest {
