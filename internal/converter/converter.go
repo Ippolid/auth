@@ -20,6 +20,10 @@ func ToUserInfoFromService(req *auth_v1.UpdateRequest) *model.UserInfo {
 
 // ToDescFromAuthGet преобразует ListResponse в UserList
 func ToDescFromAuthGet(req *model.User) *auth_v1.GetResponse {
+	role := auth_v1.Role_USER // Значение по умолчанию
+	if req.Role {
+		role = auth_v1.Role_ADMIN // Если Role = true, устанавливаем ADMIN
+	}
 	return &auth_v1.GetResponse{
 		User: &auth_v1.UserGet{
 			Id: req.ID,
@@ -27,6 +31,7 @@ func ToDescFromAuthGet(req *model.User) *auth_v1.GetResponse {
 				Name:  req.User.Name,
 				Email: req.User.Email,
 			},
+			Role:      role,
 			CreatedAt: timestamppb.New(req.CreatedAt),
 			UpdatedAt: timestamppb.New(req.CreatedAt),
 		},

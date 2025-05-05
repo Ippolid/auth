@@ -21,3 +21,19 @@ func NewService(
 		txManager:      txManager,
 	}
 }
+
+func NewMockService(deps ...interface{}) service.AuthService {
+	srv := serv{}
+
+	for _, v := range deps {
+		switch s := v.(type) {
+		case repository.AuthRepository:
+			srv.authRepository = s
+		case db.TxManager:
+			srv.txManager = s
+		}
+
+	}
+
+	return &srv
+}
