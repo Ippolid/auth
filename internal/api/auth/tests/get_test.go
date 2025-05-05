@@ -3,6 +3,9 @@ package auth
 import (
 	"context"
 	"fmt"
+	"testing"
+	"time"
+
 	"github.com/Ippolid/auth/internal/api/auth"
 	"github.com/Ippolid/auth/internal/model"
 	"github.com/Ippolid/auth/internal/service"
@@ -11,8 +14,6 @@ import (
 	"github.com/gojuno/minimock/v3"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/types/known/timestamppb"
-	"testing"
-	"time"
 )
 
 func TestController_Get(t *testing.T) {

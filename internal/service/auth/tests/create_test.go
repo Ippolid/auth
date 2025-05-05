@@ -61,13 +61,13 @@ func TestCreate(t *testing.T) {
 			authRepositoryMock: func(mc *minimock.Controller) repository.AuthRepository {
 				mock := repoMocks.NewAuthRepositoryMock(mc)
 				mock.CreateUserMock.Expect(ctx, *user).Return(id, nil)
-				mock.MakeLogMock.Set(func(ctx context.Context, log model.Log) error {
-					if log.Method != "Create" || log.Ctx != "context.Background" {
+				mock.MakeLogMock.Set(func(_ context.Context, log model.Log) error {
+					if log.Method != "Create" || log.Ctx != Ctxstring {
 						return fmt.Errorf("unexpected log entry: %+v", log)
 					}
 					return nil
 				})
-				mock.GetUserMock.Set(func(ctx context.Context, id int64) (*model.User, error) {
+				mock.GetUserMock.Set(func(_ context.Context, _ int64) (*model.User, error) {
 					return user, nil
 				})
 				return mock

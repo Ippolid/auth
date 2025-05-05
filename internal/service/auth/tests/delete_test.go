@@ -3,8 +3,9 @@ package tests
 import (
 	"context"
 	"fmt"
-	"github.com/Ippolid/auth/internal/service/mocks"
 	"testing"
+
+	"github.com/Ippolid/auth/internal/service/mocks"
 
 	"github.com/Ippolid/auth/internal/model"
 	"github.com/Ippolid/auth/internal/repository"
@@ -50,13 +51,13 @@ func TestDelete(t *testing.T) {
 			authRepositoryMock: func(mc *minimock.Controller) repository.AuthRepository {
 				mock := repoMocks.NewAuthRepositoryMock(mc)
 				mock.DeleteUserMock.Expect(ctx, id).Return(nil)
-				mock.MakeLogMock.Set(func(ctx context.Context, log model.Log) error {
-					if log.Method != "Delete" || log.Ctx != "context.Background" {
+				mock.MakeLogMock.Set(func(_ context.Context, log model.Log) error {
+					if log.Method != "Delete" || log.Ctx != Ctxstring {
 						return fmt.Errorf("unexpected log entry: %+v", log)
 					}
 					return nil
 				})
-				mock.GetUserMock.Set(func(ctx context.Context, id int64) (*model.User, error) {
+				mock.GetUserMock.Set(func(_ context.Context, _ int64) (*model.User, error) {
 					return nil, fmt.Errorf("user not found")
 				})
 				return mock

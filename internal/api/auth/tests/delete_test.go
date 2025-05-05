@@ -3,6 +3,8 @@ package auth
 import (
 	"context"
 	"errors"
+	"testing"
+
 	"github.com/Ippolid/auth/internal/api/auth"
 	"github.com/Ippolid/auth/internal/service"
 	"github.com/Ippolid/auth/internal/service/mocks"
@@ -10,7 +12,6 @@ import (
 	"github.com/gojuno/minimock/v3"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/types/known/emptypb"
-	"testing"
 )
 
 func TestController_Delete(t *testing.T) {

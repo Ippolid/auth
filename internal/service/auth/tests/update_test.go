@@ -3,6 +3,8 @@ package tests
 import (
 	"context"
 	"fmt"
+	"testing"
+
 	"github.com/Ippolid/auth/internal/model"
 	"github.com/Ippolid/auth/internal/repository"
 	repoMocks "github.com/Ippolid/auth/internal/repository/mocks"
@@ -12,7 +14,6 @@ import (
 	"github.com/brianvoe/gofakeit/v6"
 	"github.com/gojuno/minimock/v3"
 	"github.com/stretchr/testify/require"
-	"testing"
 )
 
 func TestUpdate(t *testing.T) {
@@ -53,8 +54,8 @@ func TestUpdate(t *testing.T) {
 			authRepositoryMock: func(mc *minimock.Controller) repository.AuthRepository {
 				mock := repoMocks.NewAuthRepositoryMock(mc)
 				mock.UpdateUserMock.Expect(ctx, id, info).Return(nil)
-				mock.MakeLogMock.Set(func(ctx context.Context, log model.Log) error {
-					if log.Method != "Update" || log.Ctx != "context.Background" {
+				mock.MakeLogMock.Set(func(_ context.Context, log model.Log) error {
+					if log.Method != "Update" || log.Ctx != Ctxstring {
 						return fmt.Errorf("unexpected log entry: %+v", log)
 					}
 					return nil

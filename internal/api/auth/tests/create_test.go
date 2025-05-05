@@ -3,9 +3,10 @@ package auth_test
 import (
 	"context"
 	"fmt"
+	"testing"
+
 	"github.com/Ippolid/auth/internal/service"
 	"github.com/brianvoe/gofakeit/v6"
-	"testing"
 
 	"github.com/Ippolid/auth/internal/api/auth"
 	"github.com/Ippolid/auth/internal/model"

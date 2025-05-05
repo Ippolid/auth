@@ -22,6 +22,7 @@ func NewService(
 	}
 }
 
+// NewMockService создает новый экземпляр AuthService для тестирования
 func NewMockService(deps ...interface{}) service.AuthService {
 	srv := serv{}
 

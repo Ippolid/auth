@@ -3,6 +3,8 @@ package tests
 import (
 	"context"
 	"fmt"
+	"testing"
+
 	"github.com/Ippolid/auth/internal/model"
 	"github.com/Ippolid/auth/internal/repository"
 	repoMocks "github.com/Ippolid/auth/internal/repository/mocks"
@@ -10,8 +12,9 @@ import (
 	"github.com/brianvoe/gofakeit/v6"
 	"github.com/gojuno/minimock/v3"
 	"github.com/stretchr/testify/require"
-	"testing"
 )
+
+var Ctxstring = "context.Background"
 
 func TestGet(t *testing.T) {
 	type authRepositoryMockFunc func(mc *minimock.Controller) repository.AuthRepository
@@ -68,9 +71,9 @@ func TestGet(t *testing.T) {
 				mock.GetUserMock.Expect(ctx, id).Return(expectedUser, nil)
 
 				// Используем функцию сравнения вместо точного значения для model.Log
-				mock.MakeLogMock.Set(func(ctx context.Context, log model.Log) (err error) {
+				mock.MakeLogMock.Set(func(_ context.Context, log model.Log) (err error) {
 					// Проверяем только интересующие нас поля
-					if log.Method != "GET" || log.Ctx != "context.Background" {
+					if log.Method != "GET" || log.Ctx != Ctxstring {
 						return fmt.Errorf("unexpected log entry: %+v", log)
 					}
 					// Не проверяем CreatedAt, так как оно динамическое
