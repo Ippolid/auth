@@ -5,15 +5,15 @@ import (
 	"log"
 
 	"github.com/Ippolid/auth/internal/api/auth"
-	"github.com/Ippolid/auth/internal/client/db"
-	"github.com/Ippolid/auth/internal/client/db/pg"
-	"github.com/Ippolid/auth/internal/client/db/transaction"
-	"github.com/Ippolid/auth/internal/closer"
 	"github.com/Ippolid/auth/internal/config"
 	"github.com/Ippolid/auth/internal/repository"
 	auth2 "github.com/Ippolid/auth/internal/repository/auth"
 	"github.com/Ippolid/auth/internal/service"
 	auth3 "github.com/Ippolid/auth/internal/service/auth"
+	"github.com/Ippolid/platform_libary/pkg/closer"
+	"github.com/Ippolid/platform_libary/pkg/db"
+	"github.com/Ippolid/platform_libary/pkg/db/pg"
+	"github.com/Ippolid/platform_libary/pkg/db/transaction"
 )
 
 type serviceProvider struct {

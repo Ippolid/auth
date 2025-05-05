@@ -1,4 +1,6 @@
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
+github.com/Ippolid/platform_libary v0.0.0-20250505000918-131ae6648be2 h1:8+n522AFL3aiF2AcXrjgXrlU9tcfMSearwD7d189mbs=
+github.com/Ippolid/platform_libary v0.0.0-20250505000918-131ae6648be2/go.mod h1:LUVhh5vsIRZqA34Y29mbtd/g2H+jHu397ththLxJFn8=
 github.com/Masterminds/semver/v3 v3.1.1/go.mod h1:VPu/7SZ7ePZ3QOrcuXROw5FAcLl4a0cBrbBpGY/8hQs=
 github.com/Masterminds/squirrel v1.5.4 h1:uUcX/aBc8O7Fg9kaISIUsHXdKuqehiXAMQTYX8afzqM=
 github.com/Masterminds/squirrel v1.5.4/go.mod h1:NNaOrjSoIDfDA40n7sr2tPNZRfjzjA400rg+riTZj10=

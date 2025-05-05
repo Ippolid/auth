@@ -6,9 +6,9 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/Ippolid/auth/internal/client/db"
 	"github.com/Ippolid/auth/internal/model"
 	"github.com/Ippolid/auth/internal/repository"
+	"github.com/Ippolid/platform_libary/pkg/db"
 	sq "github.com/Masterminds/squirrel"
 )
 

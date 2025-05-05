@@ -1,9 +1,9 @@
 package auth
 
 import (
-	"github.com/Ippolid/auth/internal/client/db"
 	"github.com/Ippolid/auth/internal/repository"
 	"github.com/Ippolid/auth/internal/service"
+	"github.com/Ippolid/platform_libary/pkg/db"
 )
 
 type serv struct {
