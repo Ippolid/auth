@@ -17,6 +17,9 @@ env:
   PG_USER: "auth-user"
   PG_PASSWORD: "auth-password"
   PG_PORT: "54321"
+  REDIS_CONTAINER_NAME: "redis"
+  REDIS_VOLUME_NAME: "redis-data"
+  REDIS_PORT: "63793"
 
 jobs:
   image-build-and-push:
@@ -54,7 +57,7 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSHKEY }}
-          envs: IMAGE_NAME_SERVER,IMAGE_NAME_MIGRATOR,REGISTRY,GITHUB_SHA,CONTAINER_NAME,PG_CONTAINER_NAME,PG_VOLUME_NAME,PG_DB,PG_USER,PG_PASSWORD,PG_PORT
+          envs: IMAGE_NAME_SERVER,IMAGE_NAME_MIGRATOR,REGISTRY,GITHUB_SHA,CONTAINER_NAME,PG_CONTAINER_NAME,PG_VOLUME_NAME,PG_DB,PG_USER,PG_PASSWORD,PG_PORT,REDIS_CONTAINER_NAME,REDIS_VOLUME_NAME,REDIS_PORT
           script: |
             TAG_NAME=$(echo $GITHUB_SHA | head -c7)
             
@@ -63,6 +66,7 @@ jobs:
             
             # Создаем volume и сеть (если еще не созданы)
             docker volume create $PG_VOLUME_NAME || true
+            docker volume create $REDIS_VOLUME_NAME || true
             docker network create pg-network || true
             
             if [ "$(docker ps -q -f name=^$PG_CONTAINER_NAME$)" ]; then
@@ -81,6 +85,23 @@ jobs:
             -v $PG_VOLUME_NAME:/var/lib/postgresql/data \
             -p $PG_PORT:5432 \
             postgres:14-alpine3.17
+            fi
+            
+            # Управление контейнером Redis
+            if [ "$(docker ps -q -f name=^$REDIS_CONTAINER_NAME$)" ]; then
+            echo "Контейнер $REDIS_CONTAINER_NAME уже запущен."
+            elif [ "$(docker ps -aq -f name=^$REDIS_CONTAINER_NAME$)" ]; then
+            echo "Контейнер $REDIS_CONTAINER_NAME существует, запускаем его..."
+            docker start $REDIS_CONTAINER_NAME
+            else
+            echo "Создаем новый контейнер $REDIS_CONTAINER_NAME..."
+            docker run -d \
+            --name $REDIS_CONTAINER_NAME \
+            --network pg-network \
+            -v $REDIS_VOLUME_NAME:/data \
+            -p $REDIS_PORT:6379 \
+            redis:7-alpine \
+            --appendonly yes
             fi
             
             # Выполнение миграций (хост базы данных — имя контейнера PostgreSQL, порт внутри сети 5432)
@@ -104,6 +125,8 @@ jobs:
             -e PG_USER=$PG_USER \
             -e PG_PASSWORD=$PG_PASSWORD \
             -e PG_DATABASE_NAME=$PG_DB \
+            -e REDIS_HOST=$REDIS_CONTAINER_NAME \
+            -e REDIS_PORT=6379 \
             $REGISTRY/$IMAGE_NAME_SERVER:$TAG_NAME
             
             # Отладка: Вывод логов (можно убрать, если не требуется постоянный вывод)
