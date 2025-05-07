@@ -1,7 +1,7 @@
 package model
 
 type (
-	// User модель пользователя для redis.
+	// UserRedis модель пользователя для redis.
 	UserRedis struct {
 		ID        string `redis:"id"`
 		Name      string `redis:"name"`

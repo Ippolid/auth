@@ -3,9 +3,10 @@ package redis
 import (
 	"context"
 	"fmt"
-	"github.com/Ippolid/auth/internal/model"
 	"strconv"
 	"time"
+
+	"github.com/Ippolid/auth/internal/model"
 )
 
 func (c cache) Create(ctx context.Context, id int64, user model.User) error {

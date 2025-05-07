@@ -2,9 +2,10 @@ package redis
 
 import (
 	"fmt"
-	"github.com/Ippolid/auth/internal/model"
 	"strconv"
 	"time"
+
+	"github.com/Ippolid/auth/internal/model"
 
 	redismodels "github.com/Ippolid/auth/internal/repository/model"
 )

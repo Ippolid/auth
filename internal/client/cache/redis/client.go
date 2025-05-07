@@ -3,9 +3,10 @@ package redis
 import (
 	"context"
 	"fmt"
-	"github.com/Ippolid/auth/internal/config"
 	"log"
 	"time"
+
+	"github.com/Ippolid/auth/internal/config"
 
 	"github.com/gomodule/redigo/redis"
 )

@@ -103,7 +103,7 @@ func TestUpdate(t *testing.T) {
 
 			authRepoMock := tt.authRepositoryMock(mc)
 			txManagerMock := tt.txManagerMock(mc)
-			service := auth.NewService(authRepoMock, txManagerMock)
+			service := auth.NewService(authRepoMock, txManagerMock, nil)
 
 			err := service.Update(tt.args.ctx, tt.args.id, &tt.args.info)
 			require.ErrorIs(t, err, tt.wantErr)

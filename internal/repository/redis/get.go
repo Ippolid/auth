@@ -3,10 +3,11 @@ package redis
 import (
 	"context"
 	"fmt"
+	"strconv"
+
 	"github.com/Ippolid/auth/internal/model"
 	redismodels "github.com/Ippolid/auth/internal/repository/model"
 	"github.com/gomodule/redigo/redis"
-	"strconv"
 )
 
 func (c cache) Get(ctx context.Context, id int64) (*model.User, error) {

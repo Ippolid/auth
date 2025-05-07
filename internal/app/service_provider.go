@@ -2,8 +2,9 @@ package app
 
 import (
 	"context"
-	"github.com/Ippolid/auth/internal/client/cache/redis"
 	"log"
+
+	"github.com/Ippolid/auth/internal/client/cache/redis"
 
 	"github.com/Ippolid/auth/internal/api/auth"
 	"github.com/Ippolid/auth/internal/config"

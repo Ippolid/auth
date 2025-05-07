@@ -20,6 +20,7 @@ import (
 func TestCreate(t *testing.T) {
 	type authRepositoryMockFunc func(mc *minimock.Controller) repository.AuthRepository
 	type txManagerMockFunc func(mc *minimock.Controller) db.TxManager
+	type cacheMockFunc func(mc *minimock.Controller) repository.CacheInterface
 
 	type args struct {
 		ctx  context.Context
@@ -49,6 +50,7 @@ func TestCreate(t *testing.T) {
 		wantErr            error
 		authRepositoryMock authRepositoryMockFunc
 		txManagerMock      txManagerMockFunc
+		cacheMock          cacheMockFunc
 	}{
 		{
 			name: "success case",
@@ -79,6 +81,11 @@ func TestCreate(t *testing.T) {
 				})
 				return mock
 			},
+			cacheMock: func(mc *minimock.Controller) repository.CacheInterface {
+				mock := repoMocks.NewCacheInterfaceMock(mc)
+				mock.CreateMock.Expect(ctx, id, *user).Return(nil)
+				return mock
+			},
 		},
 		{
 			name: "CreateUser error case",
@@ -101,6 +108,11 @@ func TestCreate(t *testing.T) {
 				})
 				return mock
 			},
+			cacheMock: func(mc *minimock.Controller) repository.CacheInterface {
+				mock := repoMocks.NewCacheInterfaceMock(mc)
+
+				return mock
+			},
 		},
 	}
 
@@ -112,7 +124,8 @@ func TestCreate(t *testing.T) {
 
 			authRepoMock := tt.authRepositoryMock(mc)
 			txManagerMock := tt.txManagerMock(mc)
-			service := auth.NewService(authRepoMock, txManagerMock)
+			cacheMock := tt.cacheMock(mc)
+			service := auth.NewService(authRepoMock, txManagerMock, cacheMock)
 
 			gotID, err := service.Create(tt.args.ctx, tt.args.user)
 			require.ErrorIs(t, err, tt.wantErr)

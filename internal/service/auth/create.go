@@ -3,9 +3,10 @@ package auth
 import (
 	"context"
 	"fmt"
-	"github.com/Ippolid/auth/internal/model"
 	"log"
 	"time"
+
+	"github.com/Ippolid/auth/internal/model"
 )
 
 //	func (s *serv) Create(ctx context.Context, info *model.User) (int64, error) {
