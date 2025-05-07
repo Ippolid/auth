@@ -2,27 +2,35 @@ package app
 
 import (
 	"context"
+	"github.com/Ippolid/auth/internal/client/cache/redis"
 	"log"
 
 	"github.com/Ippolid/auth/internal/api/auth"
 	"github.com/Ippolid/auth/internal/config"
 	"github.com/Ippolid/auth/internal/repository"
 	auth2 "github.com/Ippolid/auth/internal/repository/auth"
+	redisCache "github.com/Ippolid/auth/internal/repository/redis"
 	"github.com/Ippolid/auth/internal/service"
 	auth3 "github.com/Ippolid/auth/internal/service/auth"
 	"github.com/Ippolid/platform_libary/pkg/closer"
 	"github.com/Ippolid/platform_libary/pkg/db"
 	"github.com/Ippolid/platform_libary/pkg/db/pg"
 	"github.com/Ippolid/platform_libary/pkg/db/transaction"
+	redigo "github.com/gomodule/redigo/redis"
 )
 
 type serviceProvider struct {
-	pgConfig   config.PGConfig
-	grpcConfig config.GRPCConfig
+	pgConfig    config.PGConfig
+	grpcConfig  config.GRPCConfig
+	redisConfig config.RedisConfig
 
 	dbClient       db.Client
 	txManager      db.TxManager
 	noteRepository repository.AuthRepository
+
+	redisPool    *redigo.Pool
+	serviceCache repository.CacheInterface
+	redisClient  redis.Client
 
 	noteService service.AuthService
 
@@ -59,6 +67,20 @@ func (s *serviceProvider) GRPCConfig() config.GRPCConfig {
 	return s.grpcConfig
 }
 
+// GetRedisConfig получаем конфиг для redis.
+func (s *serviceProvider) GetRedisConfig() config.RedisConfig {
+	if s.redisConfig == nil {
+		cfg, err := config.NewRedisConfig()
+		if err != nil {
+			log.Fatal("failed to load redis config: %w", err)
+		}
+
+		s.redisConfig = cfg
+	}
+
+	return s.redisConfig
+}
+
 func (s *serviceProvider) DBClient(ctx context.Context) db.Client {
 	if s.dbClient == nil {
 		cl, err := pg.New(ctx, s.PGConfig().DSN())
@@ -79,6 +101,28 @@ func (s *serviceProvider) DBClient(ctx context.Context) db.Client {
 	return s.dbClient
 }
 
+func (s *serviceProvider) RedisPool() *redigo.Pool {
+	if s.redisPool == nil {
+		s.redisPool = &redigo.Pool{
+			MaxIdle:     s.GetRedisConfig().MaxIdle(),
+			IdleTimeout: s.GetRedisConfig().IdleTimeout(),
+			DialContext: func(ctx context.Context) (redigo.Conn, error) {
+				return redigo.DialContext(ctx, "tcp", s.GetRedisConfig().Address())
+			},
+		}
+	}
+
+	return s.redisPool
+}
+
+func (s *serviceProvider) GetRedisClient(_ context.Context) redis.Client {
+	if s.redisConfig == nil {
+		s.redisClient = redis.NewClient(s.RedisPool(), s.GetRedisConfig())
+	}
+
+	return s.redisClient
+}
+
 func (s *serviceProvider) TxManager(ctx context.Context) db.TxManager {
 	if s.txManager == nil {
 		s.txManager = transaction.NewTransactionManager(s.DBClient(ctx).DB())
@@ -94,12 +138,20 @@ func (s *serviceProvider) AuthRepository(ctx context.Context) repository.AuthRep
 
 	return s.noteRepository
 }
+func (s *serviceProvider) GetCache(ctx context.Context) repository.CacheInterface {
+	if s.serviceCache == nil {
+		s.serviceCache = redisCache.NewRedisCache(s.GetRedisClient(ctx))
+	}
+
+	return s.serviceCache
+}
 
 func (s *serviceProvider) AuthService(ctx context.Context) service.AuthService {
 	if s.noteService == nil {
 		s.noteService = auth3.NewService(
 			s.AuthRepository(ctx),
 			s.TxManager(ctx),
+			s.GetCache(ctx),
 		)
 	}
 

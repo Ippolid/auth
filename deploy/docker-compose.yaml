@@ -1,5 +1,6 @@
 volumes:
   postgres_volume_local:
+  redis-data:
 
 services:
   pg-local:
@@ -37,3 +38,11 @@ services:
     depends_on:
       - pg-local
       - migrator-local
+      - redis
+  redis:
+    image: redis:7.2.5-alpine3.20
+    container_name: redis-container
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
