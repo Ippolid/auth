@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
@@ -9,18 +10,43 @@ import (
 )
 
 func (s *serv) Get(ctx context.Context, id int64) (*model.User, error) {
-	user, err := s.authRepository.GetUser(ctx, id)
-	if err != nil {
-		return nil, err
-	}
-	err1 := s.authRepository.MakeLog(ctx, model.Log{
-		Method:    "GET",
-		CreatedAt: time.Now(),
-		Ctx:       fmt.Sprintf("%v", ctx),
-	})
-	if err1 != nil {
-		return nil, err1
-	}
+	var (
+		userProfile *model.User
+		errCache    error
+		err         error
+	)
 
-	return user, nil
+	userProfile, errCache = s.cache.Get(ctx, id)
+	if errCache != nil {
+		if errors.Is(errCache, model.ErrUserNotFound) {
+			err = s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
+				var errTx error
+				userProfile, errTx = s.authRepository.GetUser(ctx, id)
+				if errTx != nil {
+					return fmt.Errorf("error getting user profile: %w", errTx)
+				}
+
+				errTx = s.authRepository.MakeLog(ctx, model.Log{
+					Method:    "GET",
+					CreatedAt: time.Now(),
+					Ctx:       fmt.Sprintf("%v", ctx),
+				})
+				if errTx != nil {
+					return fmt.Errorf("error creating log: %w", errTx)
+				}
+
+				if errTx = s.cache.Create(ctx, userProfile.ID, *userProfile); errTx != nil {
+					return fmt.Errorf("error caching user profile: %w", errTx)
+				}
+
+				return nil
+			})
+			if err != nil {
+				return nil, err
+			}
+		}
+		return nil, fmt.Errorf("error with cache: %w", errCache)
+	}
+	return userProfile, nil
+
 }

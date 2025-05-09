@@ -4,9 +4,9 @@ import (
 	"time"
 )
 
-// User  структура пользователя
+// User структура пользователя
 type User struct {
-	ID        int64     `db:"id"`
+	ID        int64     `db:"id" redis:"id"`
 	User      UserInfo  `db:""`
 	Role      bool      `db:"role"`
 	Password  string    `db:"password"`

@@ -8,6 +8,9 @@ import (
 
 // ToUserInfoFromService преобразует UpdateRequest в UserInfo
 func ToUserInfoFromService(req *auth_v1.UpdateRequest) *model.UserInfo {
+	if req == nil || req.Info == nil {
+		return nil
+	}
 	name := req.Info.Name
 	email := req.Info.Email
 	user := model.UserInfo{
@@ -20,6 +23,13 @@ func ToUserInfoFromService(req *auth_v1.UpdateRequest) *model.UserInfo {
 
 // ToDescFromAuthGet преобразует ListResponse в UserList
 func ToDescFromAuthGet(req *model.User) *auth_v1.GetResponse {
+	if req == nil {
+		return nil
+	}
+	role := auth_v1.Role_USER // Значение по умолчанию
+	if req.Role {
+		role = auth_v1.Role_ADMIN // Если Role = true, устанавливаем ADMIN
+	}
 	return &auth_v1.GetResponse{
 		User: &auth_v1.UserGet{
 			Id: req.ID,
@@ -27,6 +37,7 @@ func ToDescFromAuthGet(req *model.User) *auth_v1.GetResponse {
 				Name:  req.User.Name,
 				Email: req.User.Email,
 			},
+			Role:      role,
 			CreatedAt: timestamppb.New(req.CreatedAt),
 			UpdatedAt: timestamppb.New(req.CreatedAt),
 		},
@@ -35,6 +46,10 @@ func ToDescFromAuthGet(req *model.User) *auth_v1.GetResponse {
 
 // ToAuthCreateFromDesc преобразует CreateRequest в User
 func ToAuthCreateFromDesc(req *auth_v1.CreateRequest) *model.User {
+	if req == nil || req.GetInfo() == nil || req.GetInfo().GetUser() == nil {
+		return nil
+	}
+
 	name := req.GetInfo().GetUser().Name
 	email := req.GetInfo().GetUser().Email
 	password := req.GetInfo().GetPassword()

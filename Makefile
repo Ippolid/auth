@@ -24,11 +24,18 @@ install-deps:
 		echo "golangci-lint already installed."; \
 	fi
 	@if [ ! -f "$(LOCAL_BIN)/goose" ]; then \
-    		echo "Installing goose..."; \
-    		GOBIN=$(LOCAL_BIN) go install github.com/pressly/goose/v3/cmd/goose@v3.24.0; \
-    	else \
-    		echo "goose already installed."; \
-    	fi
+		echo "Installing goose..."; \
+		GOBIN=$(LOCAL_BIN) go install github.com/pressly/goose/v3/cmd/goose@v3.24.0; \
+	else \
+		echo "goose already installed."; \
+	fi
+	@if [ ! -f "$(LOCAL_BIN)/minimock" ]; then \
+		echo "Installing minimock..."; \
+		GOBIN=$(LOCAL_BIN) go install github.com/gojuno/minimock/v3/cmd/minimock@3.4.5; \
+	else \
+		echo "minimock already installed."; \
+	fi
+
 
 get-deps:
 	go get -u google.golang.org/protobuf/cmd/protoc-gen-go
@@ -72,3 +79,16 @@ docker-build-and-push:
 	docker buildx build --no-cache --platform linux/amd64 -t $(REGESTRY)/server:v0.0.1 -f deploy/Dockerfile .
 	docker login -u $(USERNAME) -p $(PASSWORD) $(REGESTRY)
 	docker push $(REGESTRY)/server:v0.0.1
+
+test:
+	go clean -testcache
+	go test ./... -covermode count -coverpkg=github.com/Ippolid/auth/internal/service/...,github.com/Ippolid/auth/internal/api/... -count 5
+
+test-coverage:
+	go clean -testcache
+	go test ./... -coverprofile=coverage.tmp.out -covermode count -coverpkg=github.com/Ippolid/auth/internal/service/...,github.com/Ippolid/auth/internal/api/... -count 5
+	grep -v 'mocks\|config' coverage.tmp.out  > coverage.out
+	rm coverage.tmp.out
+	go tool cover -html=coverage.out;
+	go tool cover -func=./coverage.out | grep "total";
+	grep -sqFx "/coverage.out" .gitignore || echo "/coverage.out" >> .gitignore

@@ -3,12 +3,17 @@ package auth
 import (
 	"context"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/Ippolid/auth/internal/model"
 )
 
 func (s *serv) Create(ctx context.Context, info *model.User) (int64, error) {
+	if info == nil {
+		return 0, fmt.Errorf("user info is nil")
+	}
+
 	var id int64
 	err := s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
 		var errTx error
@@ -35,6 +40,14 @@ func (s *serv) Create(ctx context.Context, info *model.User) (int64, error) {
 
 	if err != nil {
 		return 0, err
+	}
+
+	if s.cache != nil {
+		if cacheErr := s.cache.Create(ctx, id, *info); cacheErr != nil {
+			log.Printf("failed to cache user: %v", cacheErr)
+		}
+	} else {
+		log.Println("cache is not initialized, skipping cache creation")
 	}
 
 	return id, nil

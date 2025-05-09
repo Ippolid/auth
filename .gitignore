@@ -6,3 +6,5 @@ service_linux
 /cmd/grpc_server/main1.txt
 /deploy/.env
 /.env
+/coverage.out
+generate.go

@@ -9,15 +9,35 @@ import (
 type serv struct {
 	authRepository repository.AuthRepository
 	txManager      db.TxManager
+	cache          repository.CacheInterface
 }
 
 // NewService создает новый экземпляр AuthService
 func NewService(
 	authRepository repository.AuthRepository,
 	txManager db.TxManager,
+	cache repository.CacheInterface,
 ) service.AuthService {
 	return &serv{
 		authRepository: authRepository,
 		txManager:      txManager,
+		cache:          cache,
 	}
+}
+
+// NewMockService создает новый экземпляр AuthService для тестирования
+func NewMockService(deps ...interface{}) service.AuthService {
+	srv := serv{}
+
+	for _, v := range deps {
+		switch s := v.(type) {
+		case repository.AuthRepository:
+			srv.authRepository = s
+		case db.TxManager:
+			srv.txManager = s
+		}
+
+	}
+
+	return &srv
 }
