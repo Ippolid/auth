@@ -10,6 +10,8 @@ import (
 	redismodels "github.com/Ippolid/auth/internal/repository/model"
 )
 
+const customTimeFormat = "2006-01-02 15:04:05.999999999"
+
 func toRedisModels(id int64, user model.User) redismodels.UserRedis {
 	idStr, timeNow := strconv.FormatInt(id, 10), time.Now()
 
@@ -19,12 +21,12 @@ func toRedisModels(id int64, user model.User) redismodels.UserRedis {
 		Email:     user.User.Email,
 		Password:  user.Password,
 		Role:      strconv.FormatBool(user.Role),
-		CreatedAt: timeNow.Format(time.RFC3339),
+		CreatedAt: timeNow.Format(customTimeFormat),
 	}
 }
 
 func toServiceModels(user redismodels.UserRedis) (*model.User, error) {
-	createdAt, err := time.Parse(time.RFC3339, user.CreatedAt)
+	createdAt, err := time.Parse(customTimeFormat, user.CreatedAt)
 	if err != nil {
 		return nil, fmt.Errorf("error with time parse CreatedAt: %w", err)
 	}

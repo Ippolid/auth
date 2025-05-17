@@ -29,6 +29,8 @@ services:
     restart: on-failure
     ports:
       - "50051:50051"
+      - "8080:8080"
+      - "8090:8090"
     environment:
       - "PG_USER=${PG_USER}"
       - "PG_PASSWORD=${PG_PASSWORD}"
