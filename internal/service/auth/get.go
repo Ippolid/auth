@@ -64,7 +64,6 @@ func (s *serv) Get(ctx context.Context, id int64) (*model.User, error) {
 	)
 
 	userProfile, errCache = s.cache.Get(ctx, id)
-	fmt.Println(userProfile, errCache, errors.Is(errCache, model.ErrUserNotFound))
 	if errCache != nil {
 		if errors.Is(errCache, model.ErrUserNotFound) {
 			err = s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
@@ -73,8 +72,6 @@ func (s *serv) Get(ctx context.Context, id int64) (*model.User, error) {
 				if errTx != nil {
 					return fmt.Errorf("error getting user profile: %w", errTx)
 				}
-
-				fmt.Println(userProfile)
 
 				errTx = s.authRepository.MakeLog(ctx, model.Log{
 					Method:    "GET",

@@ -15,7 +15,6 @@ func (c cache) Get(ctx context.Context, id int64) (*model.User, error) {
 	key = strconv.FormatInt(id, 10)
 
 	userCache, err := c.cl.HGetAll(ctx, key)
-	fmt.Println("ddddd", userCache, err)
 	if err != nil {
 		return nil, model.ErrUserNotFound
 	}
