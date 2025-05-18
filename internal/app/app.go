@@ -3,6 +3,13 @@ package app
 import (
 	"context"
 	"fmt"
+	"io"
+	"log"
+	"net"
+	"net/http"
+	"sync"
+	"time"
+
 	"github.com/Ippolid/auth/internal/config"
 	"github.com/Ippolid/auth/internal/interceptor"
 	"github.com/Ippolid/auth/pkg/auth_v1"
@@ -13,13 +20,8 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/reflection"
-	"io"
-	"log"
-	"net"
-	"net/http"
-	"sync"
 
-	_ "github.com/Ippolid/auth/statik"
+	_ "github.com/Ippolid/auth/statik" //nolint
 )
 
 // App представляет собой основное приложение
@@ -45,15 +47,6 @@ func NewApp(ctx context.Context) (*App, error) {
 }
 
 // Run запускает приложение
-//
-//	func (a *App) Run() error {
-//		defer func() {
-//			closer.CloseAll()
-//			closer.Wait()
-//		}()
-//
-//		return a.runGRPCServer()
-//	}
 func (a *App) Run() error {
 	defer func() {
 		closer.CloseAll()
@@ -161,8 +154,9 @@ func (a *App) initHTTPServer(ctx context.Context) error {
 	})
 
 	a.httpServer = &http.Server{
-		Addr:    a.serviceProvider.HTTPConfig().Address(),
-		Handler: corsMiddleware.Handler(mux),
+		Addr:              a.serviceProvider.HTTPConfig().Address(),
+		Handler:           corsMiddleware.Handler(mux),
+		ReadHeaderTimeout: 5 * time.Second,
 	}
 
 	return nil
@@ -179,8 +173,9 @@ func (a *App) initSwaggerServer(_ context.Context) error {
 	mux.HandleFunc("/api.swagger.json", serveSwaggerFile("/api.swagger.json"))
 
 	a.swaggerServer = &http.Server{
-		Addr:    a.serviceProvider.SwaggerConfig().Address(),
-		Handler: mux,
+		Addr:              a.serviceProvider.SwaggerConfig().Address(),
+		Handler:           mux,
+		ReadHeaderTimeout: 5 * time.Second,
 	}
 
 	return nil
@@ -224,6 +219,7 @@ func (a *App) runSwaggerServer() error {
 	return nil
 }
 
+//nolint:revive
 func serveSwaggerFile(path string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Serving swagger file: %s", path)
@@ -241,7 +237,9 @@ func serveSwaggerFile(path string) http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		defer file.Close()
+		defer func(file http.File) {
+			_ = file.Close()
+		}(file)
 
 		log.Printf("Read swagger file: %s", path)
 
