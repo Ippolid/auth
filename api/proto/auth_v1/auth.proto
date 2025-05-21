@@ -5,16 +5,55 @@ package auth_v1;
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/wrappers.proto";
+import "validate/validate.proto";
+import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
 
-option go_package = "github.com/Ippolid/auth/tree/main/grpc/auth_v1;auth_v1";
+option go_package = "github.com/Ippolid/auth/grpc/auth_v1;auth_v1";
+
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+  info: {
+    title: "Auth API"
+    version: "1.0.0"
+    contact: {
+      name: "Ippolid"
+      email: "a@example.com"
+    };
+  };
+  host: "localhost:8080",
+  schemes: HTTP,
+  schemes: HTTPS,
+  consumes: "application/json",
+  produces: "application/json",
+};
 
 service AuthV1 {
-  rpc Create(CreateRequest) returns (CreateResponse);
-  rpc Get(GetRequest) returns (GetResponse);
-  rpc Update(UpdateRequest) returns (google.protobuf.Empty);
-  rpc Delete(DeleteRequest) returns (google.protobuf.Empty);
-}
+  rpc Create(CreateRequest) returns (CreateResponse) {
+    option (google.api.http) = {
+      post: "v1/auth/create"
+      body: "*"
+    };
+  }
 
+  rpc Get(GetRequest) returns (GetResponse) {
+    option (google.api.http) = {
+      get: "v1/auth"
+    };
+  }
+
+  rpc Update(UpdateRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      patch: "v1/auth"
+      body: "*"
+    };
+  }
+
+  rpc Delete(DeleteRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "v1/auth"
+    };
+  }
+}
 
 enum Role {
   USER = 0;
@@ -22,14 +61,14 @@ enum Role {
 }
 
 message UserInfo {
-  string name = 1;
-  string email = 2;
+  string name = 1 [(validate.rules).string = {min_len: 2, max_len: 100}];
+  string email = 2 [(validate.rules).string.email = true];
 }
 
-message UserInfoCreate{
-  UserInfo user=1;
-  string password = 2;
-  string password_confirm = 3;
+message UserInfoCreate {
+  UserInfo user = 1;
+  string password = 2 [(validate.rules).string = {min_len: 8,max_len: 50}];
+  string password_confirm = 3 [(validate.rules).string = {min_len: 8,max_len: 50}];
   Role role = 4;
 }
 
@@ -40,7 +79,6 @@ message UserGet {
   google.protobuf.Timestamp created_at = 4;
   google.protobuf.Timestamp updated_at = 5;
 }
-
 
 message CreateRequest {
   UserInfoCreate info = 1;
@@ -58,6 +96,7 @@ message GetResponse {
   UserGet user = 1;
 }
 
+
 message UpdateRequest {
   int64 id = 1;
   UserInfo info = 2;
@@ -66,5 +105,3 @@ message UpdateRequest {
 message DeleteRequest {
   int64 id = 1;
 }
-
-

@@ -9,6 +9,7 @@ import (
 	"github.com/Ippolid/auth/internal/model"
 )
 
+// Get получает профиль пользователя по ID
 func (s *serv) Get(ctx context.Context, id int64) (*model.User, error) {
 	var (
 		userProfile *model.User
@@ -44,9 +45,11 @@ func (s *serv) Get(ctx context.Context, id int64) (*model.User, error) {
 			if err != nil {
 				return nil, err
 			}
+			// если успешно получили из БД, возвращаем результат
+			return userProfile, nil
 		}
+		// если ошибка другая — возвращаем ошибку кеша
 		return nil, fmt.Errorf("error with cache: %w", errCache)
 	}
 	return userProfile, nil
-
 }
