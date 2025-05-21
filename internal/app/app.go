@@ -10,13 +10,16 @@ import (
 	"sync"
 	"time"
 
+	"github.com/Ippolid/auth/internal/api/middleware"
+	"github.com/pkg/errors"
+	"google.golang.org/grpc/credentials"
+
 	"github.com/Ippolid/auth/internal/config"
 	"github.com/Ippolid/auth/internal/interceptor"
 	"github.com/Ippolid/auth/pkg/auth_v1"
 	"github.com/Ippolid/platform_libary/pkg/closer"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/rakyll/statik/fs"
-	"github.com/rs/cors"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/reflection"
@@ -79,7 +82,7 @@ func (a *App) Run() error {
 
 		err := a.runSwaggerServer()
 		if err != nil {
-			log.Fatalf("failed to run Swagger server: %v", err)
+			log.Printf("failed to run Swagger server: %v", err)
 		}
 	}()
 
@@ -122,13 +125,23 @@ func (a *App) initServiceProvider(_ context.Context) error {
 }
 
 func (a *App) initGRPCServer(ctx context.Context) error {
+	// создаём TransportCredentials из файлов .crt и .key
+	creds, err := credentials.NewServerTLSFromFile(
+		a.serviceProvider.GetTLSConfig().CertFile(),
+		a.serviceProvider.GetTLSConfig().KeyFile(),
+	)
+	if err != nil {
+		return errors.Wrap(err, "failed to load TLS credentials")
+	}
+
+	// создаём gRPC-сервер с TLS и middleware
 	a.grpcServer = grpc.NewServer(
-		grpc.Creds(insecure.NewCredentials()),
+		grpc.Creds(creds),
 		grpc.UnaryInterceptor(interceptor.ValidateInterceptor),
 	)
 
+	// включаем reflection и регистрируем сервис
 	reflection.Register(a.grpcServer)
-
 	auth_v1.RegisterAuthV1Server(a.grpcServer, a.serviceProvider.NoteController(ctx))
 
 	return nil
@@ -146,12 +159,7 @@ func (a *App) initHTTPServer(ctx context.Context) error {
 		return err
 	}
 
-	corsMiddleware := cors.New(cors.Options{
-		AllowedOrigins:   []string{"*"},
-		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowedHeaders:   []string{"Accept", "Content-Type", "Content-Length", "Authorization"},
-		AllowCredentials: true,
-	})
+	corsMiddleware := middleware.NewCorsMiddleware()
 
 	a.httpServer = &http.Server{
 		Addr:              a.serviceProvider.HTTPConfig().Address(),

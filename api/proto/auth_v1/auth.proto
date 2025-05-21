@@ -1,74 +1,3 @@
-//syntax = "proto3";
-//
-//package auth_v1;
-//
-//import "google/protobuf/timestamp.proto";
-//import "google/protobuf/empty.proto";
-//import "google/protobuf/wrappers.proto";
-//
-//
-//option go_package = "github.com/Ippolid/auth/tree/main/grpc/auth_v1;auth_v1";
-//
-//service AuthV1 {
-//  rpc Create(CreateRequest) returns (CreateResponse);
-//  rpc Get(GetRequest) returns (GetResponse);
-//  rpc Update(UpdateRequest) returns (google.protobuf.Empty);
-//  rpc Delete(DeleteRequest) returns (google.protobuf.Empty);
-//}
-//
-//
-//enum Role {
-//  USER = 0;
-//  ADMIN = 1;
-//}
-//
-//message UserInfo {
-//  string name = 1;
-//  string email = 2;
-//}
-//
-//message UserInfoCreate{
-//  UserInfo user=1;
-//  string password = 2;
-//  string password_confirm = 3;
-//  Role role = 4;
-//}
-//
-//message UserGet {
-//  int64 id = 1;
-//  UserInfo info = 2;
-//  Role role = 3;
-//  google.protobuf.Timestamp created_at = 4;
-//  google.protobuf.Timestamp updated_at = 5;
-//}
-//
-//
-//message CreateRequest {
-//  UserInfoCreate info = 1;
-//}
-//
-//message CreateResponse {
-//  int64 id = 1;
-//}
-//
-//message GetRequest {
-//  int64 id = 1;
-//}
-//
-//message GetResponse {
-//  UserGet user = 1;
-//}
-//
-//message UpdateRequest {
-//  int64 id = 1;
-//  UserInfo info = 2;
-//}
-//
-//message DeleteRequest {
-//  int64 id = 1;
-//}
-//
-//
 syntax = "proto3";
 
 package auth_v1;
@@ -101,27 +30,27 @@ option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
 service AuthV1 {
   rpc Create(CreateRequest) returns (CreateResponse) {
     option (google.api.http) = {
-      post: "/auth/v1/create"
+      post: "v1/auth/create"
       body: "*"
     };
   }
 
   rpc Get(GetRequest) returns (GetResponse) {
     option (google.api.http) = {
-      get: "/auth/v1"
+      get: "v1/auth"
     };
   }
 
   rpc Update(UpdateRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
-      patch: "/auth/v1"
+      patch: "v1/auth"
       body: "*"
     };
   }
 
   rpc Delete(DeleteRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
-      delete: "/auth/v1"
+      delete: "v1/auth"
     };
   }
 }
@@ -138,8 +67,8 @@ message UserInfo {
 
 message UserInfoCreate {
   UserInfo user = 1;
-  string password = 2 [(validate.rules).string = {min_len: 8}];
-  string password_confirm = 3 [(validate.rules).string = {min_len: 8}];
+  string password = 2 [(validate.rules).string = {min_len: 8,max_len: 50}];
+  string password_confirm = 3 [(validate.rules).string = {min_len: 8,max_len: 50}];
   Role role = 4;
 }
 

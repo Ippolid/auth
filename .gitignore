@@ -8,3 +8,5 @@ service_linux
 /.env
 /coverage.out
 generate.go
+/deploy/server.crt
+/deploy/server.key

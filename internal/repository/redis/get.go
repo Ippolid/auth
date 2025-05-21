@@ -2,6 +2,7 @@ package redis
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strconv"
 
@@ -16,7 +17,10 @@ func (c cache) Get(ctx context.Context, id int64) (*model.User, error) {
 
 	userCache, err := c.cl.HGetAll(ctx, key)
 	if err != nil {
-		return nil, model.ErrUserNotFound
+		if errors.Is(err, redis.ErrNil) {
+			return nil, model.ErrUserNotFound
+		}
+		return nil, fmt.Errorf("redis HGetAll error: %w", err)
 	}
 
 	if len(userCache) == 0 {

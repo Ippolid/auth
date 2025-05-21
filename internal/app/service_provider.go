@@ -26,6 +26,7 @@ type serviceProvider struct {
 	redisConfig   config.RedisConfig
 	httpConfig    config.HTTPConfig
 	swaggerConfig config.SwaggerConfig
+	tlsConfig     config.TLSConfig
 
 	dbClient       db.Client
 	txManager      db.TxManager
@@ -108,6 +109,17 @@ func (s *serviceProvider) GetRedisConfig() config.RedisConfig {
 	}
 
 	return s.redisConfig
+}
+
+func (s *serviceProvider) GetTLSConfig() config.TLSConfig {
+	if s.tlsConfig == nil {
+		cfg, err := config.NewTLSConfig()
+		if err != nil {
+			log.Fatalf("failed to get TLS config: %s", err.Error())
+		}
+		s.tlsConfig = cfg
+	}
+	return s.tlsConfig
 }
 
 func (s *serviceProvider) DBClient(ctx context.Context) db.Client {
