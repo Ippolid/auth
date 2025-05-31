@@ -10,3 +10,6 @@ service_linux
 generate.go
 /deploy/server.crt
 /deploy/server.key
+/deploy/server_key.pem
+/deploy/server_cert.pem
+/deploy/certificate.conf

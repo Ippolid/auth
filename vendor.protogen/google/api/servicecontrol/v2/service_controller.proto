@@ -42,8 +42,8 @@ option ruby_package = "Google::Cloud::ServiceControl::V2";
 service ServiceController {
   option (google.api.default_host) = "servicecontrol.googleapis.com";
   option (google.api.oauth_scopes) =
-      "https://www.googleapis.com/auth/cloud-platform,"
-      "https://www.googleapis.com/auth/servicecontrol";
+      "https://www.googleapis.com/user/cloud-platform,"
+      "https://www.googleapis.com/user/servicecontrol";
 
   // Private Preview. This feature is only available for approved services.
   //

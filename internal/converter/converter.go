@@ -2,12 +2,12 @@ package converter
 
 import (
 	"github.com/Ippolid/auth/internal/model"
-	"github.com/Ippolid/auth/pkg/auth_v1"
+	"github.com/Ippolid/auth/pkg/user_v1"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 // ToUserInfoFromService преобразует UpdateRequest в UserInfo
-func ToUserInfoFromService(req *auth_v1.UpdateRequest) *model.UserInfo {
+func ToUserInfoFromService(req *user_v1.UpdateRequest) *model.UserInfo {
 	if req == nil || req.Info == nil {
 		return nil
 	}
@@ -21,19 +21,19 @@ func ToUserInfoFromService(req *auth_v1.UpdateRequest) *model.UserInfo {
 	return &user
 }
 
-// ToDescFromAuthGet преобразует ListResponse в UserList
-func ToDescFromAuthGet(req *model.User) *auth_v1.GetResponse {
+// ToDescFromUserGet преобразует ListResponse в UserList
+func ToDescFromUserGet(req *model.User) *user_v1.GetResponse {
 	if req == nil {
 		return nil
 	}
-	role := auth_v1.Role_USER // Значение по умолчанию
+	role := user_v1.Role_USER // Значение по умолчанию
 	if req.Role {
-		role = auth_v1.Role_ADMIN // Если Role = true, устанавливаем ADMIN
+		role = user_v1.Role_ADMIN // Если Role = true, устанавливаем ADMIN
 	}
-	return &auth_v1.GetResponse{
-		User: &auth_v1.UserGet{
+	return &user_v1.GetResponse{
+		User: &user_v1.UserGet{
 			Id: req.ID,
-			Info: &auth_v1.UserInfo{
+			Info: &user_v1.UserInfo{
 				Name:  req.User.Name,
 				Email: req.User.Email,
 			},
@@ -44,8 +44,8 @@ func ToDescFromAuthGet(req *model.User) *auth_v1.GetResponse {
 	}
 }
 
-// ToAuthCreateFromDesc преобразует CreateRequest в User
-func ToAuthCreateFromDesc(req *auth_v1.CreateRequest) *model.User {
+// ToUserCreateFromDesc преобразует CreateRequest в User
+func ToUserCreateFromDesc(req *user_v1.CreateRequest) *model.User {
 	if req == nil || req.GetInfo() == nil || req.GetInfo().GetUser() == nil {
 		return nil
 	}

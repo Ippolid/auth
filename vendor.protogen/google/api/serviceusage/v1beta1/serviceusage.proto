@@ -36,9 +36,9 @@ option ruby_package = "Google::Api::ServiceUsage::V1beta1";
 service ServiceUsage {
   option (google.api.default_host) = "serviceusage.googleapis.com";
   option (google.api.oauth_scopes) =
-      "https://www.googleapis.com/auth/cloud-platform,"
-      "https://www.googleapis.com/auth/cloud-platform.read-only,"
-      "https://www.googleapis.com/auth/service.management";
+      "https://www.googleapis.com/user/cloud-platform,"
+      "https://www.googleapis.com/user/cloud-platform.read-only,"
+      "https://www.googleapis.com/user/service.management";
 
   // Enables a service so that it can be used with a project.
   //

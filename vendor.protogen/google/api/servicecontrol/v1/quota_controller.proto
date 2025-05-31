@@ -37,8 +37,8 @@ option ruby_package = "Google::Cloud::ServiceControl::V1";
 service QuotaController {
   option (google.api.default_host) = "servicecontrol.googleapis.com";
   option (google.api.oauth_scopes) =
-      "https://www.googleapis.com/auth/cloud-platform,"
-      "https://www.googleapis.com/auth/servicecontrol";
+      "https://www.googleapis.com/user/cloud-platform,"
+      "https://www.googleapis.com/user/servicecontrol";
 
   // Attempts to allocate quota for the specified consumer. It should be called
   // before the operation is executed.

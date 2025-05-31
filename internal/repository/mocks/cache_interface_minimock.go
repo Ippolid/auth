@@ -2,7 +2,7 @@
 
 package mocks
 
-//go:generate minimock -i github.com/Ippolid/auth/internal/repository.CacheInterface -o cache_interface_minimock.go -n CacheInterfaceMock -p mocks
+//go:generate minimock -i github.com/Ippolid/user/internal/repository.CacheInterface -o cache_interface_minimock.go -n CacheInterfaceMock -p mocks
 
 import (
 	"context"

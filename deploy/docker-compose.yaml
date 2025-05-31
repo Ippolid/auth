@@ -46,6 +46,7 @@ services:
     volumes:
       - ./server.crt:/deploy/server.crt:ro
       - ./server.key:/deploy/server.key:ro
+      - ./server_cert.pem:/server_cert.pem:ro
 
   redis:
     image: redis:7.2.5-alpine3.20
