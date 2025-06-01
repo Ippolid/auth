@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"golang.org/x/crypto/bcrypt"
 
 	"github.com/Ippolid/auth/internal/model"
 	"github.com/Ippolid/auth/internal/repository"
@@ -37,10 +38,14 @@ func NewRepository(db db.Client) repository.UserRepository {
 
 // InsertUser вставляет нового пользователя в базу данных и возвращает его ID
 func (r *repo) CreateUser(ctx context.Context, user model.User) (int64, error) {
+	passwordHash, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return 0, fmt.Errorf("failed to hash password: %w", err)
+	}
 	builder := sq.Insert(tableName).
 		PlaceholderFormat(sq.Dollar).
 		Columns(nameColumn, emailColumn, passwordColumn, roleColumn).
-		Values(user.User.Name, user.User.Email, user.Password, user.Role).
+		Values(user.User.Name, user.User.Email, passwordHash, user.Role).
 		Suffix("RETURNING id")
 
 	query, args, err := builder.ToSql()

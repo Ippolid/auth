@@ -25,3 +25,8 @@ type Log struct {
 	CreatedAt time.Time `db:"created_at"`
 	Ctx       string    `db:"ctx"`
 }
+
+type UserInfoJwt struct {
+	Username string `json:"username"`
+	Role     string `json:"role"`
+}
