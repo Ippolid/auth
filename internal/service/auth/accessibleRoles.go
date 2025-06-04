@@ -2,7 +2,6 @@ package auth
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"github.com/Ippolid/auth/internal/model"
 	"time"
@@ -11,15 +10,14 @@ import (
 var accessibleRoles map[string]string
 
 func (s *serv) accessibleRoles(ctx context.Context) (map[string]string, error) {
+	fmt.Println(accessibleRoles)
 	if accessibleRoles == nil {
 		accessibleRoles = make(map[string]string)
 
 		// Пытаемся получить эндпоинты админа из кеша
 		adminEndpoints, errCacheAdmin := s.cache.GetRoleEndpoints(ctx, true)
+		fmt.Println(adminEndpoints, errCacheAdmin)
 		if errCacheAdmin != nil {
-			if errors.Is(errCacheAdmin, model.ErrUserNotFound) {
-				return nil, nil
-			}
 
 			// Данных в кеше нет, выполняем загрузку из базы
 			err := s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
@@ -28,6 +26,8 @@ func (s *serv) accessibleRoles(ctx context.Context) (map[string]string, error) {
 				if errTx != nil {
 					return fmt.Errorf("ошибка получения админских эндпоинтов из БД: %w", errTx)
 				}
+
+				fmt.Println(endpoints)
 
 				// Записываем лог операции
 				errLog := s.authRepository.MakeLog(ctx, model.Log{

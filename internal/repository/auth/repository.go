@@ -46,7 +46,8 @@ func (r *repo) Login(ctx context.Context, user model.LoginRequest) (*model.UserI
 
 	builder := sq.Select(passwordColumn, roleColumn).
 		From(tableName).
-		Where(sq.Eq{nameColumn: user.Username})
+		Where(sq.Eq{nameColumn: user.Username}).
+		PlaceholderFormat(sq.Dollar)
 
 	query, args, err := builder.ToSql()
 	if err != nil {
@@ -85,7 +86,8 @@ func (r *repo) Login(ctx context.Context, user model.LoginRequest) (*model.UserI
 func (r *repo) GetUserRole(ctx context.Context, username string) (bool, error) {
 	builder := sq.Select(roleColumn).
 		From(tableName).
-		Where(sq.Eq{nameColumn: username})
+		Where(sq.Eq{nameColumn: username}).
+		PlaceholderFormat(sq.Dollar)
 
 	query, args, err := builder.ToSql()
 	if err != nil {
@@ -154,12 +156,11 @@ func (r *repo) GetUsersAccess(ctx context.Context, isAdmin bool) ([]string, erro
 	return endpoints, nil
 }
 
-
 func (r *repo) MakeLog(ctx context.Context, info model.Log) error {
 	builder := sq.Insert(tableLogName).
-		PlaceholderFormat(sq.Dollar).
 		Columns(methodColumn, createdAtColumn, ctxColumn).
-		Values(info.Method, info.CreatedAt, info.Ctx)
+		Values(info.Method, info.CreatedAt, info.Ctx).
+		PlaceholderFormat(sq.Dollar)
 
 	query, args, err := builder.ToSql()
 	if err != nil {

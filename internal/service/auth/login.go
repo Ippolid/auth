@@ -17,13 +17,14 @@ func (s *serv) Login(ctx context.Context, req model.LoginRequest) (*model.LoginR
 			return errTx
 		}
 
-		err := s.authRepository.MakeLog(ctx, model.Log{
+		err1 := s.authRepository.MakeLog(ctx, model.Log{
 			Method:    "Login",
 			CreatedAt: time.Now(),
 			Ctx:       fmt.Sprintf("%v", ctx),
 		})
-		if err != nil {
-			return err
+
+		if err1 != nil {
+			return err1
 		}
 
 		refreshToken, err := utils.GenerateToken(*user,

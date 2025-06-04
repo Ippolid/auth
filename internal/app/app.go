@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"fmt"
+	"github.com/Ippolid/auth/pkg/auth_v1"
 	"io"
 	"log"
 	"net"
@@ -141,33 +142,13 @@ func (a *App) initGRPCServer(ctx context.Context) error {
 
 	// включаем reflection и регистрируем сервис
 	reflection.Register(a.grpcServer)
-	user_v1.RegisterUserV1Server(a.grpcServer, a.serviceProvider.NoteController(ctx))
+	user_v1.RegisterUserV1Server(a.grpcServer, a.serviceProvider.UserController(ctx))
+	auth_v1.RegisterAuthServer(a.grpcServer, a.serviceProvider.AuthController(ctx))
 
 	return nil
 }
 
 func (a *App) initHTTPServer(ctx context.Context) error {
-	//mux := runtime.NewServeMux()
-	//
-	//opts := []grpc.DialOption{
-	//	grpc.WithTransportCredentials(insecure.NewCredentials()),
-	//}
-	//
-	//err := user_v1.RegisterUserV1HandlerFromEndpoint(ctx, mux, a.serviceProvider.GRPCConfig().Address(), opts)
-	//if err != nil {
-	//	return err
-	//}
-	//
-	//corsMiddleware := middleware.NewCorsMiddleware()
-	//
-	//a.httpServer = &http.Server{
-	//	Addr:              a.serviceProvider.HTTPConfig().Address(),
-	//	Handler:           corsMiddleware.Handler(mux),
-	//	ReadHeaderTimeout: 5 * time.Second,
-	//}
-	//
-	//return nil
-	// 1. Создаём новый ServeMux для grpc-gateway
 	mux := runtime.NewServeMux()
 
 	// 2. Загружаем клиентские TLS-креденшлы из файла service.pem
