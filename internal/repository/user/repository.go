@@ -168,7 +168,7 @@ func (r *repo) MakeLog(ctx context.Context, info model.Log) error {
 	}
 
 	q := db.Query{
-		Name:     "auth_repository.Log",
+		Name:     "user_repository.Log",
 		QueryRaw: query,
 	}
 

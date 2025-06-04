@@ -27,6 +27,7 @@ type serviceProvider struct {
 	httpConfig    config.HTTPConfig
 	swaggerConfig config.SwaggerConfig
 	tlsConfig     config.TLSConfig
+	jwtConfig     config.JWTConfig
 
 	dbClient       db.Client
 	txManager      db.TxManager
@@ -120,6 +121,17 @@ func (s *serviceProvider) GetTLSConfig() config.TLSConfig {
 		s.tlsConfig = cfg
 	}
 	return s.tlsConfig
+}
+
+func (s *serviceProvider) GetJWTConfig() config.JWTConfig {
+	if s.jwtConfig == nil {
+		cfg, err := config.NewJWTConfig()
+		if err != nil {
+			log.Fatalf("failed to get TLS config: %s", err.Error())
+		}
+		s.jwtConfig = cfg
+	}
+	return s.jwtConfig
 }
 
 func (s *serviceProvider) DBClient(ctx context.Context) db.Client {

@@ -2,6 +2,7 @@ package converter
 
 import (
 	"github.com/Ippolid/auth/internal/model"
+	"github.com/Ippolid/auth/pkg/auth_v1"
 	"github.com/Ippolid/auth/pkg/user_v1"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
@@ -67,4 +68,43 @@ func ToUserCreateFromDesc(req *user_v1.CreateRequest) *model.User {
 		Role:     role,
 	}
 	return &user
+}
+
+func ToLoginFromDesc(req *auth_v1.LoginRequest) *model.LoginRequest {
+	if req == nil {
+		return nil
+	}
+	return &model.LoginRequest{
+		Username: req.GetUsername(),
+		Password: req.GetPassword(),
+	}
+}
+
+func ToGetRefreshTokenFromDesc(req *auth_v1.GetRefreshTokenRequest) *model.GetRefreshTokenRequest {
+	if req == nil {
+		return nil
+	}
+	return &model.GetRefreshTokenRequest{
+		OldToken: req.GetOldRefreshToken(),
+	}
+}
+
+func ToGetAccessTokenFromDesc(req *auth_v1.GetAccessTokenRequest) *model.GetAccessTokenRequest {
+	if req == nil {
+		return nil
+	}
+	return &model.GetAccessTokenRequest{
+		RefreshToken: req.GetRefreshToken(),
+	}
+
+}
+
+func ToCheckAccessFromDesc(req *auth_v1.CheckRequest) *model.CheckRequest {
+	if req == nil {
+		return nil
+	}
+	return &model.CheckRequest{
+		EndpointAddress: req.EndpointAddress,
+	}
+
 }

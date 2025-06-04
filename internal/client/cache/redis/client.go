@@ -47,6 +47,18 @@ func (c *Client) execute(ctx context.Context, handler handler) error {
 	return nil
 }
 
+func (c *Client) Execute(ctx context.Context, handler handler) error {
+	if ctx == nil {
+		ctx = context.Background()
+	}
+
+	if handler == nil {
+		return fmt.Errorf("handler cannot be nil")
+	}
+
+	return c.execute(ctx, handler)
+}
+
 func (c *Client) getConnect(ctx context.Context) (redis.Conn, error) {
 	getConnTimeoutCtx, cancel := context.WithTimeout(ctx, c.config.ConnectionTimeout())
 	defer cancel()

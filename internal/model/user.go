@@ -28,5 +28,5 @@ type Log struct {
 
 type UserInfoJwt struct {
 	Username string `json:"username"`
-	Role     string `json:"role"`
+	Role     bool   `json:"role"`
 }
