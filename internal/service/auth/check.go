@@ -4,10 +4,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
+
 	"github.com/Ippolid/auth/internal/model"
 	"github.com/Ippolid/auth/internal/utils"
 	"google.golang.org/grpc/metadata"
-	"strings"
 )
 
 func (s *serv) Check(ctx context.Context, request model.CheckRequest) error {

@@ -26,6 +26,7 @@ type Log struct {
 	Ctx       string    `db:"ctx"`
 }
 
+// UserInfoJwt структура для хранения информации о пользователе в JWT
 type UserInfoJwt struct {
 	Username string `json:"username"`
 	Role     bool   `json:"role"`

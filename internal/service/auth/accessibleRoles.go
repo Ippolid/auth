@@ -3,8 +3,9 @@ package auth
 import (
 	"context"
 	"fmt"
-	"github.com/Ippolid/auth/internal/model"
 	"time"
+
+	"github.com/Ippolid/auth/internal/model"
 )
 
 var accessibleRoles map[string]string
@@ -55,7 +56,7 @@ func (s *serv) accessibleRoles(ctx context.Context) (map[string]string, error) {
 
 		// Заполняем мапу для эндпоинтов админа
 		for _, endpoint := range adminEndpoints {
-			accessibleRoles[endpoint] = "admin"
+			accessibleRoles[endpoint] = "admin" //nolint:goconst
 		}
 	}
 

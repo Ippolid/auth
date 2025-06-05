@@ -15,6 +15,7 @@ type UserRepository interface {
 	MakeLog(ctx context.Context, log model.Log) error
 }
 
+// AuthRepository интерфейс для работы с авторизацией
 type AuthRepository interface {
 	Login(ctx context.Context, user model.LoginRequest) (*model.UserInfoJwt, error)
 	MakeLog(ctx context.Context, log model.Log) error

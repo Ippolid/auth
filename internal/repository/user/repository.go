@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+
 	"golang.org/x/crypto/bcrypt"
 
 	"github.com/Ippolid/auth/internal/model"

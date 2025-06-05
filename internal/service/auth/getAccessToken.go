@@ -4,11 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
+
 	"github.com/Ippolid/auth/internal/model"
 	"github.com/Ippolid/auth/internal/utils"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"time"
 )
 
 //	func (s *serv) GetAccessToken(ctx context.Context, req model.GetAccessTokenRequest) (*model.GetAccessTokenResponse, error) {

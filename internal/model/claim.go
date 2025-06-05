@@ -2,10 +2,7 @@ package model
 
 import "github.com/dgrijalva/jwt-go"
 
-const (
-	ExamplePath = "/note_v1.NoteV1/Get"
-)
-
+// UserClaims структура для хранения информации о пользователе в JWT-токене
 type UserClaims struct {
 	jwt.StandardClaims
 	Username string `json:"username"`

@@ -1,11 +1,12 @@
 package auth
 
 import (
+	"time"
+
 	"github.com/Ippolid/auth/internal/config"
 	"github.com/Ippolid/auth/internal/repository"
 	"github.com/Ippolid/auth/internal/service"
 	"github.com/Ippolid/platform_libary/pkg/db"
-	"time"
 )
 
 const (

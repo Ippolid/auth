@@ -4,9 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
+
 	"github.com/Ippolid/auth/internal/model"
 	"github.com/Ippolid/auth/internal/utils"
-	"time"
 )
 
 func (s *serv) Login(ctx context.Context, req model.LoginRequest) (*model.LoginResponse, error) {

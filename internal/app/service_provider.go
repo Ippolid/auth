@@ -2,8 +2,9 @@ package app
 
 import (
 	"context"
-	"github.com/Ippolid/auth/internal/api/auth"
 	"log"
+
+	"github.com/Ippolid/auth/internal/api/auth"
 
 	"github.com/Ippolid/auth/internal/client/cache/redis"
 
@@ -129,7 +130,7 @@ func (s *serviceProvider) GetTLSConfig() config.TLSConfig {
 	return s.tlsConfig
 }
 
-func (s *serviceProvider) GetJWTConfig(ctx context.Context) config.JWTConfig {
+func (s *serviceProvider) GetJWTConfig(_ context.Context) config.JWTConfig {
 	if s.jwtConfig == nil {
 		cfg, err := config.NewJWTConfig()
 		if err != nil {

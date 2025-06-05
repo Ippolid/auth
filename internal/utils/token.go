@@ -1,12 +1,14 @@
 package utils
 
 import (
+	"time"
+
 	"github.com/Ippolid/auth/internal/model"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/pkg/errors"
-	"time"
 )
 
+// GenerateToken создает JWT-токен для пользователя с заданной информацией, секретным ключом и временем действия
 func GenerateToken(info model.UserInfoJwt, secretKey []byte, duration time.Duration) (string, error) {
 	claims := model.UserClaims{
 		StandardClaims: jwt.StandardClaims{
@@ -21,6 +23,7 @@ func GenerateToken(info model.UserInfoJwt, secretKey []byte, duration time.Durat
 	return token.SignedString(secretKey)
 }
 
+// VerifyToken проверяет JWT-токен и возвращает информацию о пользователе, если токен действителен
 func VerifyToken(tokenStr string, secretKey []byte) (*model.UserClaims, error) {
 	token, err := jwt.ParseWithClaims(
 		tokenStr,

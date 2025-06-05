@@ -11,7 +11,7 @@ const (
 	accessTokenSecretKey  = "ACCESS_TOKEN"
 )
 
-// SwaggerConfig интерфейс для конфигурации Swagger-сервера
+// JWTConfig интерфейс для конфигурации JWT-токенов
 type JWTConfig interface {
 	RefreshToken() string
 	AccessToken() string
@@ -22,7 +22,7 @@ type jwtConfig struct {
 	accesskey  string
 }
 
-// NewSwaggerConfig создает новую конфигурацию Swagger-сервера
+// NewJWTConfig создает новую конфигурацию JWT-токенов, извлекая ключи из переменных окружения
 func NewJWTConfig() (JWTConfig, error) {
 	refreshkey := os.Getenv(refreshTokenSecretKey)
 	if len(refreshkey) == 0 {

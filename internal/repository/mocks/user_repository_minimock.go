@@ -2,7 +2,7 @@
 
 package mocks
 
-//go:generate minimock -i github.com/Ippolid/user/internal/repository.UserRepository -o user_repository_minimock.go -n UserRepositoryMock -p mocks
+//go:generate minimock -i github.com/Ippolid/auth/internal/repository.UserRepository -o user_repository_minimock.go -n UserRepositoryMock -p mocks
 
 import (
 	"context"

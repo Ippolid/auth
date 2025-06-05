@@ -3,6 +3,7 @@ package redis
 import (
 	"context"
 	"fmt"
+
 	"github.com/Ippolid/auth/internal/model"
 	"github.com/gomodule/redigo/redis"
 )
@@ -14,9 +15,9 @@ func (c *cache) CreateRoleEndpoints(ctx context.Context, isAdmin bool, endpoints
 	}
 
 	// Формируем ключ в формате "role:admin" или "role:user"
-	roleKey := "role:user"
+	roleKey := "role:user" //nolint:goconst
 	if isAdmin {
-		roleKey = "role:admin"
+		roleKey = "role:admin" //nolint:goconst
 	}
 
 	// Преобразуем слайс строк в массив интерфейсов для Redis

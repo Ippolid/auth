@@ -3,13 +3,14 @@ package app
 import (
 	"context"
 	"fmt"
-	"github.com/Ippolid/auth/pkg/auth_v1"
 	"io"
 	"log"
 	"net"
 	"net/http"
 	"sync"
 	"time"
+
+	"github.com/Ippolid/auth/pkg/auth_v1"
 
 	"github.com/Ippolid/auth/internal/api/middleware"
 	"github.com/pkg/errors"

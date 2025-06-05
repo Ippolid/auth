@@ -70,6 +70,7 @@ func ToUserCreateFromDesc(req *user_v1.CreateRequest) *model.User {
 	return &user
 }
 
+// ToLoginFromDesc преобразует LoginRequest в LoginRequest
 func ToLoginFromDesc(req *auth_v1.LoginRequest) *model.LoginRequest {
 	if req == nil {
 		return nil
@@ -80,6 +81,7 @@ func ToLoginFromDesc(req *auth_v1.LoginRequest) *model.LoginRequest {
 	}
 }
 
+// ToGetRefreshTokenFromDesc преобразует GetRefreshTokenRequest в GetRefreshTokenRequest
 func ToGetRefreshTokenFromDesc(req *auth_v1.GetRefreshTokenRequest) *model.GetRefreshTokenRequest {
 	if req == nil {
 		return nil
@@ -89,6 +91,7 @@ func ToGetRefreshTokenFromDesc(req *auth_v1.GetRefreshTokenRequest) *model.GetRe
 	}
 }
 
+// ToGetAccessTokenFromDesc преобразует GetAccessTokenRequest в GetAccessTokenRequest
 func ToGetAccessTokenFromDesc(req *auth_v1.GetAccessTokenRequest) *model.GetAccessTokenRequest {
 	if req == nil {
 		return nil
@@ -99,6 +102,7 @@ func ToGetAccessTokenFromDesc(req *auth_v1.GetAccessTokenRequest) *model.GetAcce
 
 }
 
+// ToCheckAccessFromDesc преобразует CheckRequest в CheckRequest
 func ToCheckAccessFromDesc(req *auth_v1.CheckRequest) *model.CheckRequest {
 	if req == nil {
 		return nil

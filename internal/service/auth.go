@@ -2,9 +2,11 @@ package service
 
 import (
 	"context"
+
 	"github.com/Ippolid/auth/internal/model"
 )
 
+// AuthService интерфейс для работы с авторизацией
 type AuthService interface {
 	Check(ctx context.Context, request model.CheckRequest) error
 	Login(ctx context.Context, request model.LoginRequest) (*model.LoginResponse, error)
