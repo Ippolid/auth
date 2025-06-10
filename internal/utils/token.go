@@ -4,15 +4,15 @@ import (
 	"time"
 
 	"github.com/Ippolid/auth/internal/model"
-	"github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/pkg/errors"
 )
 
 // GenerateToken создает JWT-токен для пользователя с заданной информацией, секретным ключом и временем действия
 func GenerateToken(info model.UserInfoJwt, secretKey []byte, duration time.Duration) (string, error) {
 	claims := model.UserClaims{
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(duration).Unix(),
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(duration)),
 		},
 		Username: info.Username,
 		Role:     map[bool]string{true: "admin", false: "user"}[info.Role],

@@ -19,6 +19,7 @@ type serv struct {
 	txManager      db.TxManager
 	cache          repository.CacheInterface
 	token          config.JWTConfig
+	access         config.AccessConfig
 }
 
 // NewService создает новый экземпляр AuthService
@@ -27,11 +28,13 @@ func NewService(
 	txManager db.TxManager,
 	cache repository.CacheInterface,
 	token config.JWTConfig,
+	access config.AccessConfig,
 ) service.AuthService {
 	return &serv{
 		authRepository: authRepository,
 		txManager:      txManager,
 		cache:          cache,
 		token:          token,
+		access:         access,
 	}
 }

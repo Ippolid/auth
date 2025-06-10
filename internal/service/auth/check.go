@@ -44,8 +44,6 @@ func (s *serv) Check(ctx context.Context, request model.CheckRequest) error {
 		return fmt.Errorf("failed to get accessible roles: %w", err)
 	}
 
-	fmt.Println(accessibleMap, err)
-
 	// Проверяем, есть ли запрашиваемый эндпоинт в карте доступа
 	requiredRole, ok := accessibleMap[request.EndpointAddress]
 	if !ok {

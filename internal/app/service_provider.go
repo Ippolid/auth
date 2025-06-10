@@ -32,6 +32,7 @@ type serviceProvider struct {
 	swaggerConfig config.SwaggerConfig
 	tlsConfig     config.TLSConfig
 	jwtConfig     config.JWTConfig
+	accessConfig  config.AccessConfig
 
 	dbClient       db.Client
 	txManager      db.TxManager
@@ -128,6 +129,17 @@ func (s *serviceProvider) GetTLSConfig() config.TLSConfig {
 		s.tlsConfig = cfg
 	}
 	return s.tlsConfig
+}
+
+func (s *serviceProvider) GetAccessConfig(_ context.Context) config.AccessConfig {
+	if s.accessConfig == nil {
+		cfg, err := config.NewAccessConfig()
+		if err != nil {
+			log.Fatalf("failed to get Access config: %s", err.Error())
+		}
+		s.accessConfig = cfg
+	}
+	return s.accessConfig
 }
 
 func (s *serviceProvider) GetJWTConfig(_ context.Context) config.JWTConfig {
@@ -233,6 +245,7 @@ func (s *serviceProvider) AuthService(ctx context.Context) service.AuthService {
 			s.TxManager(ctx),
 			s.GetCache(ctx),
 			s.GetJWTConfig(ctx),
+			s.GetAccessConfig(ctx),
 		)
 	}
 

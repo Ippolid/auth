@@ -3,6 +3,7 @@ package auth
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 
 	"github.com/Ippolid/auth/internal/model"
@@ -105,7 +106,7 @@ func (r *repo) GetUserRole(ctx context.Context, username string) (bool, error) {
 	var role bool
 	err = row.Scan(&role)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			return false, fmt.Errorf("user not found")
 		}
 		return false, fmt.Errorf("failed to scan user role: %w", err)

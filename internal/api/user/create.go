@@ -11,7 +11,7 @@ import (
 
 // Create реализует метод создания пользователя
 func (i *Controller) Create(ctx context.Context, req *user_v1.CreateRequest) (*user_v1.CreateResponse, error) {
-	id, err := i.userService.Create(ctx, converter.ToUserCreateFromDesc(req))
+	id, err := i.userService.Create(ctx, converter.ToUserCreateFromUserApi(req))
 	if err != nil {
 		return nil, err
 	}

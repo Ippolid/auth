@@ -9,7 +9,7 @@ import (
 
 // Login обрабатывает запрос на вход в систему
 func (i *Controller) Login(ctx context.Context, req *auth_v1.LoginRequest) (*auth_v1.LoginResponse, error) {
-	resp, err := i.authService.Login(ctx, *converter.ToLoginFromDesc(req))
+	resp, err := i.authService.Login(ctx, *converter.ToLoginFromAuthApi(req))
 	if err != nil {
 		return nil, err
 	}

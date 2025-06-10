@@ -1,0 +1,5 @@
+# config/access.yaml
+#True если доступен только для администратора, иначе доступ для всех
+endpoints:
+  "/v1/user/create": true
+  "/v1/user/delete": true
