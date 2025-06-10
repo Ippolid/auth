@@ -22,8 +22,8 @@ func ToUserInfoFromService(req *user_v1.UpdateRequest) *model.UserInfo {
 	return &user
 }
 
-// ToUserApiFromUserGet преобразует ListResponse в UserList
-func ToUserApiFromUserGet(req *model.User) *user_v1.GetResponse {
+// ToUserAPIFromUserGet преобразует ListResponse в UserList
+func ToUserAPIFromUserGet(req *model.User) *user_v1.GetResponse {
 	if req == nil {
 		return nil
 	}
@@ -45,8 +45,8 @@ func ToUserApiFromUserGet(req *model.User) *user_v1.GetResponse {
 	}
 }
 
-// ToUserCreateFromUserApi преобразует CreateRequest в User
-func ToUserCreateFromUserApi(req *user_v1.CreateRequest) *model.User {
+// ToUserCreateFromUserAPI преобразует CreateRequest в User
+func ToUserCreateFromUserAPI(req *user_v1.CreateRequest) *model.User {
 	if req == nil || req.GetInfo() == nil || req.GetInfo().GetUser() == nil {
 		return nil
 	}
@@ -70,8 +70,8 @@ func ToUserCreateFromUserApi(req *user_v1.CreateRequest) *model.User {
 	return &user
 }
 
-// ToLoginFromAuthApi преобразует LoginRequest в LoginRequest
-func ToLoginFromAuthApi(req *auth_v1.LoginRequest) *model.LoginRequest {
+// ToLoginFromAuthAPI преобразует LoginRequest в LoginRequest
+func ToLoginFromAuthAPI(req *auth_v1.LoginRequest) *model.LoginRequest {
 	if req == nil {
 		return nil
 	}
@@ -91,8 +91,8 @@ func ToGetRefreshTokenFromDesc(req *auth_v1.GetRefreshTokenRequest) *model.GetRe
 	}
 }
 
-// ToGetAccessTokenFromAuthApi преобразует GetAccessTokenRequest в GetAccessTokenRequest
-func ToGetAccessTokenFromAuthApi(req *auth_v1.GetAccessTokenRequest) *model.GetAccessTokenRequest {
+// ToGetAccessTokenFromAuthAPI преобразует GetAccessTokenRequest в GetAccessTokenRequest
+func ToGetAccessTokenFromAuthAPI(req *auth_v1.GetAccessTokenRequest) *model.GetAccessTokenRequest {
 	if req == nil {
 		return nil
 	}
@@ -102,8 +102,8 @@ func ToGetAccessTokenFromAuthApi(req *auth_v1.GetAccessTokenRequest) *model.GetA
 
 }
 
-// ToCheckAccessFromAuthApi преобразует CheckRequest в CheckRequest
-func ToCheckAccessFromAuthApi(req *auth_v1.CheckRequest) *model.CheckRequest {
+// ToCheckAccessFromAuthAPI преобразует CheckRequest в CheckRequest
+func ToCheckAccessFromAuthAPI(req *auth_v1.CheckRequest) *model.CheckRequest {
 	if req == nil {
 		return nil
 	}

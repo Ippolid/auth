@@ -7,7 +7,7 @@ import (
 
 var accessibleRoles map[string]string
 
-func (s *serv) accessibleRoles(ctx context.Context) (map[string]string, error) {
+func (s *serv) accessibleRoles(_ context.Context) (map[string]string, error) {
 	fmt.Println(accessibleRoles)
 	if accessibleRoles == nil {
 		accessibleRoles = make(map[string]string)
@@ -15,7 +15,7 @@ func (s *serv) accessibleRoles(ctx context.Context) (map[string]string, error) {
 		cfg := s.access.CFG()
 
 		// Заполняем мапу для эндпоинтов админа
-		for endpoint, _ := range cfg {
+		for endpoint := range cfg {
 			accessibleRoles[endpoint] = "admin" //nolint:goconst
 		}
 	}

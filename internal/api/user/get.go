@@ -16,7 +16,7 @@ func (i *Controller) Get(ctx context.Context, req *user_v1.GetRequest) (*user_v1
 	if err != nil {
 		return nil, err
 	}
-	responce := converter.ToUserApiFromUserGet(user1)
+	responce := converter.ToUserAPIFromUserGet(user1)
 
 	return responce, nil
 }

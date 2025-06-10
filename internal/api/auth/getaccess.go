@@ -9,7 +9,7 @@ import (
 
 // GetAccessToken обрабатывает запрос на получение access-токена
 func (i *Controller) GetAccessToken(ctx context.Context, req *auth_v1.GetAccessTokenRequest) (*auth_v1.GetAccessTokenResponse, error) {
-	resp, err := i.authService.GetAccessToken(ctx, *converter.ToGetAccessTokenFromAuthApi(req))
+	resp, err := i.authService.GetAccessToken(ctx, *converter.ToGetAccessTokenFromAuthAPI(req))
 	if err != nil {
 		return nil, err
 	}

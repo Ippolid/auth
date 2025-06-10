@@ -10,7 +10,7 @@ import (
 
 // Check обрабатывает запрос на проверку доступа
 func (i *Controller) Check(ctx context.Context, req *auth_v1.CheckRequest) (*emptypb.Empty, error) {
-	err := i.authService.Check(ctx, *converter.ToCheckAccessFromAuthApi(req))
+	err := i.authService.Check(ctx, *converter.ToCheckAccessFromAuthAPI(req))
 	if err != nil {
 		return nil, err
 	}

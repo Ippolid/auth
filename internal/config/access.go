@@ -1,13 +1,15 @@
 package config
 
 import (
+	"os"
+
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
-	"os"
 )
 
 const yamldir = "ACCESS_YAML_DIR"
 
+// AccessConfig интерфейс для получения конфигурации доступа к эндпоинтам.
 type AccessConfig interface {
 	CFG() map[string]bool
 }
@@ -26,7 +28,7 @@ func NewAccessConfig() (AccessConfig, error) {
 
 	// Имя файла конфигурации можно сделать константой или параметром
 
-	data, err := os.ReadFile(yamlPathDir)
+	data, err := os.ReadFile(yamlPathDir) //nolint:gosec
 	if err != nil {
 		return nil, errors.Wrapf(err, "ошибка чтения файла конфигурации '%s'", yamlPathDir)
 	}
