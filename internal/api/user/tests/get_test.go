@@ -16,6 +16,10 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
+func ptr[T any](v T) *T {
+	return &v
+}
+
 func TestController_Get(t *testing.T) {
 	type userServiceMockFunc func(mc *minimock.Controller) service.UserService
 
@@ -35,8 +39,8 @@ func TestController_Get(t *testing.T) {
 		user = &model.User{
 			ID: id,
 			User: model.UserInfo{
-				Name:  "Test Name",
-				Email: "test@example.com",
+				Name:  ptr("Test Name"),
+				Email: ptr("test@example.com"),
 			},
 			Role:      true, // true соответствует Role_ADMIN
 			Password:  "password",
@@ -57,7 +61,7 @@ func TestController_Get(t *testing.T) {
 			wantResp: &user_v1.GetResponse{
 				User: &user_v1.UserGet{
 					Id:        user.ID,
-					Info:      &user_v1.UserInfo{Name: user.User.Name, Email: user.User.Email},
+					Info:      &user_v1.UserInfo{Name: *user.User.Name, Email: *user.User.Email},
 					Role:      user_v1.Role_ADMIN,           // Соответствует user.Role = true
 					CreatedAt: timestamppb.New(time.Time{}), // Нулевое значение времени
 					UpdatedAt: timestamppb.New(time.Time{}), // Нулевое значение времени

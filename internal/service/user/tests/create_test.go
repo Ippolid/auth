@@ -17,6 +17,10 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func ptr[T any](v T) *T {
+	return &v
+}
+
 func TestCreate(t *testing.T) {
 	type userRepositoryMockFunc func(mc *minimock.Controller) repository.UserRepository
 	type txManagerMockFunc func(mc *minimock.Controller) db.TxManager
@@ -34,8 +38,8 @@ func TestCreate(t *testing.T) {
 		user    = &model.User{
 			ID: id,
 			User: model.UserInfo{
-				Name:  gofakeit.Name(),
-				Email: gofakeit.Email(),
+				Name:  ptr(gofakeit.Name()),
+				Email: ptr(gofakeit.Email()),
 			},
 			Role:      gofakeit.Bool(),
 			Password:  gofakeit.Password(true, true, true, true, false, 10),

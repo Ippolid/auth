@@ -46,8 +46,8 @@ func TestController_Create(t *testing.T) {
 
 		info = model.User{
 			User: model.UserInfo{
-				Name:  req.GetInfo().GetUser().GetName(),
-				Email: req.GetInfo().GetUser().GetEmail(),
+				Name:  &req.GetInfo().GetUser().Name,
+				Email: &req.GetInfo().GetUser().Email,
 			},
 			Password: req.GetInfo().GetPassword(),
 			Role:     req.GetInfo().GetRole() > 0,

@@ -31,8 +31,8 @@ func TestUpdate(t *testing.T) {
 		id      = gofakeit.Int64()
 		repoErr = fmt.Errorf("repo error")
 		info    = model.UserInfo{
-			Name:  gofakeit.Name(),
-			Email: gofakeit.Email(),
+			Name:  ptr(gofakeit.Name()),
+			Email: ptr(gofakeit.Email()),
 		}
 	)
 

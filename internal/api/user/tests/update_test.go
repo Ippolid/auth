@@ -37,8 +37,8 @@ func TestController_Update(t *testing.T) {
 		}
 
 		updatedUser = model.UserInfo{
-			Name:  "Updated Name",
-			Email: "updated@example.com",
+			Name:  ptr("Updated Name"),
+			Email: ptr("updated@example.com"),
 		}
 
 		svcErr = errors.New("service error")

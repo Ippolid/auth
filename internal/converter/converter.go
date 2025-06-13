@@ -15,8 +15,8 @@ func ToUserInfoFromService(req *user_v1.UpdateRequest) *model.UserInfo {
 	name := req.Info.Name
 	email := req.Info.Email
 	user := model.UserInfo{
-		Name:  name,
-		Email: email,
+		Name:  &name,
+		Email: &email,
 	}
 
 	return &user
@@ -35,8 +35,8 @@ func ToUserAPIFromUserGet(req *model.User) *user_v1.GetResponse {
 		User: &user_v1.UserGet{
 			Id: req.ID,
 			Info: &user_v1.UserInfo{
-				Name:  req.User.Name,
-				Email: req.User.Email,
+				Name:  *req.User.Name,
+				Email: *req.User.Email,
 			},
 			Role:      role,
 			CreatedAt: timestamppb.New(req.CreatedAt),
@@ -58,8 +58,8 @@ func ToUserCreateFromUserAPI(req *user_v1.CreateRequest) *model.User {
 	role := req.GetInfo().GetRole() > 0
 
 	userInfo := model.UserInfo{
-		Name:  name,
-		Email: email,
+		Name:  &name,
+		Email: &email,
 	}
 
 	user := model.User{

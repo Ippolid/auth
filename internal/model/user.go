@@ -15,8 +15,8 @@ type User struct {
 
 // UserInfo информация о пользователя
 type UserInfo struct {
-	Name  string `db:"name"`
-	Email string `db:"email"`
+	Name  *string `db:"name"`
+	Email *string `db:"email"`
 }
 
 // Log структура для хранения логов

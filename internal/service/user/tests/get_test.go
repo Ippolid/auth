@@ -41,8 +41,8 @@ func TestGet(t *testing.T) {
 	expectedUser := &model.User{
 		ID: id,
 		User: model.UserInfo{
-			Name:  name,
-			Email: email,
+			Name:  &name,
+			Email: &email,
 		},
 		Role:      role,
 		Password:  password,

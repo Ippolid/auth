@@ -69,7 +69,7 @@ func (r *repo) Login(ctx context.Context, user model.LoginRequest) (*model.UserI
 
 	err = row.Scan(&password, &role)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			return nil, fmt.Errorf("user not found")
 		}
 		return nil, fmt.Errorf("failed to scan user: %w", err)
