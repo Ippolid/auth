@@ -8,12 +8,14 @@ import (
 
 	"github.com/Ippolid/auth/internal/model"
 	"github.com/Ippolid/auth/internal/repository"
+	"github.com/Ippolid/auth/internal/utils"
 	"github.com/Ippolid/platform_libary/pkg/db"
 	sq "github.com/Masterminds/squirrel"
 )
 
 const (
-	tableName = "users_table"
+	tableName       = "users_table"
+	tableAccessName = "access"
 
 	idColumn        = "id"
 	nameColumn      = "name"
@@ -24,6 +26,7 @@ const (
 	tableLogName    = "logs"
 	methodColumn    = "method_name"
 	ctxColumn       = "ctx"
+	endpointColumn  = "endpoint"
 )
 
 type repo struct {
@@ -36,126 +39,130 @@ func NewRepository(db db.Client) repository.AuthRepository {
 }
 
 // InsertUser вставляет нового пользователя в базу данных и возвращает его ID
-func (r *repo) CreateUser(ctx context.Context, user model.User) (int64, error) {
-	builder := sq.Insert(tableName).
-		PlaceholderFormat(sq.Dollar).
-		Columns(nameColumn, emailColumn, passwordColumn, roleColumn).
-		Values(user.User.Name, user.User.Email, user.Password, user.Role).
-		Suffix("RETURNING id")
 
-	query, args, err := builder.ToSql()
-	if err != nil {
-		return 0, err
+func (r *repo) Login(ctx context.Context, user model.LoginRequest) (*model.UserInfoJwt, error) {
+
+	if user.Username == "" || user.Password == "" {
+		return nil, fmt.Errorf("email and password must not be empty")
 	}
 
-	q := db.Query{
-		Name:     "auth_repository.Create_User",
-		QueryRaw: query,
-	}
-
-	var id int64
-	err = r.db.DB().QueryRowContext(ctx, q, args...).Scan(&id)
-	if err != nil {
-		return 0, err
-	}
-
-	return id, nil
-}
-
-// GetUser получает пользователя по ID из базы данных
-func (r *repo) GetUser(ctx context.Context, id int64) (*model.User, error) {
-	builder := sq.Select(nameColumn, emailColumn, roleColumn, createdAtColumn).
+	builder := sq.Select(passwordColumn, roleColumn).
 		From(tableName).
-		PlaceholderFormat(sq.Dollar).
-		Where(sq.Eq{idColumn: id})
+		Where(sq.Eq{nameColumn: user.Username}).
+		PlaceholderFormat(sq.Dollar)
 
 	query, args, err := builder.ToSql()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to build query: %w", err)
 	}
 
 	q := db.Query{
-		Name:     "auth_repository.Get_User",
+		Name:     "auth_repository.Login",
 		QueryRaw: query,
 	}
 
-	var user model.User
-	err = r.db.DB().ScanOneContext(ctx, &user, q, args...)
+	row := r.db.DB().QueryRowContext(ctx, q, args...)
+
+	var userInfo model.UserInfoJwt
+	var password string
+	var role bool
+
+	err = row.Scan(&password, &role)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, fmt.Errorf("user with id %d not found", id)
+			return nil, fmt.Errorf("user not found")
 		}
-		return nil, err
+		return nil, fmt.Errorf("failed to scan user: %w", err)
 	}
 
-	return &user, nil
+	if !utils.VerifyPassword(password, user.Password) {
+		return nil, fmt.Errorf("invalid password")
+	}
+	userInfo.Username = user.Username
+	userInfo.Role = role
+
+	return &userInfo, nil
+
 }
 
-// DeleteUser удаляет пользователя по ID из базы данных
-func (r *repo) DeleteUser(ctx context.Context, id int64) error {
-	builder := sq.Delete(tableName).
-		PlaceholderFormat(sq.Dollar).
-		Where(sq.Eq{idColumn: id})
+func (r *repo) GetUserRole(ctx context.Context, username string) (bool, error) {
+	builder := sq.Select(roleColumn).
+		From(tableName).
+		Where(sq.Eq{nameColumn: username}).
+		PlaceholderFormat(sq.Dollar)
 
 	query, args, err := builder.ToSql()
 	if err != nil {
-		return err
+		return false, fmt.Errorf("failed to build query: %w", err)
 	}
 
 	q := db.Query{
-		Name:     "auth_repository.Delete_User",
+		Name:     "auth_repository.GetUserRole",
 		QueryRaw: query,
 	}
 
-	tag, err := r.db.DB().ExecContext(ctx, q, args...)
+	row := r.db.DB().QueryRowContext(ctx, q, args...)
+
+	var role bool
+	err = row.Scan(&role)
 	if err != nil {
-		return err
+		if errors.Is(err, sql.ErrNoRows) {
+			return false, fmt.Errorf("user not found")
+		}
+		return false, fmt.Errorf("failed to scan user role: %w", err)
 	}
 
-	// Опционально: проверка, что запись действительно была удалена
-	if tag.RowsAffected() == 0 {
-		return fmt.Errorf("user with id %d not found", id)
-	}
+	return role, nil
 
-	return nil
 }
-
-// UpdateUser обновляет информацию о пользователе в базе данных
-func (r *repo) UpdateUser(ctx context.Context, id int64, info model.UserInfo) error {
-	builder := sq.Update(tableName).
-		PlaceholderFormat(sq.Dollar).
-		Set(nameColumn, info.Name).
-		Set(emailColumn, info.Email).
-		Where(sq.Eq{idColumn: id})
+func (r *repo) GetUsersAccess(ctx context.Context, isAdmin bool) ([]string, error) {
+	builder := sq.Select(endpointColumn).
+		From(tableAccessName).
+		Where(sq.Eq{roleColumn: isAdmin}).
+		PlaceholderFormat(sq.Dollar)
 
 	query, args, err := builder.ToSql()
 	if err != nil {
-		return fmt.Errorf("failed to build update query: %w", err)
+		return nil, fmt.Errorf("failed to build query: %w", err)
 	}
 
 	q := db.Query{
-		Name:     "auth_repository.Update_User",
+		Name:     "auth_repository.GetUsersAccess",
 		QueryRaw: query,
 	}
 
-	tag, err := r.db.DB().ExecContext(ctx, q, args...)
+	rows, err := r.db.DB().QueryContext(ctx, q, args...)
 	if err != nil {
-		return err
+		return nil, fmt.Errorf("failed to execute query: %w", err)
+	}
+	defer rows.Close()
+
+	endpoints := make([]string, 0)
+	for rows.Next() {
+		var endpoint string
+		if err := rows.Scan(&endpoint); err != nil {
+			return nil, fmt.Errorf("failed to scan endpoint: %w", err)
+		}
+		endpoints = append(endpoints, endpoint)
 	}
 
-	if tag.RowsAffected() == 0 {
-		return fmt.Errorf("user with id %d not found", id)
+	if err = rows.Err(); err != nil {
+		return nil, fmt.Errorf("error iterating rows: %w", err)
 	}
 
-	return nil
+	// Если для указанной роли нет эндпоинтов, возвращаем пустой слайс
+	if len(endpoints) == 0 {
+		return endpoints, nil
+	}
 
+	return endpoints, nil
 }
 
 func (r *repo) MakeLog(ctx context.Context, info model.Log) error {
 	builder := sq.Insert(tableLogName).
-		PlaceholderFormat(sq.Dollar).
 		Columns(methodColumn, createdAtColumn, ctxColumn).
-		Values(info.Method, info.CreatedAt, info.Ctx)
+		Values(info.Method, info.CreatedAt, info.Ctx).
+		PlaceholderFormat(sq.Dollar)
 
 	query, args, err := builder.ToSql()
 	if err != nil {

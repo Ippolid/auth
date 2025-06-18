@@ -6,10 +6,10 @@ import (
 	"github.com/Ippolid/auth/internal/model"
 )
 
-// AuthService интерфейс для работы с пользователями
+// AuthService интерфейс для работы с авторизацией
 type AuthService interface {
-	Create(ctx context.Context, info *model.User) (int64, error)
-	Get(ctx context.Context, id int64) (*model.User, error)
-	Delete(ctx context.Context, id int64) error
-	Update(ctx context.Context, id int64, info *model.UserInfo) error
+	Check(ctx context.Context, request model.CheckRequest) error
+	Login(ctx context.Context, request model.LoginRequest) (*model.LoginResponse, error)
+	GetRefreshToken(ctx context.Context, request model.GetRefreshTokenRequest) (*model.GetRefreshTokenResponse, error)
+	GetAccessToken(ctx context.Context, req model.GetAccessTokenRequest) (*model.GetAccessTokenResponse, error)
 }

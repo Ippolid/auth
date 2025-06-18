@@ -26,12 +26,40 @@ type CacheInterfaceMock struct {
 	beforeCreateCounter uint64
 	CreateMock          mCacheInterfaceMockCreate
 
+	funcCreateRole          func(ctx context.Context, username string, role bool) (err error)
+	funcCreateRoleOrigin    string
+	inspectFuncCreateRole   func(ctx context.Context, username string, role bool)
+	afterCreateRoleCounter  uint64
+	beforeCreateRoleCounter uint64
+	CreateRoleMock          mCacheInterfaceMockCreateRole
+
+	funcCreateRoleEndpoints          func(ctx context.Context, isAdmin bool, endpoints []string) (err error)
+	funcCreateRoleEndpointsOrigin    string
+	inspectFuncCreateRoleEndpoints   func(ctx context.Context, isAdmin bool, endpoints []string)
+	afterCreateRoleEndpointsCounter  uint64
+	beforeCreateRoleEndpointsCounter uint64
+	CreateRoleEndpointsMock          mCacheInterfaceMockCreateRoleEndpoints
+
 	funcGet          func(ctx context.Context, id int64) (up1 *model.User, err error)
 	funcGetOrigin    string
 	inspectFuncGet   func(ctx context.Context, id int64)
 	afterGetCounter  uint64
 	beforeGetCounter uint64
 	GetMock          mCacheInterfaceMockGet
+
+	funcGetRole          func(ctx context.Context, username string) (bp1 *bool, err error)
+	funcGetRoleOrigin    string
+	inspectFuncGetRole   func(ctx context.Context, username string)
+	afterGetRoleCounter  uint64
+	beforeGetRoleCounter uint64
+	GetRoleMock          mCacheInterfaceMockGetRole
+
+	funcGetRoleEndpoints          func(ctx context.Context, isAdmin bool) (sa1 []string, err error)
+	funcGetRoleEndpointsOrigin    string
+	inspectFuncGetRoleEndpoints   func(ctx context.Context, isAdmin bool)
+	afterGetRoleEndpointsCounter  uint64
+	beforeGetRoleEndpointsCounter uint64
+	GetRoleEndpointsMock          mCacheInterfaceMockGetRoleEndpoints
 }
 
 // NewCacheInterfaceMock returns a mock for mm_repository.CacheInterface
@@ -45,8 +73,20 @@ func NewCacheInterfaceMock(t minimock.Tester) *CacheInterfaceMock {
 	m.CreateMock = mCacheInterfaceMockCreate{mock: m}
 	m.CreateMock.callArgs = []*CacheInterfaceMockCreateParams{}
 
+	m.CreateRoleMock = mCacheInterfaceMockCreateRole{mock: m}
+	m.CreateRoleMock.callArgs = []*CacheInterfaceMockCreateRoleParams{}
+
+	m.CreateRoleEndpointsMock = mCacheInterfaceMockCreateRoleEndpoints{mock: m}
+	m.CreateRoleEndpointsMock.callArgs = []*CacheInterfaceMockCreateRoleEndpointsParams{}
+
 	m.GetMock = mCacheInterfaceMockGet{mock: m}
 	m.GetMock.callArgs = []*CacheInterfaceMockGetParams{}
+
+	m.GetRoleMock = mCacheInterfaceMockGetRole{mock: m}
+	m.GetRoleMock.callArgs = []*CacheInterfaceMockGetRoleParams{}
+
+	m.GetRoleEndpointsMock = mCacheInterfaceMockGetRoleEndpoints{mock: m}
+	m.GetRoleEndpointsMock.callArgs = []*CacheInterfaceMockGetRoleEndpointsParams{}
 
 	t.Cleanup(m.MinimockFinish)
 
@@ -426,6 +466,752 @@ func (m *CacheInterfaceMock) MinimockCreateInspect() {
 	}
 }
 
+type mCacheInterfaceMockCreateRole struct {
+	optional           bool
+	mock               *CacheInterfaceMock
+	defaultExpectation *CacheInterfaceMockCreateRoleExpectation
+	expectations       []*CacheInterfaceMockCreateRoleExpectation
+
+	callArgs []*CacheInterfaceMockCreateRoleParams
+	mutex    sync.RWMutex
+
+	expectedInvocations       uint64
+	expectedInvocationsOrigin string
+}
+
+// CacheInterfaceMockCreateRoleExpectation specifies expectation struct of the CacheInterface.CreateRole
+type CacheInterfaceMockCreateRoleExpectation struct {
+	mock               *CacheInterfaceMock
+	params             *CacheInterfaceMockCreateRoleParams
+	paramPtrs          *CacheInterfaceMockCreateRoleParamPtrs
+	expectationOrigins CacheInterfaceMockCreateRoleExpectationOrigins
+	results            *CacheInterfaceMockCreateRoleResults
+	returnOrigin       string
+	Counter            uint64
+}
+
+// CacheInterfaceMockCreateRoleParams contains parameters of the CacheInterface.CreateRole
+type CacheInterfaceMockCreateRoleParams struct {
+	ctx      context.Context
+	username string
+	role     bool
+}
+
+// CacheInterfaceMockCreateRoleParamPtrs contains pointers to parameters of the CacheInterface.CreateRole
+type CacheInterfaceMockCreateRoleParamPtrs struct {
+	ctx      *context.Context
+	username *string
+	role     *bool
+}
+
+// CacheInterfaceMockCreateRoleResults contains results of the CacheInterface.CreateRole
+type CacheInterfaceMockCreateRoleResults struct {
+	err error
+}
+
+// CacheInterfaceMockCreateRoleOrigins contains origins of expectations of the CacheInterface.CreateRole
+type CacheInterfaceMockCreateRoleExpectationOrigins struct {
+	origin         string
+	originCtx      string
+	originUsername string
+	originRole     string
+}
+
+// Marks this method to be optional. The default behavior of any method with Return() is '1 or more', meaning
+// the test will fail minimock's automatic final call check if the mocked method was not called at least once.
+// Optional() makes method check to work in '0 or more' mode.
+// It is NOT RECOMMENDED to use this option unless you really need it, as default behaviour helps to
+// catch the problems when the expected method call is totally skipped during test run.
+func (mmCreateRole *mCacheInterfaceMockCreateRole) Optional() *mCacheInterfaceMockCreateRole {
+	mmCreateRole.optional = true
+	return mmCreateRole
+}
+
+// Expect sets up expected params for CacheInterface.CreateRole
+func (mmCreateRole *mCacheInterfaceMockCreateRole) Expect(ctx context.Context, username string, role bool) *mCacheInterfaceMockCreateRole {
+	if mmCreateRole.mock.funcCreateRole != nil {
+		mmCreateRole.mock.t.Fatalf("CacheInterfaceMock.CreateRole mock is already set by Set")
+	}
+
+	if mmCreateRole.defaultExpectation == nil {
+		mmCreateRole.defaultExpectation = &CacheInterfaceMockCreateRoleExpectation{}
+	}
+
+	if mmCreateRole.defaultExpectation.paramPtrs != nil {
+		mmCreateRole.mock.t.Fatalf("CacheInterfaceMock.CreateRole mock is already set by ExpectParams functions")
+	}
+
+	mmCreateRole.defaultExpectation.params = &CacheInterfaceMockCreateRoleParams{ctx, username, role}
+	mmCreateRole.defaultExpectation.expectationOrigins.origin = minimock.CallerInfo(1)
+	for _, e := range mmCreateRole.expectations {
+		if minimock.Equal(e.params, mmCreateRole.defaultExpectation.params) {
+			mmCreateRole.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmCreateRole.defaultExpectation.params)
+		}
+	}
+
+	return mmCreateRole
+}
+
+// ExpectCtxParam1 sets up expected param ctx for CacheInterface.CreateRole
+func (mmCreateRole *mCacheInterfaceMockCreateRole) ExpectCtxParam1(ctx context.Context) *mCacheInterfaceMockCreateRole {
+	if mmCreateRole.mock.funcCreateRole != nil {
+		mmCreateRole.mock.t.Fatalf("CacheInterfaceMock.CreateRole mock is already set by Set")
+	}
+
+	if mmCreateRole.defaultExpectation == nil {
+		mmCreateRole.defaultExpectation = &CacheInterfaceMockCreateRoleExpectation{}
+	}
+
+	if mmCreateRole.defaultExpectation.params != nil {
+		mmCreateRole.mock.t.Fatalf("CacheInterfaceMock.CreateRole mock is already set by Expect")
+	}
+
+	if mmCreateRole.defaultExpectation.paramPtrs == nil {
+		mmCreateRole.defaultExpectation.paramPtrs = &CacheInterfaceMockCreateRoleParamPtrs{}
+	}
+	mmCreateRole.defaultExpectation.paramPtrs.ctx = &ctx
+	mmCreateRole.defaultExpectation.expectationOrigins.originCtx = minimock.CallerInfo(1)
+
+	return mmCreateRole
+}
+
+// ExpectUsernameParam2 sets up expected param username for CacheInterface.CreateRole
+func (mmCreateRole *mCacheInterfaceMockCreateRole) ExpectUsernameParam2(username string) *mCacheInterfaceMockCreateRole {
+	if mmCreateRole.mock.funcCreateRole != nil {
+		mmCreateRole.mock.t.Fatalf("CacheInterfaceMock.CreateRole mock is already set by Set")
+	}
+
+	if mmCreateRole.defaultExpectation == nil {
+		mmCreateRole.defaultExpectation = &CacheInterfaceMockCreateRoleExpectation{}
+	}
+
+	if mmCreateRole.defaultExpectation.params != nil {
+		mmCreateRole.mock.t.Fatalf("CacheInterfaceMock.CreateRole mock is already set by Expect")
+	}
+
+	if mmCreateRole.defaultExpectation.paramPtrs == nil {
+		mmCreateRole.defaultExpectation.paramPtrs = &CacheInterfaceMockCreateRoleParamPtrs{}
+	}
+	mmCreateRole.defaultExpectation.paramPtrs.username = &username
+	mmCreateRole.defaultExpectation.expectationOrigins.originUsername = minimock.CallerInfo(1)
+
+	return mmCreateRole
+}
+
+// ExpectRoleParam3 sets up expected param role for CacheInterface.CreateRole
+func (mmCreateRole *mCacheInterfaceMockCreateRole) ExpectRoleParam3(role bool) *mCacheInterfaceMockCreateRole {
+	if mmCreateRole.mock.funcCreateRole != nil {
+		mmCreateRole.mock.t.Fatalf("CacheInterfaceMock.CreateRole mock is already set by Set")
+	}
+
+	if mmCreateRole.defaultExpectation == nil {
+		mmCreateRole.defaultExpectation = &CacheInterfaceMockCreateRoleExpectation{}
+	}
+
+	if mmCreateRole.defaultExpectation.params != nil {
+		mmCreateRole.mock.t.Fatalf("CacheInterfaceMock.CreateRole mock is already set by Expect")
+	}
+
+	if mmCreateRole.defaultExpectation.paramPtrs == nil {
+		mmCreateRole.defaultExpectation.paramPtrs = &CacheInterfaceMockCreateRoleParamPtrs{}
+	}
+	mmCreateRole.defaultExpectation.paramPtrs.role = &role
+	mmCreateRole.defaultExpectation.expectationOrigins.originRole = minimock.CallerInfo(1)
+
+	return mmCreateRole
+}
+
+// Inspect accepts an inspector function that has same arguments as the CacheInterface.CreateRole
+func (mmCreateRole *mCacheInterfaceMockCreateRole) Inspect(f func(ctx context.Context, username string, role bool)) *mCacheInterfaceMockCreateRole {
+	if mmCreateRole.mock.inspectFuncCreateRole != nil {
+		mmCreateRole.mock.t.Fatalf("Inspect function is already set for CacheInterfaceMock.CreateRole")
+	}
+
+	mmCreateRole.mock.inspectFuncCreateRole = f
+
+	return mmCreateRole
+}
+
+// Return sets up results that will be returned by CacheInterface.CreateRole
+func (mmCreateRole *mCacheInterfaceMockCreateRole) Return(err error) *CacheInterfaceMock {
+	if mmCreateRole.mock.funcCreateRole != nil {
+		mmCreateRole.mock.t.Fatalf("CacheInterfaceMock.CreateRole mock is already set by Set")
+	}
+
+	if mmCreateRole.defaultExpectation == nil {
+		mmCreateRole.defaultExpectation = &CacheInterfaceMockCreateRoleExpectation{mock: mmCreateRole.mock}
+	}
+	mmCreateRole.defaultExpectation.results = &CacheInterfaceMockCreateRoleResults{err}
+	mmCreateRole.defaultExpectation.returnOrigin = minimock.CallerInfo(1)
+	return mmCreateRole.mock
+}
+
+// Set uses given function f to mock the CacheInterface.CreateRole method
+func (mmCreateRole *mCacheInterfaceMockCreateRole) Set(f func(ctx context.Context, username string, role bool) (err error)) *CacheInterfaceMock {
+	if mmCreateRole.defaultExpectation != nil {
+		mmCreateRole.mock.t.Fatalf("Default expectation is already set for the CacheInterface.CreateRole method")
+	}
+
+	if len(mmCreateRole.expectations) > 0 {
+		mmCreateRole.mock.t.Fatalf("Some expectations are already set for the CacheInterface.CreateRole method")
+	}
+
+	mmCreateRole.mock.funcCreateRole = f
+	mmCreateRole.mock.funcCreateRoleOrigin = minimock.CallerInfo(1)
+	return mmCreateRole.mock
+}
+
+// When sets expectation for the CacheInterface.CreateRole which will trigger the result defined by the following
+// Then helper
+func (mmCreateRole *mCacheInterfaceMockCreateRole) When(ctx context.Context, username string, role bool) *CacheInterfaceMockCreateRoleExpectation {
+	if mmCreateRole.mock.funcCreateRole != nil {
+		mmCreateRole.mock.t.Fatalf("CacheInterfaceMock.CreateRole mock is already set by Set")
+	}
+
+	expectation := &CacheInterfaceMockCreateRoleExpectation{
+		mock:               mmCreateRole.mock,
+		params:             &CacheInterfaceMockCreateRoleParams{ctx, username, role},
+		expectationOrigins: CacheInterfaceMockCreateRoleExpectationOrigins{origin: minimock.CallerInfo(1)},
+	}
+	mmCreateRole.expectations = append(mmCreateRole.expectations, expectation)
+	return expectation
+}
+
+// Then sets up CacheInterface.CreateRole return parameters for the expectation previously defined by the When method
+func (e *CacheInterfaceMockCreateRoleExpectation) Then(err error) *CacheInterfaceMock {
+	e.results = &CacheInterfaceMockCreateRoleResults{err}
+	return e.mock
+}
+
+// Times sets number of times CacheInterface.CreateRole should be invoked
+func (mmCreateRole *mCacheInterfaceMockCreateRole) Times(n uint64) *mCacheInterfaceMockCreateRole {
+	if n == 0 {
+		mmCreateRole.mock.t.Fatalf("Times of CacheInterfaceMock.CreateRole mock can not be zero")
+	}
+	mm_atomic.StoreUint64(&mmCreateRole.expectedInvocations, n)
+	mmCreateRole.expectedInvocationsOrigin = minimock.CallerInfo(1)
+	return mmCreateRole
+}
+
+func (mmCreateRole *mCacheInterfaceMockCreateRole) invocationsDone() bool {
+	if len(mmCreateRole.expectations) == 0 && mmCreateRole.defaultExpectation == nil && mmCreateRole.mock.funcCreateRole == nil {
+		return true
+	}
+
+	totalInvocations := mm_atomic.LoadUint64(&mmCreateRole.mock.afterCreateRoleCounter)
+	expectedInvocations := mm_atomic.LoadUint64(&mmCreateRole.expectedInvocations)
+
+	return totalInvocations > 0 && (expectedInvocations == 0 || expectedInvocations == totalInvocations)
+}
+
+// CreateRole implements mm_repository.CacheInterface
+func (mmCreateRole *CacheInterfaceMock) CreateRole(ctx context.Context, username string, role bool) (err error) {
+	mm_atomic.AddUint64(&mmCreateRole.beforeCreateRoleCounter, 1)
+	defer mm_atomic.AddUint64(&mmCreateRole.afterCreateRoleCounter, 1)
+
+	mmCreateRole.t.Helper()
+
+	if mmCreateRole.inspectFuncCreateRole != nil {
+		mmCreateRole.inspectFuncCreateRole(ctx, username, role)
+	}
+
+	mm_params := CacheInterfaceMockCreateRoleParams{ctx, username, role}
+
+	// Record call args
+	mmCreateRole.CreateRoleMock.mutex.Lock()
+	mmCreateRole.CreateRoleMock.callArgs = append(mmCreateRole.CreateRoleMock.callArgs, &mm_params)
+	mmCreateRole.CreateRoleMock.mutex.Unlock()
+
+	for _, e := range mmCreateRole.CreateRoleMock.expectations {
+		if minimock.Equal(*e.params, mm_params) {
+			mm_atomic.AddUint64(&e.Counter, 1)
+			return e.results.err
+		}
+	}
+
+	if mmCreateRole.CreateRoleMock.defaultExpectation != nil {
+		mm_atomic.AddUint64(&mmCreateRole.CreateRoleMock.defaultExpectation.Counter, 1)
+		mm_want := mmCreateRole.CreateRoleMock.defaultExpectation.params
+		mm_want_ptrs := mmCreateRole.CreateRoleMock.defaultExpectation.paramPtrs
+
+		mm_got := CacheInterfaceMockCreateRoleParams{ctx, username, role}
+
+		if mm_want_ptrs != nil {
+
+			if mm_want_ptrs.ctx != nil && !minimock.Equal(*mm_want_ptrs.ctx, mm_got.ctx) {
+				mmCreateRole.t.Errorf("CacheInterfaceMock.CreateRole got unexpected parameter ctx, expected at\n%s:\nwant: %#v\n got: %#v%s\n",
+					mmCreateRole.CreateRoleMock.defaultExpectation.expectationOrigins.originCtx, *mm_want_ptrs.ctx, mm_got.ctx, minimock.Diff(*mm_want_ptrs.ctx, mm_got.ctx))
+			}
+
+			if mm_want_ptrs.username != nil && !minimock.Equal(*mm_want_ptrs.username, mm_got.username) {
+				mmCreateRole.t.Errorf("CacheInterfaceMock.CreateRole got unexpected parameter username, expected at\n%s:\nwant: %#v\n got: %#v%s\n",
+					mmCreateRole.CreateRoleMock.defaultExpectation.expectationOrigins.originUsername, *mm_want_ptrs.username, mm_got.username, minimock.Diff(*mm_want_ptrs.username, mm_got.username))
+			}
+
+			if mm_want_ptrs.role != nil && !minimock.Equal(*mm_want_ptrs.role, mm_got.role) {
+				mmCreateRole.t.Errorf("CacheInterfaceMock.CreateRole got unexpected parameter role, expected at\n%s:\nwant: %#v\n got: %#v%s\n",
+					mmCreateRole.CreateRoleMock.defaultExpectation.expectationOrigins.originRole, *mm_want_ptrs.role, mm_got.role, minimock.Diff(*mm_want_ptrs.role, mm_got.role))
+			}
+
+		} else if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
+			mmCreateRole.t.Errorf("CacheInterfaceMock.CreateRole got unexpected parameters, expected at\n%s:\nwant: %#v\n got: %#v%s\n",
+				mmCreateRole.CreateRoleMock.defaultExpectation.expectationOrigins.origin, *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
+		}
+
+		mm_results := mmCreateRole.CreateRoleMock.defaultExpectation.results
+		if mm_results == nil {
+			mmCreateRole.t.Fatal("No results are set for the CacheInterfaceMock.CreateRole")
+		}
+		return (*mm_results).err
+	}
+	if mmCreateRole.funcCreateRole != nil {
+		return mmCreateRole.funcCreateRole(ctx, username, role)
+	}
+	mmCreateRole.t.Fatalf("Unexpected call to CacheInterfaceMock.CreateRole. %v %v %v", ctx, username, role)
+	return
+}
+
+// CreateRoleAfterCounter returns a count of finished CacheInterfaceMock.CreateRole invocations
+func (mmCreateRole *CacheInterfaceMock) CreateRoleAfterCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmCreateRole.afterCreateRoleCounter)
+}
+
+// CreateRoleBeforeCounter returns a count of CacheInterfaceMock.CreateRole invocations
+func (mmCreateRole *CacheInterfaceMock) CreateRoleBeforeCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmCreateRole.beforeCreateRoleCounter)
+}
+
+// Calls returns a list of arguments used in each call to CacheInterfaceMock.CreateRole.
+// The list is in the same order as the calls were made (i.e. recent calls have a higher index)
+func (mmCreateRole *mCacheInterfaceMockCreateRole) Calls() []*CacheInterfaceMockCreateRoleParams {
+	mmCreateRole.mutex.RLock()
+
+	argCopy := make([]*CacheInterfaceMockCreateRoleParams, len(mmCreateRole.callArgs))
+	copy(argCopy, mmCreateRole.callArgs)
+
+	mmCreateRole.mutex.RUnlock()
+
+	return argCopy
+}
+
+// MinimockCreateRoleDone returns true if the count of the CreateRole invocations corresponds
+// the number of defined expectations
+func (m *CacheInterfaceMock) MinimockCreateRoleDone() bool {
+	if m.CreateRoleMock.optional {
+		// Optional methods provide '0 or more' call count restriction.
+		return true
+	}
+
+	for _, e := range m.CreateRoleMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			return false
+		}
+	}
+
+	return m.CreateRoleMock.invocationsDone()
+}
+
+// MinimockCreateRoleInspect logs each unmet expectation
+func (m *CacheInterfaceMock) MinimockCreateRoleInspect() {
+	for _, e := range m.CreateRoleMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			m.t.Errorf("Expected call to CacheInterfaceMock.CreateRole at\n%s with params: %#v", e.expectationOrigins.origin, *e.params)
+		}
+	}
+
+	afterCreateRoleCounter := mm_atomic.LoadUint64(&m.afterCreateRoleCounter)
+	// if default expectation was set then invocations count should be greater than zero
+	if m.CreateRoleMock.defaultExpectation != nil && afterCreateRoleCounter < 1 {
+		if m.CreateRoleMock.defaultExpectation.params == nil {
+			m.t.Errorf("Expected call to CacheInterfaceMock.CreateRole at\n%s", m.CreateRoleMock.defaultExpectation.returnOrigin)
+		} else {
+			m.t.Errorf("Expected call to CacheInterfaceMock.CreateRole at\n%s with params: %#v", m.CreateRoleMock.defaultExpectation.expectationOrigins.origin, *m.CreateRoleMock.defaultExpectation.params)
+		}
+	}
+	// if func was set then invocations count should be greater than zero
+	if m.funcCreateRole != nil && afterCreateRoleCounter < 1 {
+		m.t.Errorf("Expected call to CacheInterfaceMock.CreateRole at\n%s", m.funcCreateRoleOrigin)
+	}
+
+	if !m.CreateRoleMock.invocationsDone() && afterCreateRoleCounter > 0 {
+		m.t.Errorf("Expected %d calls to CacheInterfaceMock.CreateRole at\n%s but found %d calls",
+			mm_atomic.LoadUint64(&m.CreateRoleMock.expectedInvocations), m.CreateRoleMock.expectedInvocationsOrigin, afterCreateRoleCounter)
+	}
+}
+
+type mCacheInterfaceMockCreateRoleEndpoints struct {
+	optional           bool
+	mock               *CacheInterfaceMock
+	defaultExpectation *CacheInterfaceMockCreateRoleEndpointsExpectation
+	expectations       []*CacheInterfaceMockCreateRoleEndpointsExpectation
+
+	callArgs []*CacheInterfaceMockCreateRoleEndpointsParams
+	mutex    sync.RWMutex
+
+	expectedInvocations       uint64
+	expectedInvocationsOrigin string
+}
+
+// CacheInterfaceMockCreateRoleEndpointsExpectation specifies expectation struct of the CacheInterface.CreateRoleEndpoints
+type CacheInterfaceMockCreateRoleEndpointsExpectation struct {
+	mock               *CacheInterfaceMock
+	params             *CacheInterfaceMockCreateRoleEndpointsParams
+	paramPtrs          *CacheInterfaceMockCreateRoleEndpointsParamPtrs
+	expectationOrigins CacheInterfaceMockCreateRoleEndpointsExpectationOrigins
+	results            *CacheInterfaceMockCreateRoleEndpointsResults
+	returnOrigin       string
+	Counter            uint64
+}
+
+// CacheInterfaceMockCreateRoleEndpointsParams contains parameters of the CacheInterface.CreateRoleEndpoints
+type CacheInterfaceMockCreateRoleEndpointsParams struct {
+	ctx       context.Context
+	isAdmin   bool
+	endpoints []string
+}
+
+// CacheInterfaceMockCreateRoleEndpointsParamPtrs contains pointers to parameters of the CacheInterface.CreateRoleEndpoints
+type CacheInterfaceMockCreateRoleEndpointsParamPtrs struct {
+	ctx       *context.Context
+	isAdmin   *bool
+	endpoints *[]string
+}
+
+// CacheInterfaceMockCreateRoleEndpointsResults contains results of the CacheInterface.CreateRoleEndpoints
+type CacheInterfaceMockCreateRoleEndpointsResults struct {
+	err error
+}
+
+// CacheInterfaceMockCreateRoleEndpointsOrigins contains origins of expectations of the CacheInterface.CreateRoleEndpoints
+type CacheInterfaceMockCreateRoleEndpointsExpectationOrigins struct {
+	origin          string
+	originCtx       string
+	originIsAdmin   string
+	originEndpoints string
+}
+
+// Marks this method to be optional. The default behavior of any method with Return() is '1 or more', meaning
+// the test will fail minimock's automatic final call check if the mocked method was not called at least once.
+// Optional() makes method check to work in '0 or more' mode.
+// It is NOT RECOMMENDED to use this option unless you really need it, as default behaviour helps to
+// catch the problems when the expected method call is totally skipped during test run.
+func (mmCreateRoleEndpoints *mCacheInterfaceMockCreateRoleEndpoints) Optional() *mCacheInterfaceMockCreateRoleEndpoints {
+	mmCreateRoleEndpoints.optional = true
+	return mmCreateRoleEndpoints
+}
+
+// Expect sets up expected params for CacheInterface.CreateRoleEndpoints
+func (mmCreateRoleEndpoints *mCacheInterfaceMockCreateRoleEndpoints) Expect(ctx context.Context, isAdmin bool, endpoints []string) *mCacheInterfaceMockCreateRoleEndpoints {
+	if mmCreateRoleEndpoints.mock.funcCreateRoleEndpoints != nil {
+		mmCreateRoleEndpoints.mock.t.Fatalf("CacheInterfaceMock.CreateRoleEndpoints mock is already set by Set")
+	}
+
+	if mmCreateRoleEndpoints.defaultExpectation == nil {
+		mmCreateRoleEndpoints.defaultExpectation = &CacheInterfaceMockCreateRoleEndpointsExpectation{}
+	}
+
+	if mmCreateRoleEndpoints.defaultExpectation.paramPtrs != nil {
+		mmCreateRoleEndpoints.mock.t.Fatalf("CacheInterfaceMock.CreateRoleEndpoints mock is already set by ExpectParams functions")
+	}
+
+	mmCreateRoleEndpoints.defaultExpectation.params = &CacheInterfaceMockCreateRoleEndpointsParams{ctx, isAdmin, endpoints}
+	mmCreateRoleEndpoints.defaultExpectation.expectationOrigins.origin = minimock.CallerInfo(1)
+	for _, e := range mmCreateRoleEndpoints.expectations {
+		if minimock.Equal(e.params, mmCreateRoleEndpoints.defaultExpectation.params) {
+			mmCreateRoleEndpoints.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmCreateRoleEndpoints.defaultExpectation.params)
+		}
+	}
+
+	return mmCreateRoleEndpoints
+}
+
+// ExpectCtxParam1 sets up expected param ctx for CacheInterface.CreateRoleEndpoints
+func (mmCreateRoleEndpoints *mCacheInterfaceMockCreateRoleEndpoints) ExpectCtxParam1(ctx context.Context) *mCacheInterfaceMockCreateRoleEndpoints {
+	if mmCreateRoleEndpoints.mock.funcCreateRoleEndpoints != nil {
+		mmCreateRoleEndpoints.mock.t.Fatalf("CacheInterfaceMock.CreateRoleEndpoints mock is already set by Set")
+	}
+
+	if mmCreateRoleEndpoints.defaultExpectation == nil {
+		mmCreateRoleEndpoints.defaultExpectation = &CacheInterfaceMockCreateRoleEndpointsExpectation{}
+	}
+
+	if mmCreateRoleEndpoints.defaultExpectation.params != nil {
+		mmCreateRoleEndpoints.mock.t.Fatalf("CacheInterfaceMock.CreateRoleEndpoints mock is already set by Expect")
+	}
+
+	if mmCreateRoleEndpoints.defaultExpectation.paramPtrs == nil {
+		mmCreateRoleEndpoints.defaultExpectation.paramPtrs = &CacheInterfaceMockCreateRoleEndpointsParamPtrs{}
+	}
+	mmCreateRoleEndpoints.defaultExpectation.paramPtrs.ctx = &ctx
+	mmCreateRoleEndpoints.defaultExpectation.expectationOrigins.originCtx = minimock.CallerInfo(1)
+
+	return mmCreateRoleEndpoints
+}
+
+// ExpectIsAdminParam2 sets up expected param isAdmin for CacheInterface.CreateRoleEndpoints
+func (mmCreateRoleEndpoints *mCacheInterfaceMockCreateRoleEndpoints) ExpectIsAdminParam2(isAdmin bool) *mCacheInterfaceMockCreateRoleEndpoints {
+	if mmCreateRoleEndpoints.mock.funcCreateRoleEndpoints != nil {
+		mmCreateRoleEndpoints.mock.t.Fatalf("CacheInterfaceMock.CreateRoleEndpoints mock is already set by Set")
+	}
+
+	if mmCreateRoleEndpoints.defaultExpectation == nil {
+		mmCreateRoleEndpoints.defaultExpectation = &CacheInterfaceMockCreateRoleEndpointsExpectation{}
+	}
+
+	if mmCreateRoleEndpoints.defaultExpectation.params != nil {
+		mmCreateRoleEndpoints.mock.t.Fatalf("CacheInterfaceMock.CreateRoleEndpoints mock is already set by Expect")
+	}
+
+	if mmCreateRoleEndpoints.defaultExpectation.paramPtrs == nil {
+		mmCreateRoleEndpoints.defaultExpectation.paramPtrs = &CacheInterfaceMockCreateRoleEndpointsParamPtrs{}
+	}
+	mmCreateRoleEndpoints.defaultExpectation.paramPtrs.isAdmin = &isAdmin
+	mmCreateRoleEndpoints.defaultExpectation.expectationOrigins.originIsAdmin = minimock.CallerInfo(1)
+
+	return mmCreateRoleEndpoints
+}
+
+// ExpectEndpointsParam3 sets up expected param endpoints for CacheInterface.CreateRoleEndpoints
+func (mmCreateRoleEndpoints *mCacheInterfaceMockCreateRoleEndpoints) ExpectEndpointsParam3(endpoints []string) *mCacheInterfaceMockCreateRoleEndpoints {
+	if mmCreateRoleEndpoints.mock.funcCreateRoleEndpoints != nil {
+		mmCreateRoleEndpoints.mock.t.Fatalf("CacheInterfaceMock.CreateRoleEndpoints mock is already set by Set")
+	}
+
+	if mmCreateRoleEndpoints.defaultExpectation == nil {
+		mmCreateRoleEndpoints.defaultExpectation = &CacheInterfaceMockCreateRoleEndpointsExpectation{}
+	}
+
+	if mmCreateRoleEndpoints.defaultExpectation.params != nil {
+		mmCreateRoleEndpoints.mock.t.Fatalf("CacheInterfaceMock.CreateRoleEndpoints mock is already set by Expect")
+	}
+
+	if mmCreateRoleEndpoints.defaultExpectation.paramPtrs == nil {
+		mmCreateRoleEndpoints.defaultExpectation.paramPtrs = &CacheInterfaceMockCreateRoleEndpointsParamPtrs{}
+	}
+	mmCreateRoleEndpoints.defaultExpectation.paramPtrs.endpoints = &endpoints
+	mmCreateRoleEndpoints.defaultExpectation.expectationOrigins.originEndpoints = minimock.CallerInfo(1)
+
+	return mmCreateRoleEndpoints
+}
+
+// Inspect accepts an inspector function that has same arguments as the CacheInterface.CreateRoleEndpoints
+func (mmCreateRoleEndpoints *mCacheInterfaceMockCreateRoleEndpoints) Inspect(f func(ctx context.Context, isAdmin bool, endpoints []string)) *mCacheInterfaceMockCreateRoleEndpoints {
+	if mmCreateRoleEndpoints.mock.inspectFuncCreateRoleEndpoints != nil {
+		mmCreateRoleEndpoints.mock.t.Fatalf("Inspect function is already set for CacheInterfaceMock.CreateRoleEndpoints")
+	}
+
+	mmCreateRoleEndpoints.mock.inspectFuncCreateRoleEndpoints = f
+
+	return mmCreateRoleEndpoints
+}
+
+// Return sets up results that will be returned by CacheInterface.CreateRoleEndpoints
+func (mmCreateRoleEndpoints *mCacheInterfaceMockCreateRoleEndpoints) Return(err error) *CacheInterfaceMock {
+	if mmCreateRoleEndpoints.mock.funcCreateRoleEndpoints != nil {
+		mmCreateRoleEndpoints.mock.t.Fatalf("CacheInterfaceMock.CreateRoleEndpoints mock is already set by Set")
+	}
+
+	if mmCreateRoleEndpoints.defaultExpectation == nil {
+		mmCreateRoleEndpoints.defaultExpectation = &CacheInterfaceMockCreateRoleEndpointsExpectation{mock: mmCreateRoleEndpoints.mock}
+	}
+	mmCreateRoleEndpoints.defaultExpectation.results = &CacheInterfaceMockCreateRoleEndpointsResults{err}
+	mmCreateRoleEndpoints.defaultExpectation.returnOrigin = minimock.CallerInfo(1)
+	return mmCreateRoleEndpoints.mock
+}
+
+// Set uses given function f to mock the CacheInterface.CreateRoleEndpoints method
+func (mmCreateRoleEndpoints *mCacheInterfaceMockCreateRoleEndpoints) Set(f func(ctx context.Context, isAdmin bool, endpoints []string) (err error)) *CacheInterfaceMock {
+	if mmCreateRoleEndpoints.defaultExpectation != nil {
+		mmCreateRoleEndpoints.mock.t.Fatalf("Default expectation is already set for the CacheInterface.CreateRoleEndpoints method")
+	}
+
+	if len(mmCreateRoleEndpoints.expectations) > 0 {
+		mmCreateRoleEndpoints.mock.t.Fatalf("Some expectations are already set for the CacheInterface.CreateRoleEndpoints method")
+	}
+
+	mmCreateRoleEndpoints.mock.funcCreateRoleEndpoints = f
+	mmCreateRoleEndpoints.mock.funcCreateRoleEndpointsOrigin = minimock.CallerInfo(1)
+	return mmCreateRoleEndpoints.mock
+}
+
+// When sets expectation for the CacheInterface.CreateRoleEndpoints which will trigger the result defined by the following
+// Then helper
+func (mmCreateRoleEndpoints *mCacheInterfaceMockCreateRoleEndpoints) When(ctx context.Context, isAdmin bool, endpoints []string) *CacheInterfaceMockCreateRoleEndpointsExpectation {
+	if mmCreateRoleEndpoints.mock.funcCreateRoleEndpoints != nil {
+		mmCreateRoleEndpoints.mock.t.Fatalf("CacheInterfaceMock.CreateRoleEndpoints mock is already set by Set")
+	}
+
+	expectation := &CacheInterfaceMockCreateRoleEndpointsExpectation{
+		mock:               mmCreateRoleEndpoints.mock,
+		params:             &CacheInterfaceMockCreateRoleEndpointsParams{ctx, isAdmin, endpoints},
+		expectationOrigins: CacheInterfaceMockCreateRoleEndpointsExpectationOrigins{origin: minimock.CallerInfo(1)},
+	}
+	mmCreateRoleEndpoints.expectations = append(mmCreateRoleEndpoints.expectations, expectation)
+	return expectation
+}
+
+// Then sets up CacheInterface.CreateRoleEndpoints return parameters for the expectation previously defined by the When method
+func (e *CacheInterfaceMockCreateRoleEndpointsExpectation) Then(err error) *CacheInterfaceMock {
+	e.results = &CacheInterfaceMockCreateRoleEndpointsResults{err}
+	return e.mock
+}
+
+// Times sets number of times CacheInterface.CreateRoleEndpoints should be invoked
+func (mmCreateRoleEndpoints *mCacheInterfaceMockCreateRoleEndpoints) Times(n uint64) *mCacheInterfaceMockCreateRoleEndpoints {
+	if n == 0 {
+		mmCreateRoleEndpoints.mock.t.Fatalf("Times of CacheInterfaceMock.CreateRoleEndpoints mock can not be zero")
+	}
+	mm_atomic.StoreUint64(&mmCreateRoleEndpoints.expectedInvocations, n)
+	mmCreateRoleEndpoints.expectedInvocationsOrigin = minimock.CallerInfo(1)
+	return mmCreateRoleEndpoints
+}
+
+func (mmCreateRoleEndpoints *mCacheInterfaceMockCreateRoleEndpoints) invocationsDone() bool {
+	if len(mmCreateRoleEndpoints.expectations) == 0 && mmCreateRoleEndpoints.defaultExpectation == nil && mmCreateRoleEndpoints.mock.funcCreateRoleEndpoints == nil {
+		return true
+	}
+
+	totalInvocations := mm_atomic.LoadUint64(&mmCreateRoleEndpoints.mock.afterCreateRoleEndpointsCounter)
+	expectedInvocations := mm_atomic.LoadUint64(&mmCreateRoleEndpoints.expectedInvocations)
+
+	return totalInvocations > 0 && (expectedInvocations == 0 || expectedInvocations == totalInvocations)
+}
+
+// CreateRoleEndpoints implements mm_repository.CacheInterface
+func (mmCreateRoleEndpoints *CacheInterfaceMock) CreateRoleEndpoints(ctx context.Context, isAdmin bool, endpoints []string) (err error) {
+	mm_atomic.AddUint64(&mmCreateRoleEndpoints.beforeCreateRoleEndpointsCounter, 1)
+	defer mm_atomic.AddUint64(&mmCreateRoleEndpoints.afterCreateRoleEndpointsCounter, 1)
+
+	mmCreateRoleEndpoints.t.Helper()
+
+	if mmCreateRoleEndpoints.inspectFuncCreateRoleEndpoints != nil {
+		mmCreateRoleEndpoints.inspectFuncCreateRoleEndpoints(ctx, isAdmin, endpoints)
+	}
+
+	mm_params := CacheInterfaceMockCreateRoleEndpointsParams{ctx, isAdmin, endpoints}
+
+	// Record call args
+	mmCreateRoleEndpoints.CreateRoleEndpointsMock.mutex.Lock()
+	mmCreateRoleEndpoints.CreateRoleEndpointsMock.callArgs = append(mmCreateRoleEndpoints.CreateRoleEndpointsMock.callArgs, &mm_params)
+	mmCreateRoleEndpoints.CreateRoleEndpointsMock.mutex.Unlock()
+
+	for _, e := range mmCreateRoleEndpoints.CreateRoleEndpointsMock.expectations {
+		if minimock.Equal(*e.params, mm_params) {
+			mm_atomic.AddUint64(&e.Counter, 1)
+			return e.results.err
+		}
+	}
+
+	if mmCreateRoleEndpoints.CreateRoleEndpointsMock.defaultExpectation != nil {
+		mm_atomic.AddUint64(&mmCreateRoleEndpoints.CreateRoleEndpointsMock.defaultExpectation.Counter, 1)
+		mm_want := mmCreateRoleEndpoints.CreateRoleEndpointsMock.defaultExpectation.params
+		mm_want_ptrs := mmCreateRoleEndpoints.CreateRoleEndpointsMock.defaultExpectation.paramPtrs
+
+		mm_got := CacheInterfaceMockCreateRoleEndpointsParams{ctx, isAdmin, endpoints}
+
+		if mm_want_ptrs != nil {
+
+			if mm_want_ptrs.ctx != nil && !minimock.Equal(*mm_want_ptrs.ctx, mm_got.ctx) {
+				mmCreateRoleEndpoints.t.Errorf("CacheInterfaceMock.CreateRoleEndpoints got unexpected parameter ctx, expected at\n%s:\nwant: %#v\n got: %#v%s\n",
+					mmCreateRoleEndpoints.CreateRoleEndpointsMock.defaultExpectation.expectationOrigins.originCtx, *mm_want_ptrs.ctx, mm_got.ctx, minimock.Diff(*mm_want_ptrs.ctx, mm_got.ctx))
+			}
+
+			if mm_want_ptrs.isAdmin != nil && !minimock.Equal(*mm_want_ptrs.isAdmin, mm_got.isAdmin) {
+				mmCreateRoleEndpoints.t.Errorf("CacheInterfaceMock.CreateRoleEndpoints got unexpected parameter isAdmin, expected at\n%s:\nwant: %#v\n got: %#v%s\n",
+					mmCreateRoleEndpoints.CreateRoleEndpointsMock.defaultExpectation.expectationOrigins.originIsAdmin, *mm_want_ptrs.isAdmin, mm_got.isAdmin, minimock.Diff(*mm_want_ptrs.isAdmin, mm_got.isAdmin))
+			}
+
+			if mm_want_ptrs.endpoints != nil && !minimock.Equal(*mm_want_ptrs.endpoints, mm_got.endpoints) {
+				mmCreateRoleEndpoints.t.Errorf("CacheInterfaceMock.CreateRoleEndpoints got unexpected parameter endpoints, expected at\n%s:\nwant: %#v\n got: %#v%s\n",
+					mmCreateRoleEndpoints.CreateRoleEndpointsMock.defaultExpectation.expectationOrigins.originEndpoints, *mm_want_ptrs.endpoints, mm_got.endpoints, minimock.Diff(*mm_want_ptrs.endpoints, mm_got.endpoints))
+			}
+
+		} else if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
+			mmCreateRoleEndpoints.t.Errorf("CacheInterfaceMock.CreateRoleEndpoints got unexpected parameters, expected at\n%s:\nwant: %#v\n got: %#v%s\n",
+				mmCreateRoleEndpoints.CreateRoleEndpointsMock.defaultExpectation.expectationOrigins.origin, *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
+		}
+
+		mm_results := mmCreateRoleEndpoints.CreateRoleEndpointsMock.defaultExpectation.results
+		if mm_results == nil {
+			mmCreateRoleEndpoints.t.Fatal("No results are set for the CacheInterfaceMock.CreateRoleEndpoints")
+		}
+		return (*mm_results).err
+	}
+	if mmCreateRoleEndpoints.funcCreateRoleEndpoints != nil {
+		return mmCreateRoleEndpoints.funcCreateRoleEndpoints(ctx, isAdmin, endpoints)
+	}
+	mmCreateRoleEndpoints.t.Fatalf("Unexpected call to CacheInterfaceMock.CreateRoleEndpoints. %v %v %v", ctx, isAdmin, endpoints)
+	return
+}
+
+// CreateRoleEndpointsAfterCounter returns a count of finished CacheInterfaceMock.CreateRoleEndpoints invocations
+func (mmCreateRoleEndpoints *CacheInterfaceMock) CreateRoleEndpointsAfterCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmCreateRoleEndpoints.afterCreateRoleEndpointsCounter)
+}
+
+// CreateRoleEndpointsBeforeCounter returns a count of CacheInterfaceMock.CreateRoleEndpoints invocations
+func (mmCreateRoleEndpoints *CacheInterfaceMock) CreateRoleEndpointsBeforeCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmCreateRoleEndpoints.beforeCreateRoleEndpointsCounter)
+}
+
+// Calls returns a list of arguments used in each call to CacheInterfaceMock.CreateRoleEndpoints.
+// The list is in the same order as the calls were made (i.e. recent calls have a higher index)
+func (mmCreateRoleEndpoints *mCacheInterfaceMockCreateRoleEndpoints) Calls() []*CacheInterfaceMockCreateRoleEndpointsParams {
+	mmCreateRoleEndpoints.mutex.RLock()
+
+	argCopy := make([]*CacheInterfaceMockCreateRoleEndpointsParams, len(mmCreateRoleEndpoints.callArgs))
+	copy(argCopy, mmCreateRoleEndpoints.callArgs)
+
+	mmCreateRoleEndpoints.mutex.RUnlock()
+
+	return argCopy
+}
+
+// MinimockCreateRoleEndpointsDone returns true if the count of the CreateRoleEndpoints invocations corresponds
+// the number of defined expectations
+func (m *CacheInterfaceMock) MinimockCreateRoleEndpointsDone() bool {
+	if m.CreateRoleEndpointsMock.optional {
+		// Optional methods provide '0 or more' call count restriction.
+		return true
+	}
+
+	for _, e := range m.CreateRoleEndpointsMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			return false
+		}
+	}
+
+	return m.CreateRoleEndpointsMock.invocationsDone()
+}
+
+// MinimockCreateRoleEndpointsInspect logs each unmet expectation
+func (m *CacheInterfaceMock) MinimockCreateRoleEndpointsInspect() {
+	for _, e := range m.CreateRoleEndpointsMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			m.t.Errorf("Expected call to CacheInterfaceMock.CreateRoleEndpoints at\n%s with params: %#v", e.expectationOrigins.origin, *e.params)
+		}
+	}
+
+	afterCreateRoleEndpointsCounter := mm_atomic.LoadUint64(&m.afterCreateRoleEndpointsCounter)
+	// if default expectation was set then invocations count should be greater than zero
+	if m.CreateRoleEndpointsMock.defaultExpectation != nil && afterCreateRoleEndpointsCounter < 1 {
+		if m.CreateRoleEndpointsMock.defaultExpectation.params == nil {
+			m.t.Errorf("Expected call to CacheInterfaceMock.CreateRoleEndpoints at\n%s", m.CreateRoleEndpointsMock.defaultExpectation.returnOrigin)
+		} else {
+			m.t.Errorf("Expected call to CacheInterfaceMock.CreateRoleEndpoints at\n%s with params: %#v", m.CreateRoleEndpointsMock.defaultExpectation.expectationOrigins.origin, *m.CreateRoleEndpointsMock.defaultExpectation.params)
+		}
+	}
+	// if func was set then invocations count should be greater than zero
+	if m.funcCreateRoleEndpoints != nil && afterCreateRoleEndpointsCounter < 1 {
+		m.t.Errorf("Expected call to CacheInterfaceMock.CreateRoleEndpoints at\n%s", m.funcCreateRoleEndpointsOrigin)
+	}
+
+	if !m.CreateRoleEndpointsMock.invocationsDone() && afterCreateRoleEndpointsCounter > 0 {
+		m.t.Errorf("Expected %d calls to CacheInterfaceMock.CreateRoleEndpoints at\n%s but found %d calls",
+			mm_atomic.LoadUint64(&m.CreateRoleEndpointsMock.expectedInvocations), m.CreateRoleEndpointsMock.expectedInvocationsOrigin, afterCreateRoleEndpointsCounter)
+	}
+}
+
 type mCacheInterfaceMockGet struct {
 	optional           bool
 	mock               *CacheInterfaceMock
@@ -769,13 +1555,707 @@ func (m *CacheInterfaceMock) MinimockGetInspect() {
 	}
 }
 
+type mCacheInterfaceMockGetRole struct {
+	optional           bool
+	mock               *CacheInterfaceMock
+	defaultExpectation *CacheInterfaceMockGetRoleExpectation
+	expectations       []*CacheInterfaceMockGetRoleExpectation
+
+	callArgs []*CacheInterfaceMockGetRoleParams
+	mutex    sync.RWMutex
+
+	expectedInvocations       uint64
+	expectedInvocationsOrigin string
+}
+
+// CacheInterfaceMockGetRoleExpectation specifies expectation struct of the CacheInterface.GetRole
+type CacheInterfaceMockGetRoleExpectation struct {
+	mock               *CacheInterfaceMock
+	params             *CacheInterfaceMockGetRoleParams
+	paramPtrs          *CacheInterfaceMockGetRoleParamPtrs
+	expectationOrigins CacheInterfaceMockGetRoleExpectationOrigins
+	results            *CacheInterfaceMockGetRoleResults
+	returnOrigin       string
+	Counter            uint64
+}
+
+// CacheInterfaceMockGetRoleParams contains parameters of the CacheInterface.GetRole
+type CacheInterfaceMockGetRoleParams struct {
+	ctx      context.Context
+	username string
+}
+
+// CacheInterfaceMockGetRoleParamPtrs contains pointers to parameters of the CacheInterface.GetRole
+type CacheInterfaceMockGetRoleParamPtrs struct {
+	ctx      *context.Context
+	username *string
+}
+
+// CacheInterfaceMockGetRoleResults contains results of the CacheInterface.GetRole
+type CacheInterfaceMockGetRoleResults struct {
+	bp1 *bool
+	err error
+}
+
+// CacheInterfaceMockGetRoleOrigins contains origins of expectations of the CacheInterface.GetRole
+type CacheInterfaceMockGetRoleExpectationOrigins struct {
+	origin         string
+	originCtx      string
+	originUsername string
+}
+
+// Marks this method to be optional. The default behavior of any method with Return() is '1 or more', meaning
+// the test will fail minimock's automatic final call check if the mocked method was not called at least once.
+// Optional() makes method check to work in '0 or more' mode.
+// It is NOT RECOMMENDED to use this option unless you really need it, as default behaviour helps to
+// catch the problems when the expected method call is totally skipped during test run.
+func (mmGetRole *mCacheInterfaceMockGetRole) Optional() *mCacheInterfaceMockGetRole {
+	mmGetRole.optional = true
+	return mmGetRole
+}
+
+// Expect sets up expected params for CacheInterface.GetRole
+func (mmGetRole *mCacheInterfaceMockGetRole) Expect(ctx context.Context, username string) *mCacheInterfaceMockGetRole {
+	if mmGetRole.mock.funcGetRole != nil {
+		mmGetRole.mock.t.Fatalf("CacheInterfaceMock.GetRole mock is already set by Set")
+	}
+
+	if mmGetRole.defaultExpectation == nil {
+		mmGetRole.defaultExpectation = &CacheInterfaceMockGetRoleExpectation{}
+	}
+
+	if mmGetRole.defaultExpectation.paramPtrs != nil {
+		mmGetRole.mock.t.Fatalf("CacheInterfaceMock.GetRole mock is already set by ExpectParams functions")
+	}
+
+	mmGetRole.defaultExpectation.params = &CacheInterfaceMockGetRoleParams{ctx, username}
+	mmGetRole.defaultExpectation.expectationOrigins.origin = minimock.CallerInfo(1)
+	for _, e := range mmGetRole.expectations {
+		if minimock.Equal(e.params, mmGetRole.defaultExpectation.params) {
+			mmGetRole.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmGetRole.defaultExpectation.params)
+		}
+	}
+
+	return mmGetRole
+}
+
+// ExpectCtxParam1 sets up expected param ctx for CacheInterface.GetRole
+func (mmGetRole *mCacheInterfaceMockGetRole) ExpectCtxParam1(ctx context.Context) *mCacheInterfaceMockGetRole {
+	if mmGetRole.mock.funcGetRole != nil {
+		mmGetRole.mock.t.Fatalf("CacheInterfaceMock.GetRole mock is already set by Set")
+	}
+
+	if mmGetRole.defaultExpectation == nil {
+		mmGetRole.defaultExpectation = &CacheInterfaceMockGetRoleExpectation{}
+	}
+
+	if mmGetRole.defaultExpectation.params != nil {
+		mmGetRole.mock.t.Fatalf("CacheInterfaceMock.GetRole mock is already set by Expect")
+	}
+
+	if mmGetRole.defaultExpectation.paramPtrs == nil {
+		mmGetRole.defaultExpectation.paramPtrs = &CacheInterfaceMockGetRoleParamPtrs{}
+	}
+	mmGetRole.defaultExpectation.paramPtrs.ctx = &ctx
+	mmGetRole.defaultExpectation.expectationOrigins.originCtx = minimock.CallerInfo(1)
+
+	return mmGetRole
+}
+
+// ExpectUsernameParam2 sets up expected param username for CacheInterface.GetRole
+func (mmGetRole *mCacheInterfaceMockGetRole) ExpectUsernameParam2(username string) *mCacheInterfaceMockGetRole {
+	if mmGetRole.mock.funcGetRole != nil {
+		mmGetRole.mock.t.Fatalf("CacheInterfaceMock.GetRole mock is already set by Set")
+	}
+
+	if mmGetRole.defaultExpectation == nil {
+		mmGetRole.defaultExpectation = &CacheInterfaceMockGetRoleExpectation{}
+	}
+
+	if mmGetRole.defaultExpectation.params != nil {
+		mmGetRole.mock.t.Fatalf("CacheInterfaceMock.GetRole mock is already set by Expect")
+	}
+
+	if mmGetRole.defaultExpectation.paramPtrs == nil {
+		mmGetRole.defaultExpectation.paramPtrs = &CacheInterfaceMockGetRoleParamPtrs{}
+	}
+	mmGetRole.defaultExpectation.paramPtrs.username = &username
+	mmGetRole.defaultExpectation.expectationOrigins.originUsername = minimock.CallerInfo(1)
+
+	return mmGetRole
+}
+
+// Inspect accepts an inspector function that has same arguments as the CacheInterface.GetRole
+func (mmGetRole *mCacheInterfaceMockGetRole) Inspect(f func(ctx context.Context, username string)) *mCacheInterfaceMockGetRole {
+	if mmGetRole.mock.inspectFuncGetRole != nil {
+		mmGetRole.mock.t.Fatalf("Inspect function is already set for CacheInterfaceMock.GetRole")
+	}
+
+	mmGetRole.mock.inspectFuncGetRole = f
+
+	return mmGetRole
+}
+
+// Return sets up results that will be returned by CacheInterface.GetRole
+func (mmGetRole *mCacheInterfaceMockGetRole) Return(bp1 *bool, err error) *CacheInterfaceMock {
+	if mmGetRole.mock.funcGetRole != nil {
+		mmGetRole.mock.t.Fatalf("CacheInterfaceMock.GetRole mock is already set by Set")
+	}
+
+	if mmGetRole.defaultExpectation == nil {
+		mmGetRole.defaultExpectation = &CacheInterfaceMockGetRoleExpectation{mock: mmGetRole.mock}
+	}
+	mmGetRole.defaultExpectation.results = &CacheInterfaceMockGetRoleResults{bp1, err}
+	mmGetRole.defaultExpectation.returnOrigin = minimock.CallerInfo(1)
+	return mmGetRole.mock
+}
+
+// Set uses given function f to mock the CacheInterface.GetRole method
+func (mmGetRole *mCacheInterfaceMockGetRole) Set(f func(ctx context.Context, username string) (bp1 *bool, err error)) *CacheInterfaceMock {
+	if mmGetRole.defaultExpectation != nil {
+		mmGetRole.mock.t.Fatalf("Default expectation is already set for the CacheInterface.GetRole method")
+	}
+
+	if len(mmGetRole.expectations) > 0 {
+		mmGetRole.mock.t.Fatalf("Some expectations are already set for the CacheInterface.GetRole method")
+	}
+
+	mmGetRole.mock.funcGetRole = f
+	mmGetRole.mock.funcGetRoleOrigin = minimock.CallerInfo(1)
+	return mmGetRole.mock
+}
+
+// When sets expectation for the CacheInterface.GetRole which will trigger the result defined by the following
+// Then helper
+func (mmGetRole *mCacheInterfaceMockGetRole) When(ctx context.Context, username string) *CacheInterfaceMockGetRoleExpectation {
+	if mmGetRole.mock.funcGetRole != nil {
+		mmGetRole.mock.t.Fatalf("CacheInterfaceMock.GetRole mock is already set by Set")
+	}
+
+	expectation := &CacheInterfaceMockGetRoleExpectation{
+		mock:               mmGetRole.mock,
+		params:             &CacheInterfaceMockGetRoleParams{ctx, username},
+		expectationOrigins: CacheInterfaceMockGetRoleExpectationOrigins{origin: minimock.CallerInfo(1)},
+	}
+	mmGetRole.expectations = append(mmGetRole.expectations, expectation)
+	return expectation
+}
+
+// Then sets up CacheInterface.GetRole return parameters for the expectation previously defined by the When method
+func (e *CacheInterfaceMockGetRoleExpectation) Then(bp1 *bool, err error) *CacheInterfaceMock {
+	e.results = &CacheInterfaceMockGetRoleResults{bp1, err}
+	return e.mock
+}
+
+// Times sets number of times CacheInterface.GetRole should be invoked
+func (mmGetRole *mCacheInterfaceMockGetRole) Times(n uint64) *mCacheInterfaceMockGetRole {
+	if n == 0 {
+		mmGetRole.mock.t.Fatalf("Times of CacheInterfaceMock.GetRole mock can not be zero")
+	}
+	mm_atomic.StoreUint64(&mmGetRole.expectedInvocations, n)
+	mmGetRole.expectedInvocationsOrigin = minimock.CallerInfo(1)
+	return mmGetRole
+}
+
+func (mmGetRole *mCacheInterfaceMockGetRole) invocationsDone() bool {
+	if len(mmGetRole.expectations) == 0 && mmGetRole.defaultExpectation == nil && mmGetRole.mock.funcGetRole == nil {
+		return true
+	}
+
+	totalInvocations := mm_atomic.LoadUint64(&mmGetRole.mock.afterGetRoleCounter)
+	expectedInvocations := mm_atomic.LoadUint64(&mmGetRole.expectedInvocations)
+
+	return totalInvocations > 0 && (expectedInvocations == 0 || expectedInvocations == totalInvocations)
+}
+
+// GetRole implements mm_repository.CacheInterface
+func (mmGetRole *CacheInterfaceMock) GetRole(ctx context.Context, username string) (bp1 *bool, err error) {
+	mm_atomic.AddUint64(&mmGetRole.beforeGetRoleCounter, 1)
+	defer mm_atomic.AddUint64(&mmGetRole.afterGetRoleCounter, 1)
+
+	mmGetRole.t.Helper()
+
+	if mmGetRole.inspectFuncGetRole != nil {
+		mmGetRole.inspectFuncGetRole(ctx, username)
+	}
+
+	mm_params := CacheInterfaceMockGetRoleParams{ctx, username}
+
+	// Record call args
+	mmGetRole.GetRoleMock.mutex.Lock()
+	mmGetRole.GetRoleMock.callArgs = append(mmGetRole.GetRoleMock.callArgs, &mm_params)
+	mmGetRole.GetRoleMock.mutex.Unlock()
+
+	for _, e := range mmGetRole.GetRoleMock.expectations {
+		if minimock.Equal(*e.params, mm_params) {
+			mm_atomic.AddUint64(&e.Counter, 1)
+			return e.results.bp1, e.results.err
+		}
+	}
+
+	if mmGetRole.GetRoleMock.defaultExpectation != nil {
+		mm_atomic.AddUint64(&mmGetRole.GetRoleMock.defaultExpectation.Counter, 1)
+		mm_want := mmGetRole.GetRoleMock.defaultExpectation.params
+		mm_want_ptrs := mmGetRole.GetRoleMock.defaultExpectation.paramPtrs
+
+		mm_got := CacheInterfaceMockGetRoleParams{ctx, username}
+
+		if mm_want_ptrs != nil {
+
+			if mm_want_ptrs.ctx != nil && !minimock.Equal(*mm_want_ptrs.ctx, mm_got.ctx) {
+				mmGetRole.t.Errorf("CacheInterfaceMock.GetRole got unexpected parameter ctx, expected at\n%s:\nwant: %#v\n got: %#v%s\n",
+					mmGetRole.GetRoleMock.defaultExpectation.expectationOrigins.originCtx, *mm_want_ptrs.ctx, mm_got.ctx, minimock.Diff(*mm_want_ptrs.ctx, mm_got.ctx))
+			}
+
+			if mm_want_ptrs.username != nil && !minimock.Equal(*mm_want_ptrs.username, mm_got.username) {
+				mmGetRole.t.Errorf("CacheInterfaceMock.GetRole got unexpected parameter username, expected at\n%s:\nwant: %#v\n got: %#v%s\n",
+					mmGetRole.GetRoleMock.defaultExpectation.expectationOrigins.originUsername, *mm_want_ptrs.username, mm_got.username, minimock.Diff(*mm_want_ptrs.username, mm_got.username))
+			}
+
+		} else if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
+			mmGetRole.t.Errorf("CacheInterfaceMock.GetRole got unexpected parameters, expected at\n%s:\nwant: %#v\n got: %#v%s\n",
+				mmGetRole.GetRoleMock.defaultExpectation.expectationOrigins.origin, *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
+		}
+
+		mm_results := mmGetRole.GetRoleMock.defaultExpectation.results
+		if mm_results == nil {
+			mmGetRole.t.Fatal("No results are set for the CacheInterfaceMock.GetRole")
+		}
+		return (*mm_results).bp1, (*mm_results).err
+	}
+	if mmGetRole.funcGetRole != nil {
+		return mmGetRole.funcGetRole(ctx, username)
+	}
+	mmGetRole.t.Fatalf("Unexpected call to CacheInterfaceMock.GetRole. %v %v", ctx, username)
+	return
+}
+
+// GetRoleAfterCounter returns a count of finished CacheInterfaceMock.GetRole invocations
+func (mmGetRole *CacheInterfaceMock) GetRoleAfterCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmGetRole.afterGetRoleCounter)
+}
+
+// GetRoleBeforeCounter returns a count of CacheInterfaceMock.GetRole invocations
+func (mmGetRole *CacheInterfaceMock) GetRoleBeforeCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmGetRole.beforeGetRoleCounter)
+}
+
+// Calls returns a list of arguments used in each call to CacheInterfaceMock.GetRole.
+// The list is in the same order as the calls were made (i.e. recent calls have a higher index)
+func (mmGetRole *mCacheInterfaceMockGetRole) Calls() []*CacheInterfaceMockGetRoleParams {
+	mmGetRole.mutex.RLock()
+
+	argCopy := make([]*CacheInterfaceMockGetRoleParams, len(mmGetRole.callArgs))
+	copy(argCopy, mmGetRole.callArgs)
+
+	mmGetRole.mutex.RUnlock()
+
+	return argCopy
+}
+
+// MinimockGetRoleDone returns true if the count of the GetRole invocations corresponds
+// the number of defined expectations
+func (m *CacheInterfaceMock) MinimockGetRoleDone() bool {
+	if m.GetRoleMock.optional {
+		// Optional methods provide '0 or more' call count restriction.
+		return true
+	}
+
+	for _, e := range m.GetRoleMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			return false
+		}
+	}
+
+	return m.GetRoleMock.invocationsDone()
+}
+
+// MinimockGetRoleInspect logs each unmet expectation
+func (m *CacheInterfaceMock) MinimockGetRoleInspect() {
+	for _, e := range m.GetRoleMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			m.t.Errorf("Expected call to CacheInterfaceMock.GetRole at\n%s with params: %#v", e.expectationOrigins.origin, *e.params)
+		}
+	}
+
+	afterGetRoleCounter := mm_atomic.LoadUint64(&m.afterGetRoleCounter)
+	// if default expectation was set then invocations count should be greater than zero
+	if m.GetRoleMock.defaultExpectation != nil && afterGetRoleCounter < 1 {
+		if m.GetRoleMock.defaultExpectation.params == nil {
+			m.t.Errorf("Expected call to CacheInterfaceMock.GetRole at\n%s", m.GetRoleMock.defaultExpectation.returnOrigin)
+		} else {
+			m.t.Errorf("Expected call to CacheInterfaceMock.GetRole at\n%s with params: %#v", m.GetRoleMock.defaultExpectation.expectationOrigins.origin, *m.GetRoleMock.defaultExpectation.params)
+		}
+	}
+	// if func was set then invocations count should be greater than zero
+	if m.funcGetRole != nil && afterGetRoleCounter < 1 {
+		m.t.Errorf("Expected call to CacheInterfaceMock.GetRole at\n%s", m.funcGetRoleOrigin)
+	}
+
+	if !m.GetRoleMock.invocationsDone() && afterGetRoleCounter > 0 {
+		m.t.Errorf("Expected %d calls to CacheInterfaceMock.GetRole at\n%s but found %d calls",
+			mm_atomic.LoadUint64(&m.GetRoleMock.expectedInvocations), m.GetRoleMock.expectedInvocationsOrigin, afterGetRoleCounter)
+	}
+}
+
+type mCacheInterfaceMockGetRoleEndpoints struct {
+	optional           bool
+	mock               *CacheInterfaceMock
+	defaultExpectation *CacheInterfaceMockGetRoleEndpointsExpectation
+	expectations       []*CacheInterfaceMockGetRoleEndpointsExpectation
+
+	callArgs []*CacheInterfaceMockGetRoleEndpointsParams
+	mutex    sync.RWMutex
+
+	expectedInvocations       uint64
+	expectedInvocationsOrigin string
+}
+
+// CacheInterfaceMockGetRoleEndpointsExpectation specifies expectation struct of the CacheInterface.GetRoleEndpoints
+type CacheInterfaceMockGetRoleEndpointsExpectation struct {
+	mock               *CacheInterfaceMock
+	params             *CacheInterfaceMockGetRoleEndpointsParams
+	paramPtrs          *CacheInterfaceMockGetRoleEndpointsParamPtrs
+	expectationOrigins CacheInterfaceMockGetRoleEndpointsExpectationOrigins
+	results            *CacheInterfaceMockGetRoleEndpointsResults
+	returnOrigin       string
+	Counter            uint64
+}
+
+// CacheInterfaceMockGetRoleEndpointsParams contains parameters of the CacheInterface.GetRoleEndpoints
+type CacheInterfaceMockGetRoleEndpointsParams struct {
+	ctx     context.Context
+	isAdmin bool
+}
+
+// CacheInterfaceMockGetRoleEndpointsParamPtrs contains pointers to parameters of the CacheInterface.GetRoleEndpoints
+type CacheInterfaceMockGetRoleEndpointsParamPtrs struct {
+	ctx     *context.Context
+	isAdmin *bool
+}
+
+// CacheInterfaceMockGetRoleEndpointsResults contains results of the CacheInterface.GetRoleEndpoints
+type CacheInterfaceMockGetRoleEndpointsResults struct {
+	sa1 []string
+	err error
+}
+
+// CacheInterfaceMockGetRoleEndpointsOrigins contains origins of expectations of the CacheInterface.GetRoleEndpoints
+type CacheInterfaceMockGetRoleEndpointsExpectationOrigins struct {
+	origin        string
+	originCtx     string
+	originIsAdmin string
+}
+
+// Marks this method to be optional. The default behavior of any method with Return() is '1 or more', meaning
+// the test will fail minimock's automatic final call check if the mocked method was not called at least once.
+// Optional() makes method check to work in '0 or more' mode.
+// It is NOT RECOMMENDED to use this option unless you really need it, as default behaviour helps to
+// catch the problems when the expected method call is totally skipped during test run.
+func (mmGetRoleEndpoints *mCacheInterfaceMockGetRoleEndpoints) Optional() *mCacheInterfaceMockGetRoleEndpoints {
+	mmGetRoleEndpoints.optional = true
+	return mmGetRoleEndpoints
+}
+
+// Expect sets up expected params for CacheInterface.GetRoleEndpoints
+func (mmGetRoleEndpoints *mCacheInterfaceMockGetRoleEndpoints) Expect(ctx context.Context, isAdmin bool) *mCacheInterfaceMockGetRoleEndpoints {
+	if mmGetRoleEndpoints.mock.funcGetRoleEndpoints != nil {
+		mmGetRoleEndpoints.mock.t.Fatalf("CacheInterfaceMock.GetRoleEndpoints mock is already set by Set")
+	}
+
+	if mmGetRoleEndpoints.defaultExpectation == nil {
+		mmGetRoleEndpoints.defaultExpectation = &CacheInterfaceMockGetRoleEndpointsExpectation{}
+	}
+
+	if mmGetRoleEndpoints.defaultExpectation.paramPtrs != nil {
+		mmGetRoleEndpoints.mock.t.Fatalf("CacheInterfaceMock.GetRoleEndpoints mock is already set by ExpectParams functions")
+	}
+
+	mmGetRoleEndpoints.defaultExpectation.params = &CacheInterfaceMockGetRoleEndpointsParams{ctx, isAdmin}
+	mmGetRoleEndpoints.defaultExpectation.expectationOrigins.origin = minimock.CallerInfo(1)
+	for _, e := range mmGetRoleEndpoints.expectations {
+		if minimock.Equal(e.params, mmGetRoleEndpoints.defaultExpectation.params) {
+			mmGetRoleEndpoints.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmGetRoleEndpoints.defaultExpectation.params)
+		}
+	}
+
+	return mmGetRoleEndpoints
+}
+
+// ExpectCtxParam1 sets up expected param ctx for CacheInterface.GetRoleEndpoints
+func (mmGetRoleEndpoints *mCacheInterfaceMockGetRoleEndpoints) ExpectCtxParam1(ctx context.Context) *mCacheInterfaceMockGetRoleEndpoints {
+	if mmGetRoleEndpoints.mock.funcGetRoleEndpoints != nil {
+		mmGetRoleEndpoints.mock.t.Fatalf("CacheInterfaceMock.GetRoleEndpoints mock is already set by Set")
+	}
+
+	if mmGetRoleEndpoints.defaultExpectation == nil {
+		mmGetRoleEndpoints.defaultExpectation = &CacheInterfaceMockGetRoleEndpointsExpectation{}
+	}
+
+	if mmGetRoleEndpoints.defaultExpectation.params != nil {
+		mmGetRoleEndpoints.mock.t.Fatalf("CacheInterfaceMock.GetRoleEndpoints mock is already set by Expect")
+	}
+
+	if mmGetRoleEndpoints.defaultExpectation.paramPtrs == nil {
+		mmGetRoleEndpoints.defaultExpectation.paramPtrs = &CacheInterfaceMockGetRoleEndpointsParamPtrs{}
+	}
+	mmGetRoleEndpoints.defaultExpectation.paramPtrs.ctx = &ctx
+	mmGetRoleEndpoints.defaultExpectation.expectationOrigins.originCtx = minimock.CallerInfo(1)
+
+	return mmGetRoleEndpoints
+}
+
+// ExpectIsAdminParam2 sets up expected param isAdmin for CacheInterface.GetRoleEndpoints
+func (mmGetRoleEndpoints *mCacheInterfaceMockGetRoleEndpoints) ExpectIsAdminParam2(isAdmin bool) *mCacheInterfaceMockGetRoleEndpoints {
+	if mmGetRoleEndpoints.mock.funcGetRoleEndpoints != nil {
+		mmGetRoleEndpoints.mock.t.Fatalf("CacheInterfaceMock.GetRoleEndpoints mock is already set by Set")
+	}
+
+	if mmGetRoleEndpoints.defaultExpectation == nil {
+		mmGetRoleEndpoints.defaultExpectation = &CacheInterfaceMockGetRoleEndpointsExpectation{}
+	}
+
+	if mmGetRoleEndpoints.defaultExpectation.params != nil {
+		mmGetRoleEndpoints.mock.t.Fatalf("CacheInterfaceMock.GetRoleEndpoints mock is already set by Expect")
+	}
+
+	if mmGetRoleEndpoints.defaultExpectation.paramPtrs == nil {
+		mmGetRoleEndpoints.defaultExpectation.paramPtrs = &CacheInterfaceMockGetRoleEndpointsParamPtrs{}
+	}
+	mmGetRoleEndpoints.defaultExpectation.paramPtrs.isAdmin = &isAdmin
+	mmGetRoleEndpoints.defaultExpectation.expectationOrigins.originIsAdmin = minimock.CallerInfo(1)
+
+	return mmGetRoleEndpoints
+}
+
+// Inspect accepts an inspector function that has same arguments as the CacheInterface.GetRoleEndpoints
+func (mmGetRoleEndpoints *mCacheInterfaceMockGetRoleEndpoints) Inspect(f func(ctx context.Context, isAdmin bool)) *mCacheInterfaceMockGetRoleEndpoints {
+	if mmGetRoleEndpoints.mock.inspectFuncGetRoleEndpoints != nil {
+		mmGetRoleEndpoints.mock.t.Fatalf("Inspect function is already set for CacheInterfaceMock.GetRoleEndpoints")
+	}
+
+	mmGetRoleEndpoints.mock.inspectFuncGetRoleEndpoints = f
+
+	return mmGetRoleEndpoints
+}
+
+// Return sets up results that will be returned by CacheInterface.GetRoleEndpoints
+func (mmGetRoleEndpoints *mCacheInterfaceMockGetRoleEndpoints) Return(sa1 []string, err error) *CacheInterfaceMock {
+	if mmGetRoleEndpoints.mock.funcGetRoleEndpoints != nil {
+		mmGetRoleEndpoints.mock.t.Fatalf("CacheInterfaceMock.GetRoleEndpoints mock is already set by Set")
+	}
+
+	if mmGetRoleEndpoints.defaultExpectation == nil {
+		mmGetRoleEndpoints.defaultExpectation = &CacheInterfaceMockGetRoleEndpointsExpectation{mock: mmGetRoleEndpoints.mock}
+	}
+	mmGetRoleEndpoints.defaultExpectation.results = &CacheInterfaceMockGetRoleEndpointsResults{sa1, err}
+	mmGetRoleEndpoints.defaultExpectation.returnOrigin = minimock.CallerInfo(1)
+	return mmGetRoleEndpoints.mock
+}
+
+// Set uses given function f to mock the CacheInterface.GetRoleEndpoints method
+func (mmGetRoleEndpoints *mCacheInterfaceMockGetRoleEndpoints) Set(f func(ctx context.Context, isAdmin bool) (sa1 []string, err error)) *CacheInterfaceMock {
+	if mmGetRoleEndpoints.defaultExpectation != nil {
+		mmGetRoleEndpoints.mock.t.Fatalf("Default expectation is already set for the CacheInterface.GetRoleEndpoints method")
+	}
+
+	if len(mmGetRoleEndpoints.expectations) > 0 {
+		mmGetRoleEndpoints.mock.t.Fatalf("Some expectations are already set for the CacheInterface.GetRoleEndpoints method")
+	}
+
+	mmGetRoleEndpoints.mock.funcGetRoleEndpoints = f
+	mmGetRoleEndpoints.mock.funcGetRoleEndpointsOrigin = minimock.CallerInfo(1)
+	return mmGetRoleEndpoints.mock
+}
+
+// When sets expectation for the CacheInterface.GetRoleEndpoints which will trigger the result defined by the following
+// Then helper
+func (mmGetRoleEndpoints *mCacheInterfaceMockGetRoleEndpoints) When(ctx context.Context, isAdmin bool) *CacheInterfaceMockGetRoleEndpointsExpectation {
+	if mmGetRoleEndpoints.mock.funcGetRoleEndpoints != nil {
+		mmGetRoleEndpoints.mock.t.Fatalf("CacheInterfaceMock.GetRoleEndpoints mock is already set by Set")
+	}
+
+	expectation := &CacheInterfaceMockGetRoleEndpointsExpectation{
+		mock:               mmGetRoleEndpoints.mock,
+		params:             &CacheInterfaceMockGetRoleEndpointsParams{ctx, isAdmin},
+		expectationOrigins: CacheInterfaceMockGetRoleEndpointsExpectationOrigins{origin: minimock.CallerInfo(1)},
+	}
+	mmGetRoleEndpoints.expectations = append(mmGetRoleEndpoints.expectations, expectation)
+	return expectation
+}
+
+// Then sets up CacheInterface.GetRoleEndpoints return parameters for the expectation previously defined by the When method
+func (e *CacheInterfaceMockGetRoleEndpointsExpectation) Then(sa1 []string, err error) *CacheInterfaceMock {
+	e.results = &CacheInterfaceMockGetRoleEndpointsResults{sa1, err}
+	return e.mock
+}
+
+// Times sets number of times CacheInterface.GetRoleEndpoints should be invoked
+func (mmGetRoleEndpoints *mCacheInterfaceMockGetRoleEndpoints) Times(n uint64) *mCacheInterfaceMockGetRoleEndpoints {
+	if n == 0 {
+		mmGetRoleEndpoints.mock.t.Fatalf("Times of CacheInterfaceMock.GetRoleEndpoints mock can not be zero")
+	}
+	mm_atomic.StoreUint64(&mmGetRoleEndpoints.expectedInvocations, n)
+	mmGetRoleEndpoints.expectedInvocationsOrigin = minimock.CallerInfo(1)
+	return mmGetRoleEndpoints
+}
+
+func (mmGetRoleEndpoints *mCacheInterfaceMockGetRoleEndpoints) invocationsDone() bool {
+	if len(mmGetRoleEndpoints.expectations) == 0 && mmGetRoleEndpoints.defaultExpectation == nil && mmGetRoleEndpoints.mock.funcGetRoleEndpoints == nil {
+		return true
+	}
+
+	totalInvocations := mm_atomic.LoadUint64(&mmGetRoleEndpoints.mock.afterGetRoleEndpointsCounter)
+	expectedInvocations := mm_atomic.LoadUint64(&mmGetRoleEndpoints.expectedInvocations)
+
+	return totalInvocations > 0 && (expectedInvocations == 0 || expectedInvocations == totalInvocations)
+}
+
+// GetRoleEndpoints implements mm_repository.CacheInterface
+func (mmGetRoleEndpoints *CacheInterfaceMock) GetRoleEndpoints(ctx context.Context, isAdmin bool) (sa1 []string, err error) {
+	mm_atomic.AddUint64(&mmGetRoleEndpoints.beforeGetRoleEndpointsCounter, 1)
+	defer mm_atomic.AddUint64(&mmGetRoleEndpoints.afterGetRoleEndpointsCounter, 1)
+
+	mmGetRoleEndpoints.t.Helper()
+
+	if mmGetRoleEndpoints.inspectFuncGetRoleEndpoints != nil {
+		mmGetRoleEndpoints.inspectFuncGetRoleEndpoints(ctx, isAdmin)
+	}
+
+	mm_params := CacheInterfaceMockGetRoleEndpointsParams{ctx, isAdmin}
+
+	// Record call args
+	mmGetRoleEndpoints.GetRoleEndpointsMock.mutex.Lock()
+	mmGetRoleEndpoints.GetRoleEndpointsMock.callArgs = append(mmGetRoleEndpoints.GetRoleEndpointsMock.callArgs, &mm_params)
+	mmGetRoleEndpoints.GetRoleEndpointsMock.mutex.Unlock()
+
+	for _, e := range mmGetRoleEndpoints.GetRoleEndpointsMock.expectations {
+		if minimock.Equal(*e.params, mm_params) {
+			mm_atomic.AddUint64(&e.Counter, 1)
+			return e.results.sa1, e.results.err
+		}
+	}
+
+	if mmGetRoleEndpoints.GetRoleEndpointsMock.defaultExpectation != nil {
+		mm_atomic.AddUint64(&mmGetRoleEndpoints.GetRoleEndpointsMock.defaultExpectation.Counter, 1)
+		mm_want := mmGetRoleEndpoints.GetRoleEndpointsMock.defaultExpectation.params
+		mm_want_ptrs := mmGetRoleEndpoints.GetRoleEndpointsMock.defaultExpectation.paramPtrs
+
+		mm_got := CacheInterfaceMockGetRoleEndpointsParams{ctx, isAdmin}
+
+		if mm_want_ptrs != nil {
+
+			if mm_want_ptrs.ctx != nil && !minimock.Equal(*mm_want_ptrs.ctx, mm_got.ctx) {
+				mmGetRoleEndpoints.t.Errorf("CacheInterfaceMock.GetRoleEndpoints got unexpected parameter ctx, expected at\n%s:\nwant: %#v\n got: %#v%s\n",
+					mmGetRoleEndpoints.GetRoleEndpointsMock.defaultExpectation.expectationOrigins.originCtx, *mm_want_ptrs.ctx, mm_got.ctx, minimock.Diff(*mm_want_ptrs.ctx, mm_got.ctx))
+			}
+
+			if mm_want_ptrs.isAdmin != nil && !minimock.Equal(*mm_want_ptrs.isAdmin, mm_got.isAdmin) {
+				mmGetRoleEndpoints.t.Errorf("CacheInterfaceMock.GetRoleEndpoints got unexpected parameter isAdmin, expected at\n%s:\nwant: %#v\n got: %#v%s\n",
+					mmGetRoleEndpoints.GetRoleEndpointsMock.defaultExpectation.expectationOrigins.originIsAdmin, *mm_want_ptrs.isAdmin, mm_got.isAdmin, minimock.Diff(*mm_want_ptrs.isAdmin, mm_got.isAdmin))
+			}
+
+		} else if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
+			mmGetRoleEndpoints.t.Errorf("CacheInterfaceMock.GetRoleEndpoints got unexpected parameters, expected at\n%s:\nwant: %#v\n got: %#v%s\n",
+				mmGetRoleEndpoints.GetRoleEndpointsMock.defaultExpectation.expectationOrigins.origin, *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
+		}
+
+		mm_results := mmGetRoleEndpoints.GetRoleEndpointsMock.defaultExpectation.results
+		if mm_results == nil {
+			mmGetRoleEndpoints.t.Fatal("No results are set for the CacheInterfaceMock.GetRoleEndpoints")
+		}
+		return (*mm_results).sa1, (*mm_results).err
+	}
+	if mmGetRoleEndpoints.funcGetRoleEndpoints != nil {
+		return mmGetRoleEndpoints.funcGetRoleEndpoints(ctx, isAdmin)
+	}
+	mmGetRoleEndpoints.t.Fatalf("Unexpected call to CacheInterfaceMock.GetRoleEndpoints. %v %v", ctx, isAdmin)
+	return
+}
+
+// GetRoleEndpointsAfterCounter returns a count of finished CacheInterfaceMock.GetRoleEndpoints invocations
+func (mmGetRoleEndpoints *CacheInterfaceMock) GetRoleEndpointsAfterCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmGetRoleEndpoints.afterGetRoleEndpointsCounter)
+}
+
+// GetRoleEndpointsBeforeCounter returns a count of CacheInterfaceMock.GetRoleEndpoints invocations
+func (mmGetRoleEndpoints *CacheInterfaceMock) GetRoleEndpointsBeforeCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmGetRoleEndpoints.beforeGetRoleEndpointsCounter)
+}
+
+// Calls returns a list of arguments used in each call to CacheInterfaceMock.GetRoleEndpoints.
+// The list is in the same order as the calls were made (i.e. recent calls have a higher index)
+func (mmGetRoleEndpoints *mCacheInterfaceMockGetRoleEndpoints) Calls() []*CacheInterfaceMockGetRoleEndpointsParams {
+	mmGetRoleEndpoints.mutex.RLock()
+
+	argCopy := make([]*CacheInterfaceMockGetRoleEndpointsParams, len(mmGetRoleEndpoints.callArgs))
+	copy(argCopy, mmGetRoleEndpoints.callArgs)
+
+	mmGetRoleEndpoints.mutex.RUnlock()
+
+	return argCopy
+}
+
+// MinimockGetRoleEndpointsDone returns true if the count of the GetRoleEndpoints invocations corresponds
+// the number of defined expectations
+func (m *CacheInterfaceMock) MinimockGetRoleEndpointsDone() bool {
+	if m.GetRoleEndpointsMock.optional {
+		// Optional methods provide '0 or more' call count restriction.
+		return true
+	}
+
+	for _, e := range m.GetRoleEndpointsMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			return false
+		}
+	}
+
+	return m.GetRoleEndpointsMock.invocationsDone()
+}
+
+// MinimockGetRoleEndpointsInspect logs each unmet expectation
+func (m *CacheInterfaceMock) MinimockGetRoleEndpointsInspect() {
+	for _, e := range m.GetRoleEndpointsMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			m.t.Errorf("Expected call to CacheInterfaceMock.GetRoleEndpoints at\n%s with params: %#v", e.expectationOrigins.origin, *e.params)
+		}
+	}
+
+	afterGetRoleEndpointsCounter := mm_atomic.LoadUint64(&m.afterGetRoleEndpointsCounter)
+	// if default expectation was set then invocations count should be greater than zero
+	if m.GetRoleEndpointsMock.defaultExpectation != nil && afterGetRoleEndpointsCounter < 1 {
+		if m.GetRoleEndpointsMock.defaultExpectation.params == nil {
+			m.t.Errorf("Expected call to CacheInterfaceMock.GetRoleEndpoints at\n%s", m.GetRoleEndpointsMock.defaultExpectation.returnOrigin)
+		} else {
+			m.t.Errorf("Expected call to CacheInterfaceMock.GetRoleEndpoints at\n%s with params: %#v", m.GetRoleEndpointsMock.defaultExpectation.expectationOrigins.origin, *m.GetRoleEndpointsMock.defaultExpectation.params)
+		}
+	}
+	// if func was set then invocations count should be greater than zero
+	if m.funcGetRoleEndpoints != nil && afterGetRoleEndpointsCounter < 1 {
+		m.t.Errorf("Expected call to CacheInterfaceMock.GetRoleEndpoints at\n%s", m.funcGetRoleEndpointsOrigin)
+	}
+
+	if !m.GetRoleEndpointsMock.invocationsDone() && afterGetRoleEndpointsCounter > 0 {
+		m.t.Errorf("Expected %d calls to CacheInterfaceMock.GetRoleEndpoints at\n%s but found %d calls",
+			mm_atomic.LoadUint64(&m.GetRoleEndpointsMock.expectedInvocations), m.GetRoleEndpointsMock.expectedInvocationsOrigin, afterGetRoleEndpointsCounter)
+	}
+}
+
 // MinimockFinish checks that all mocked methods have been called the expected number of times
 func (m *CacheInterfaceMock) MinimockFinish() {
 	m.finishOnce.Do(func() {
 		if !m.minimockDone() {
 			m.MinimockCreateInspect()
 
+			m.MinimockCreateRoleInspect()
+
+			m.MinimockCreateRoleEndpointsInspect()
+
 			m.MinimockGetInspect()
+
+			m.MinimockGetRoleInspect()
+
+			m.MinimockGetRoleEndpointsInspect()
 		}
 	})
 }
@@ -800,5 +2280,9 @@ func (m *CacheInterfaceMock) minimockDone() bool {
 	done := true
 	return done &&
 		m.MinimockCreateDone() &&
-		m.MinimockGetDone()
+		m.MinimockCreateRoleDone() &&
+		m.MinimockCreateRoleEndpointsDone() &&
+		m.MinimockGetDone() &&
+		m.MinimockGetRoleDone() &&
+		m.MinimockGetRoleEndpointsDone()
 }

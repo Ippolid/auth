@@ -53,7 +53,7 @@ option (google.api.resource_definition) = {
 service CloudQuotas {
   option (google.api.default_host) = "cloudquotas.googleapis.com";
   option (google.api.oauth_scopes) =
-      "https://www.googleapis.com/auth/cloud-platform";
+      "https://www.googleapis.com/user/cloud-platform";
 
   // Lists QuotaInfos of all quotas for a given project, folder or organization.
   rpc ListQuotaInfos(ListQuotaInfosRequest) returns (ListQuotaInfosResponse) {

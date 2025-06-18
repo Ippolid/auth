@@ -5,9 +5,9 @@ import (
 	"github.com/Ippolid/auth/pkg/auth_v1"
 )
 
-// Controller реализует интерфейс AuthV1Server и AuthService
+// Controller структура для обработки запросов авторизации
 type Controller struct {
-	auth_v1.UnimplementedAuthV1Server
+	auth_v1.UnimplementedAuthServer
 	authService service.AuthService
 }
 

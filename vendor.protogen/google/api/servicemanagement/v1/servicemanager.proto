@@ -39,10 +39,10 @@ option ruby_package = "Google::Cloud::ServiceManagement::V1";
 service ServiceManager {
   option (google.api.default_host) = "servicemanagement.googleapis.com";
   option (google.api.oauth_scopes) =
-      "https://www.googleapis.com/auth/cloud-platform,"
-      "https://www.googleapis.com/auth/cloud-platform.read-only,"
-      "https://www.googleapis.com/auth/service.management,"
-      "https://www.googleapis.com/auth/service.management.readonly";
+      "https://www.googleapis.com/user/cloud-platform,"
+      "https://www.googleapis.com/user/cloud-platform.read-only,"
+      "https://www.googleapis.com/user/service.management,"
+      "https://www.googleapis.com/user/service.management.readonly";
 
   // Lists managed services.
   //

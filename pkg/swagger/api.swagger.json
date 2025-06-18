@@ -1,7 +1,7 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "Auth API",
+    "title": "User API",
     "version": "1.0.0",
     "contact": {
       "name": "Ippolid",
@@ -10,7 +10,7 @@
   },
   "tags": [
     {
-      "name": "AuthV1"
+      "name": "UserV1"
     }
   ],
   "host": "localhost:8080",
@@ -25,14 +25,14 @@
     "application/json"
   ],
   "paths": {
-    "/auth/v1": {
+    "/v1/user": {
       "get": {
-        "operationId": "AuthV1_Get",
+        "operationId": "UserV1_Get",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/auth_v1GetResponse"
+              "$ref": "#/definitions/user_v1GetResponse"
             }
           },
           "default": {
@@ -52,11 +52,11 @@
           }
         ],
         "tags": [
-          "AuthV1"
+          "UserV1"
         ]
       },
       "delete": {
-        "operationId": "AuthV1_Delete",
+        "operationId": "UserV1_Delete",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -82,11 +82,11 @@
           }
         ],
         "tags": [
-          "AuthV1"
+          "UserV1"
         ]
       },
       "patch": {
-        "operationId": "AuthV1_Update",
+        "operationId": "UserV1_Update",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -108,23 +108,23 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/auth_v1UpdateRequest"
+              "$ref": "#/definitions/user_v1UpdateRequest"
             }
           }
         ],
         "tags": [
-          "AuthV1"
+          "UserV1"
         ]
       }
     },
-    "/auth/v1/create": {
+    "/v1/user/create": {
       "post": {
-        "operationId": "AuthV1_Create",
+        "operationId": "UserV1_Create",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/auth_v1CreateResponse"
+              "$ref": "#/definitions/user_v1CreateResponse"
             }
           },
           "default": {
@@ -140,113 +140,17 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/auth_v1CreateRequest"
+              "$ref": "#/definitions/user_v1CreateRequest"
             }
           }
         ],
         "tags": [
-          "AuthV1"
+          "UserV1"
         ]
       }
     }
   },
   "definitions": {
-    "auth_v1CreateRequest": {
-      "type": "object",
-      "properties": {
-        "info": {
-          "$ref": "#/definitions/auth_v1UserInfoCreate"
-        }
-      }
-    },
-    "auth_v1CreateResponse": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string",
-          "format": "int64"
-        }
-      }
-    },
-    "auth_v1GetResponse": {
-      "type": "object",
-      "properties": {
-        "user": {
-          "$ref": "#/definitions/auth_v1UserGet"
-        }
-      }
-    },
-    "auth_v1Role": {
-      "type": "string",
-      "enum": [
-        "USER",
-        "ADMIN"
-      ],
-      "default": "USER"
-    },
-    "auth_v1UpdateRequest": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string",
-          "format": "int64"
-        },
-        "info": {
-          "$ref": "#/definitions/auth_v1UserInfo"
-        }
-      }
-    },
-    "auth_v1UserGet": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string",
-          "format": "int64"
-        },
-        "info": {
-          "$ref": "#/definitions/auth_v1UserInfo"
-        },
-        "role": {
-          "$ref": "#/definitions/auth_v1Role"
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time"
-        }
-      }
-    },
-    "auth_v1UserInfo": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string"
-        },
-        "email": {
-          "type": "string"
-        }
-      }
-    },
-    "auth_v1UserInfoCreate": {
-      "type": "object",
-      "properties": {
-        "user": {
-          "$ref": "#/definitions/auth_v1UserInfo"
-        },
-        "password": {
-          "type": "string"
-        },
-        "passwordConfirm": {
-          "type": "string"
-        },
-        "role": {
-          "$ref": "#/definitions/auth_v1Role"
-        }
-      }
-    },
     "protobufAny": {
       "type": "object",
       "properties": {
@@ -272,6 +176,102 @@
             "type": "object",
             "$ref": "#/definitions/protobufAny"
           }
+        }
+      }
+    },
+    "user_v1CreateRequest": {
+      "type": "object",
+      "properties": {
+        "info": {
+          "$ref": "#/definitions/user_v1UserInfoCreate"
+        }
+      }
+    },
+    "user_v1CreateResponse": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64"
+        }
+      }
+    },
+    "user_v1GetResponse": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "$ref": "#/definitions/user_v1UserGet"
+        }
+      }
+    },
+    "user_v1Role": {
+      "type": "string",
+      "enum": [
+        "USER",
+        "ADMIN"
+      ],
+      "default": "USER"
+    },
+    "user_v1UpdateRequest": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64"
+        },
+        "info": {
+          "$ref": "#/definitions/user_v1UserInfo"
+        }
+      }
+    },
+    "user_v1UserGet": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64"
+        },
+        "info": {
+          "$ref": "#/definitions/user_v1UserInfo"
+        },
+        "role": {
+          "$ref": "#/definitions/user_v1Role"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "user_v1UserInfo": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        }
+      }
+    },
+    "user_v1UserInfoCreate": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "$ref": "#/definitions/user_v1UserInfo"
+        },
+        "password": {
+          "type": "string"
+        },
+        "passwordConfirm": {
+          "type": "string"
+        },
+        "role": {
+          "$ref": "#/definitions/user_v1Role"
         }
       }
     }

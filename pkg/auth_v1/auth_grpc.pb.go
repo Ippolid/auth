@@ -20,194 +20,194 @@ import (
 // Requires gRPC-Go v1.32.0 or later.
 const _ = grpc.SupportPackageIsVersion7
 
-// AuthV1Client is the client API for AuthV1 service.
+// AuthClient is the client API for Auth service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type AuthV1Client interface {
-	Create(ctx context.Context, in *CreateRequest, opts ...grpc.CallOption) (*CreateResponse, error)
-	Get(ctx context.Context, in *GetRequest, opts ...grpc.CallOption) (*GetResponse, error)
-	Update(ctx context.Context, in *UpdateRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	Delete(ctx context.Context, in *DeleteRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+type AuthClient interface {
+	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error)
+	GetRefreshToken(ctx context.Context, in *GetRefreshTokenRequest, opts ...grpc.CallOption) (*GetRefreshTokenResponse, error)
+	GetAccessToken(ctx context.Context, in *GetAccessTokenRequest, opts ...grpc.CallOption) (*GetAccessTokenResponse, error)
+	Check(ctx context.Context, in *CheckRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
-type authV1Client struct {
+type authClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewAuthV1Client(cc grpc.ClientConnInterface) AuthV1Client {
-	return &authV1Client{cc}
+func NewAuthClient(cc grpc.ClientConnInterface) AuthClient {
+	return &authClient{cc}
 }
 
-func (c *authV1Client) Create(ctx context.Context, in *CreateRequest, opts ...grpc.CallOption) (*CreateResponse, error) {
-	out := new(CreateResponse)
-	err := c.cc.Invoke(ctx, "/auth_v1.AuthV1/Create", in, out, opts...)
+func (c *authClient) Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error) {
+	out := new(LoginResponse)
+	err := c.cc.Invoke(ctx, "/api.auth_v1.Auth/Login", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *authV1Client) Get(ctx context.Context, in *GetRequest, opts ...grpc.CallOption) (*GetResponse, error) {
-	out := new(GetResponse)
-	err := c.cc.Invoke(ctx, "/auth_v1.AuthV1/Get", in, out, opts...)
+func (c *authClient) GetRefreshToken(ctx context.Context, in *GetRefreshTokenRequest, opts ...grpc.CallOption) (*GetRefreshTokenResponse, error) {
+	out := new(GetRefreshTokenResponse)
+	err := c.cc.Invoke(ctx, "/api.auth_v1.Auth/GetRefreshToken", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *authV1Client) Update(ctx context.Context, in *UpdateRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *authClient) GetAccessToken(ctx context.Context, in *GetAccessTokenRequest, opts ...grpc.CallOption) (*GetAccessTokenResponse, error) {
+	out := new(GetAccessTokenResponse)
+	err := c.cc.Invoke(ctx, "/api.auth_v1.Auth/GetAccessToken", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authClient) Check(ctx context.Context, in *CheckRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, "/auth_v1.AuthV1/Update", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/api.auth_v1.Auth/Check", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *authV1Client) Delete(ctx context.Context, in *DeleteRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, "/auth_v1.AuthV1/Delete", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-// AuthV1Server is the server API for AuthV1 service.
-// All implementations must embed UnimplementedAuthV1Server
+// AuthServer is the server API for Auth service.
+// All implementations must embed UnimplementedAuthServer
 // for forward compatibility
-type AuthV1Server interface {
-	Create(context.Context, *CreateRequest) (*CreateResponse, error)
-	Get(context.Context, *GetRequest) (*GetResponse, error)
-	Update(context.Context, *UpdateRequest) (*emptypb.Empty, error)
-	Delete(context.Context, *DeleteRequest) (*emptypb.Empty, error)
-	mustEmbedUnimplementedAuthV1Server()
+type AuthServer interface {
+	Login(context.Context, *LoginRequest) (*LoginResponse, error)
+	GetRefreshToken(context.Context, *GetRefreshTokenRequest) (*GetRefreshTokenResponse, error)
+	GetAccessToken(context.Context, *GetAccessTokenRequest) (*GetAccessTokenResponse, error)
+	Check(context.Context, *CheckRequest) (*emptypb.Empty, error)
+	mustEmbedUnimplementedAuthServer()
 }
 
-// UnimplementedAuthV1Server must be embedded to have forward compatible implementations.
-type UnimplementedAuthV1Server struct {
+// UnimplementedAuthServer must be embedded to have forward compatible implementations.
+type UnimplementedAuthServer struct {
 }
 
-func (UnimplementedAuthV1Server) Create(context.Context, *CreateRequest) (*CreateResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
+func (UnimplementedAuthServer) Login(context.Context, *LoginRequest) (*LoginResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Login not implemented")
 }
-func (UnimplementedAuthV1Server) Get(context.Context, *GetRequest) (*GetResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
+func (UnimplementedAuthServer) GetRefreshToken(context.Context, *GetRefreshTokenRequest) (*GetRefreshTokenResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetRefreshToken not implemented")
 }
-func (UnimplementedAuthV1Server) Update(context.Context, *UpdateRequest) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Update not implemented")
+func (UnimplementedAuthServer) GetAccessToken(context.Context, *GetAccessTokenRequest) (*GetAccessTokenResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAccessToken not implemented")
 }
-func (UnimplementedAuthV1Server) Delete(context.Context, *DeleteRequest) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
+func (UnimplementedAuthServer) Check(context.Context, *CheckRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Check not implemented")
 }
-func (UnimplementedAuthV1Server) mustEmbedUnimplementedAuthV1Server() {}
+func (UnimplementedAuthServer) mustEmbedUnimplementedAuthServer() {}
 
-// UnsafeAuthV1Server may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to AuthV1Server will
+// UnsafeAuthServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to AuthServer will
 // result in compilation errors.
-type UnsafeAuthV1Server interface {
-	mustEmbedUnimplementedAuthV1Server()
+type UnsafeAuthServer interface {
+	mustEmbedUnimplementedAuthServer()
 }
 
-func RegisterAuthV1Server(s grpc.ServiceRegistrar, srv AuthV1Server) {
-	s.RegisterService(&AuthV1_ServiceDesc, srv)
+func RegisterAuthServer(s grpc.ServiceRegistrar, srv AuthServer) {
+	s.RegisterService(&Auth_ServiceDesc, srv)
 }
 
-func _AuthV1_Create_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreateRequest)
+func _Auth_Login_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(LoginRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AuthV1Server).Create(ctx, in)
+		return srv.(AuthServer).Login(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/auth_v1.AuthV1/Create",
+		FullMethod: "/api.auth_v1.Auth/Login",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AuthV1Server).Create(ctx, req.(*CreateRequest))
+		return srv.(AuthServer).Login(ctx, req.(*LoginRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _AuthV1_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetRequest)
+func _Auth_GetRefreshToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetRefreshTokenRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AuthV1Server).Get(ctx, in)
+		return srv.(AuthServer).GetRefreshToken(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/auth_v1.AuthV1/Get",
+		FullMethod: "/api.auth_v1.Auth/GetRefreshToken",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AuthV1Server).Get(ctx, req.(*GetRequest))
+		return srv.(AuthServer).GetRefreshToken(ctx, req.(*GetRefreshTokenRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _AuthV1_Update_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpdateRequest)
+func _Auth_GetAccessToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetAccessTokenRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AuthV1Server).Update(ctx, in)
+		return srv.(AuthServer).GetAccessToken(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/auth_v1.AuthV1/Update",
+		FullMethod: "/api.auth_v1.Auth/GetAccessToken",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AuthV1Server).Update(ctx, req.(*UpdateRequest))
+		return srv.(AuthServer).GetAccessToken(ctx, req.(*GetAccessTokenRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _AuthV1_Delete_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DeleteRequest)
+func _Auth_Check_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CheckRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AuthV1Server).Delete(ctx, in)
+		return srv.(AuthServer).Check(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/auth_v1.AuthV1/Delete",
+		FullMethod: "/api.auth_v1.Auth/Check",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AuthV1Server).Delete(ctx, req.(*DeleteRequest))
+		return srv.(AuthServer).Check(ctx, req.(*CheckRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// AuthV1_ServiceDesc is the grpc.ServiceDesc for AuthV1 service.
+// Auth_ServiceDesc is the grpc.ServiceDesc for Auth service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var AuthV1_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "auth_v1.AuthV1",
-	HandlerType: (*AuthV1Server)(nil),
+var Auth_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "api.auth_v1.Auth",
+	HandlerType: (*AuthServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "Create",
-			Handler:    _AuthV1_Create_Handler,
+			MethodName: "Login",
+			Handler:    _Auth_Login_Handler,
 		},
 		{
-			MethodName: "Get",
-			Handler:    _AuthV1_Get_Handler,
+			MethodName: "GetRefreshToken",
+			Handler:    _Auth_GetRefreshToken_Handler,
 		},
 		{
-			MethodName: "Update",
-			Handler:    _AuthV1_Update_Handler,
+			MethodName: "GetAccessToken",
+			Handler:    _Auth_GetAccessToken_Handler,
 		},
 		{
-			MethodName: "Delete",
-			Handler:    _AuthV1_Delete_Handler,
+			MethodName: "Check",
+			Handler:    _Auth_Check_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

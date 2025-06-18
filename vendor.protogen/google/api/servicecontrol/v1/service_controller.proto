@@ -39,8 +39,8 @@ option ruby_package = "Google::Cloud::ServiceControl::V1";
 service ServiceController {
   option (google.api.default_host) = "servicecontrol.googleapis.com";
   option (google.api.oauth_scopes) =
-      "https://www.googleapis.com/auth/cloud-platform,"
-      "https://www.googleapis.com/auth/servicecontrol";
+      "https://www.googleapis.com/user/cloud-platform,"
+      "https://www.googleapis.com/user/servicecontrol";
 
   // Checks whether an operation on a service should be allowed to proceed
   // based on the configuration of the service and related policies. It must be

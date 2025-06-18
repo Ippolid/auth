@@ -10,18 +10,19 @@ import (
 	"sync"
 	"time"
 
+	"github.com/Ippolid/auth/pkg/auth_v1"
+
 	"github.com/Ippolid/auth/internal/api/middleware"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/credentials"
 
 	"github.com/Ippolid/auth/internal/config"
 	"github.com/Ippolid/auth/internal/interceptor"
-	"github.com/Ippolid/auth/pkg/auth_v1"
+	"github.com/Ippolid/auth/pkg/user_v1"
 	"github.com/Ippolid/platform_libary/pkg/closer"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/rakyll/statik/fs"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/reflection"
 
 	_ "github.com/Ippolid/auth/statik" //nolint
@@ -142,7 +143,8 @@ func (a *App) initGRPCServer(ctx context.Context) error {
 
 	// включаем reflection и регистрируем сервис
 	reflection.Register(a.grpcServer)
-	auth_v1.RegisterAuthV1Server(a.grpcServer, a.serviceProvider.NoteController(ctx))
+	user_v1.RegisterUserV1Server(a.grpcServer, a.serviceProvider.UserController(ctx))
+	auth_v1.RegisterAuthServer(a.grpcServer, a.serviceProvider.AuthController(ctx))
 
 	return nil
 }
@@ -150,19 +152,30 @@ func (a *App) initGRPCServer(ctx context.Context) error {
 func (a *App) initHTTPServer(ctx context.Context) error {
 	mux := runtime.NewServeMux()
 
-	opts := []grpc.DialOption{
-		grpc.WithTransportCredentials(insecure.NewCredentials()),
-	}
-
-	err := auth_v1.RegisterAuthV1HandlerFromEndpoint(ctx, mux, a.serviceProvider.GRPCConfig().Address(), opts)
+	// 2. Загружаем клиентские TLS-креденшлы из файла service.pem
+	//    Второй аргумент "" означает, что Go возьмёт ServerName из адреса,
+	//    который мы передадим в grpc.Dial (он должен совпадать с CN или SAN в сервисном сертификате).
+	creds, err := credentials.NewClientTLSFromFile("/server_cert.pem", "")
 	if err != nil {
-		return err
+		return errors.Wrap(err, "could not load client TLS credentials from service.pem")
 	}
 
-	corsMiddleware := middleware.NewCorsMiddleware()
+	// 3. Формируем grpc.DialOption с TLS-креденшлами
+	dialOpts := []grpc.DialOption{
+		grpc.WithTransportCredentials(creds),
+	}
 
+	// 4. Регистрируем grpc-gateway-handler, указываем адрес gRPC-сервера.
+	//    address здесь — например, "localhost:50051" или как вернёт a.serviceProvider.GRPCConfig().Address().
+	grpcAddr := a.serviceProvider.GRPCConfig().Address()
+	if err := user_v1.RegisterUserV1HandlerFromEndpoint(ctx, mux, grpcAddr, dialOpts); err != nil {
+		return errors.Wrap(err, "failed to register UserV1 handler with grpc-gateway")
+	}
+
+	// 5. Оборачиваем mux в CORS-мидлвар (если необходим) и создаём HTTP-сервер.
+	corsMiddleware := middleware.NewCorsMiddleware()
 	a.httpServer = &http.Server{
-		Addr:              a.serviceProvider.HTTPConfig().Address(),
+		Addr:              a.serviceProvider.HTTPConfig().Address(), // например, ":8080"
 		Handler:           corsMiddleware.Handler(mux),
 		ReadHeaderTimeout: 5 * time.Second,
 	}

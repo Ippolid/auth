@@ -4,15 +4,19 @@ import (
 	"context"
 	"log"
 
+	"github.com/Ippolid/auth/internal/api/auth"
+
 	"github.com/Ippolid/auth/internal/client/cache/redis"
 
-	"github.com/Ippolid/auth/internal/api/auth"
+	"github.com/Ippolid/auth/internal/api/user"
 	"github.com/Ippolid/auth/internal/config"
 	"github.com/Ippolid/auth/internal/repository"
 	auth2 "github.com/Ippolid/auth/internal/repository/auth"
 	redisCache "github.com/Ippolid/auth/internal/repository/redis"
+	user2 "github.com/Ippolid/auth/internal/repository/user"
 	"github.com/Ippolid/auth/internal/service"
 	auth3 "github.com/Ippolid/auth/internal/service/auth"
+	user3 "github.com/Ippolid/auth/internal/service/user"
 	"github.com/Ippolid/platform_libary/pkg/closer"
 	"github.com/Ippolid/platform_libary/pkg/db"
 	"github.com/Ippolid/platform_libary/pkg/db/pg"
@@ -27,18 +31,23 @@ type serviceProvider struct {
 	httpConfig    config.HTTPConfig
 	swaggerConfig config.SwaggerConfig
 	tlsConfig     config.TLSConfig
+	jwtConfig     config.JWTConfig
+	accessConfig  config.AccessConfig
 
 	dbClient       db.Client
 	txManager      db.TxManager
-	noteRepository repository.AuthRepository
+	userRepository repository.UserRepository
+	authRepository repository.AuthRepository
 
 	redisPool    *redigo.Pool
 	serviceCache repository.CacheInterface
 	redisClient  redis.Client
 
-	noteService service.AuthService
+	userService service.UserService
+	authService service.AuthService
 
-	noteController *auth.Controller
+	userController *user.Controller
+	authController *auth.Controller
 }
 
 func newServiceProvider() *serviceProvider {
@@ -122,6 +131,28 @@ func (s *serviceProvider) GetTLSConfig() config.TLSConfig {
 	return s.tlsConfig
 }
 
+func (s *serviceProvider) GetAccessConfig(_ context.Context) config.AccessConfig {
+	if s.accessConfig == nil {
+		cfg, err := config.NewAccessConfig()
+		if err != nil {
+			log.Fatalf("failed to get Access config: %s", err.Error())
+		}
+		s.accessConfig = cfg
+	}
+	return s.accessConfig
+}
+
+func (s *serviceProvider) GetJWTConfig(_ context.Context) config.JWTConfig {
+	if s.jwtConfig == nil {
+		cfg, err := config.NewJWTConfig()
+		if err != nil {
+			log.Fatalf("failed to get TLS config: %s", err.Error())
+		}
+		s.jwtConfig = cfg
+	}
+	return s.jwtConfig
+}
+
 func (s *serviceProvider) DBClient(ctx context.Context) db.Client {
 	if s.dbClient == nil {
 		cl, err := pg.New(ctx, s.PGConfig().DSN())
@@ -172,12 +203,20 @@ func (s *serviceProvider) TxManager(ctx context.Context) db.TxManager {
 	return s.txManager
 }
 
-func (s *serviceProvider) AuthRepository(ctx context.Context) repository.AuthRepository {
-	if s.noteRepository == nil {
-		s.noteRepository = auth2.NewRepository(s.DBClient(ctx))
+func (s *serviceProvider) UserRepository(ctx context.Context) repository.UserRepository {
+	if s.userRepository == nil {
+		s.userRepository = user2.NewRepository(s.DBClient(ctx))
 	}
 
-	return s.noteRepository
+	return s.userRepository
+}
+
+func (s *serviceProvider) AuthRepository(ctx context.Context) repository.AuthRepository {
+	if s.authRepository == nil {
+		s.authRepository = auth2.NewRepository(s.DBClient(ctx))
+	}
+
+	return s.authRepository
 }
 func (s *serviceProvider) GetCache(ctx context.Context) repository.CacheInterface {
 	if s.serviceCache == nil {
@@ -187,22 +226,44 @@ func (s *serviceProvider) GetCache(ctx context.Context) repository.CacheInterfac
 	return s.serviceCache
 }
 
-func (s *serviceProvider) AuthService(ctx context.Context) service.AuthService {
-	if s.noteService == nil {
-		s.noteService = auth3.NewService(
-			s.AuthRepository(ctx),
+func (s *serviceProvider) UserService(ctx context.Context) service.UserService {
+	if s.userService == nil {
+		s.userService = user3.NewService(
+			s.UserRepository(ctx),
 			s.TxManager(ctx),
 			s.GetCache(ctx),
 		)
 	}
 
-	return s.noteService
+	return s.userService
 }
 
-func (s *serviceProvider) NoteController(ctx context.Context) *auth.Controller {
-	if s.noteController == nil {
-		s.noteController = auth.NewController(s.AuthService(ctx))
+func (s *serviceProvider) AuthService(ctx context.Context) service.AuthService {
+	if s.authService == nil {
+		s.authService = auth3.NewService(
+			s.AuthRepository(ctx),
+			s.TxManager(ctx),
+			s.GetCache(ctx),
+			s.GetJWTConfig(ctx),
+			s.GetAccessConfig(ctx),
+		)
 	}
 
-	return s.noteController
+	return s.authService
+}
+
+func (s *serviceProvider) UserController(ctx context.Context) *user.Controller {
+	if s.userController == nil {
+		s.userController = user.NewController(s.UserService(ctx))
+	}
+
+	return s.userController
+}
+
+func (s *serviceProvider) AuthController(ctx context.Context) *auth.Controller {
+	if s.authController == nil {
+		s.authController = auth.NewController(s.AuthService(ctx))
+	}
+
+	return s.authController
 }

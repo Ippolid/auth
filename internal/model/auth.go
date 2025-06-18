@@ -1,27 +1,37 @@
 package model
 
-import (
-	"time"
-)
-
-// User структура пользователя
-type User struct {
-	ID        int64     `db:"id" redis:"id"`
-	User      UserInfo  `db:""`
-	Role      bool      `db:"role"`
-	Password  string    `db:"password"`
-	CreatedAt time.Time `db:"created_at"`
+// LoginRequest структура запроса для входа в систему
+type LoginRequest struct {
+	Username string
+	Password string
 }
 
-// UserInfo информация о пользователя
-type UserInfo struct {
-	Name  string `db:"name"`
-	Email string `db:"email"`
+// LoginResponse структура ответа при входе в систему
+type LoginResponse struct {
+	Token string
 }
 
-// Log структура для хранения логов
-type Log struct {
-	Method    string    `db:"method_name"`
-	CreatedAt time.Time `db:"created_at"`
-	Ctx       string    `db:"ctx"`
+// GetRefreshTokenRequest структура запроса для получения нового refresh-токена
+type GetRefreshTokenRequest struct {
+	OldToken string
+}
+
+// GetRefreshTokenResponse структура ответа при получении нового refresh-токена
+type GetRefreshTokenResponse struct {
+	RefreshToken string
+}
+
+// GetAccessTokenRequest структура запроса для получения access-токена по refresh-токену
+type GetAccessTokenRequest struct {
+	RefreshToken string
+}
+
+// GetAccessTokenResponse структура ответа при получении access-токена
+type GetAccessTokenResponse struct {
+	AccessToken string
+}
+
+// CheckRequest структура запроса для проверки доступности конечной точки
+type CheckRequest struct {
+	EndpointAddress string
 }
