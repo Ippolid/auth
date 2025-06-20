@@ -29,6 +29,8 @@ services:
       context: ..
       dockerfile: deploy/Dockerfile
     restart: on-failure
+    env_file:
+      - secret.env
     ports:
       - "50051:50051"
       - "8080:8080"
@@ -56,3 +58,4 @@ services:
       - "6379:6379"
     volumes:
       - redis-data:/data
+

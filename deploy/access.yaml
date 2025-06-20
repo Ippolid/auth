@@ -3,3 +3,4 @@
 endpoints:
   "/v1/user/create": true
   "/v1/user/delete": true
+  "/chat_server_v1.ChatV1/Create" : true

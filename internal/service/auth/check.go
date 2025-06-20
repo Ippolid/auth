@@ -48,7 +48,7 @@ func (s *serv) Check(ctx context.Context, request model.CheckRequest) error {
 	requiredRole, ok := accessibleMap[request.EndpointAddress]
 	if !ok {
 		// Эндпоинт не требует проверки доступа
-		return fmt.Errorf("endpoint address %s is not accessible", request.EndpointAddress)
+		return nil
 	}
 
 	// Проверяем, соответствует ли роль пользователя требуемой роли
