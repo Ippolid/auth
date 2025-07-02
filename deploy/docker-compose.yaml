@@ -3,6 +3,7 @@ version: "3.9"
 volumes:
   postgres_volume_local:
   redis-data:
+  prometheus_data:
 
 services:
   pg-local:
@@ -35,6 +36,7 @@ services:
       - "50051:50051"
       - "8080:8080"
       - "8090:8090"
+      - "2112:2112"
     environment:
       - PG_USER=${PG_USER}
       - PG_PASSWORD=${PG_PASSWORD}
@@ -58,4 +60,13 @@ services:
       - "6379:6379"
     volumes:
       - redis-data:/data
+
+  prometheus:
+    image: prom/prometheus:v2.37.9
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./alerts.yml:/etc/prometheus/alerts.yml
+      - prometheus_data:/prometheus
 

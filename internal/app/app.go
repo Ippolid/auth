@@ -302,7 +302,10 @@ package app
 import (
 	"context"
 	"fmt"
+	"github.com/Ippolid/auth/internal/metric"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"io"
+	"log"
 	"net"
 	"net/http"
 	"sync"
@@ -349,6 +352,11 @@ func NewApp(ctx context.Context) (*App, error) {
 	}
 
 	logger.Info("App created successfully")
+
+	err = metric.Init(ctx)
+	if err != nil {
+		logger.Error("Failed to init metric.", zap.Error(err))
+	}
 	return a, nil
 }
 
@@ -360,7 +368,7 @@ func (a *App) Run() error {
 	}()
 
 	wg := sync.WaitGroup{}
-	wg.Add(3)
+	wg.Add(4)
 
 	go func() {
 		defer wg.Done()
@@ -386,6 +394,15 @@ func (a *App) Run() error {
 		err := a.runSwaggerServer()
 		if err != nil {
 			logger.Error("failed to run Swagger server", zap.Error(err))
+		}
+	}()
+
+	go func() {
+		defer wg.Done()
+
+		err := runPrometheus()
+		if err != nil {
+			logger.Fatal("failed to run GRPC server", zap.Error(err))
 		}
 	}()
 
@@ -442,6 +459,7 @@ func (a *App) initGRPCServer(ctx context.Context) error {
 			grpcMiddleware.ChainUnaryServer(
 				interceptor.LogInterceptor,
 				interceptor.ValidateInterceptor,
+				interceptor.MetricsInterceptor,
 			),
 		),
 	)
@@ -581,4 +599,23 @@ func serveSwaggerFile(path string) http.HandlerFunc {
 
 		logger.Info("Served swagger file successfully", zap.String("path", path))
 	}
+}
+
+func runPrometheus() error {
+	mux := http.NewServeMux()
+	mux.Handle("/metrics", promhttp.Handler())
+
+	prometheusServer := &http.Server{
+		Addr:    ":2112",
+		Handler: mux,
+	}
+
+	log.Printf("Prometheus server is running on %s", "localhost:2112")
+
+	err := prometheusServer.ListenAndServe()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
