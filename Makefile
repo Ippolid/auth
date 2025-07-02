@@ -178,7 +178,7 @@ grpc-error-load-test:
 		--proto api/proto/user_v1/user.proto \
 		-i api/proto,vendor.protogen \
 		--call user_v1.UserV1.Get \
-		--data '{"id":"-1"}' \
+		--data '{"id":"-1	"}' \
 		--rps 100 \
 		--total 300 \
 		--cacert deploy/server_cert.pem \
