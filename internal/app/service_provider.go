@@ -48,6 +48,8 @@ type serviceProvider struct {
 
 	userController *user.Controller
 	authController *auth.Controller
+
+	//logger *zap.Logger
 }
 
 func newServiceProvider() *serviceProvider {
@@ -152,6 +154,18 @@ func (s *serviceProvider) GetJWTConfig(_ context.Context) config.JWTConfig {
 	}
 	return s.jwtConfig
 }
+
+//func (s *serviceProvider) IntitLogger() *zap.Logger {
+//	if s.logger == nil {
+//		// Initialize the logger with a default configuration and InfoLevel.
+//		l, err := logger.New("Info")
+//		if err != nil {
+//			log.Fatalf("failed to init logger: %v", err)
+//		}
+//		s.logger = l
+//	}
+//	return s.logger
+//}
 
 func (s *serviceProvider) DBClient(ctx context.Context) db.Client {
 	if s.dbClient == nil {

@@ -10,19 +10,24 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Ippolid/auth/pkg/auth_v1"
+	"github.com/Ippolid/auth/internal/metric"
+	"github.com/Ippolid/auth/internal/tracing"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 
 	"github.com/Ippolid/auth/internal/api/middleware"
-	"github.com/pkg/errors"
-	"google.golang.org/grpc/credentials"
-
 	"github.com/Ippolid/auth/internal/config"
 	"github.com/Ippolid/auth/internal/interceptor"
+	"github.com/Ippolid/auth/internal/logger"
+	"github.com/Ippolid/auth/pkg/auth_v1"
 	"github.com/Ippolid/auth/pkg/user_v1"
 	"github.com/Ippolid/platform_libary/pkg/closer"
+	grpcMiddleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	"github.com/pkg/errors"
 	"github.com/rakyll/statik/fs"
+	"go.uber.org/zap"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/reflection"
 
 	_ "github.com/Ippolid/auth/statik" //nolint
@@ -38,7 +43,11 @@ type App struct {
 
 // NewApp создает новое приложение
 func NewApp(ctx context.Context) (*App, error) {
-	log.Println("Creating new App...")
+	// Инициализируем логгер в первую очередь
+	logger.InitLocalLogger("Info")
+	logger.Info("Creating new App...")
+	tracing.Init(logger.Logger(), "auth")
+
 	a := &App{}
 
 	err := a.initDeps(ctx)
@@ -46,7 +55,12 @@ func NewApp(ctx context.Context) (*App, error) {
 		return nil, fmt.Errorf("failed to initialize dependencies: %w", err)
 	}
 
-	log.Println("App created successfully")
+	logger.Info("App created successfully")
+
+	err = metric.Init(ctx)
+	if err != nil {
+		logger.Error("Failed to init metric.", zap.Error(err))
+	}
 	return a, nil
 }
 
@@ -58,14 +72,14 @@ func (a *App) Run() error {
 	}()
 
 	wg := sync.WaitGroup{}
-	wg.Add(3)
+	wg.Add(4)
 
 	go func() {
 		defer wg.Done()
 
 		err := a.runGRPCServer()
 		if err != nil {
-			log.Fatalf("failed to run GRPC server: %v", err)
+			logger.Fatal("failed to run GRPC server", zap.Error(err))
 		}
 	}()
 
@@ -74,7 +88,7 @@ func (a *App) Run() error {
 
 		err := a.runHTTPServer()
 		if err != nil {
-			log.Fatalf("failed to run HTTP server: %v", err)
+			logger.Fatal("failed to run HTTP server", zap.Error(err))
 		}
 	}()
 
@@ -83,7 +97,16 @@ func (a *App) Run() error {
 
 		err := a.runSwaggerServer()
 		if err != nil {
-			log.Printf("failed to run Swagger server: %v", err)
+			logger.Error("failed to run Swagger server", zap.Error(err))
+		}
+	}()
+
+	go func() {
+		defer wg.Done()
+
+		err := runPrometheus()
+		if err != nil {
+			logger.Fatal("failed to run GRPC server", zap.Error(err))
 		}
 	}()
 
@@ -126,7 +149,6 @@ func (a *App) initServiceProvider(_ context.Context) error {
 }
 
 func (a *App) initGRPCServer(ctx context.Context) error {
-	// создаём TransportCredentials из файлов .crt и .key
 	creds, err := credentials.NewServerTLSFromFile(
 		a.serviceProvider.GetTLSConfig().CertFile(),
 		a.serviceProvider.GetTLSConfig().KeyFile(),
@@ -135,13 +157,18 @@ func (a *App) initGRPCServer(ctx context.Context) error {
 		return errors.Wrap(err, "failed to load TLS credentials")
 	}
 
-	// создаём gRPC-сервер с TLS и middleware
 	a.grpcServer = grpc.NewServer(
 		grpc.Creds(creds),
-		grpc.UnaryInterceptor(interceptor.ValidateInterceptor),
+		grpc.UnaryInterceptor(
+			grpcMiddleware.ChainUnaryServer(
+				interceptor.ServerTracingInterceptor,
+				interceptor.LogInterceptor,
+				interceptor.ValidateInterceptor,
+				interceptor.MetricsInterceptor,
+			),
+		),
 	)
 
-	// включаем reflection и регистрируем сервис
 	reflection.Register(a.grpcServer)
 	user_v1.RegisterUserV1Server(a.grpcServer, a.serviceProvider.UserController(ctx))
 	auth_v1.RegisterAuthServer(a.grpcServer, a.serviceProvider.AuthController(ctx))
@@ -152,30 +179,23 @@ func (a *App) initGRPCServer(ctx context.Context) error {
 func (a *App) initHTTPServer(ctx context.Context) error {
 	mux := runtime.NewServeMux()
 
-	// 2. Загружаем клиентские TLS-креденшлы из файла service.pem
-	//    Второй аргумент "" означает, что Go возьмёт ServerName из адреса,
-	//    который мы передадим в grpc.Dial (он должен совпадать с CN или SAN в сервисном сертификате).
 	creds, err := credentials.NewClientTLSFromFile("/server_cert.pem", "")
 	if err != nil {
 		return errors.Wrap(err, "could not load client TLS credentials from service.pem")
 	}
 
-	// 3. Формируем grpc.DialOption с TLS-креденшлами
 	dialOpts := []grpc.DialOption{
 		grpc.WithTransportCredentials(creds),
 	}
 
-	// 4. Регистрируем grpc-gateway-handler, указываем адрес gRPC-сервера.
-	//    address здесь — например, "localhost:50051" или как вернёт a.serviceProvider.GRPCConfig().Address().
 	grpcAddr := a.serviceProvider.GRPCConfig().Address()
-	if err := user_v1.RegisterUserV1HandlerFromEndpoint(ctx, mux, grpcAddr, dialOpts); err != nil {
+	if err = user_v1.RegisterUserV1HandlerFromEndpoint(ctx, mux, grpcAddr, dialOpts); err != nil {
 		return errors.Wrap(err, "failed to register UserV1 handler with grpc-gateway")
 	}
 
-	// 5. Оборачиваем mux в CORS-мидлвар (если необходим) и создаём HTTP-сервер.
 	corsMiddleware := middleware.NewCorsMiddleware()
 	a.httpServer = &http.Server{
-		Addr:              a.serviceProvider.HTTPConfig().Address(), // например, ":8080"
+		Addr:              a.serviceProvider.HTTPConfig().Address(),
 		Handler:           corsMiddleware.Handler(mux),
 		ReadHeaderTimeout: 5 * time.Second,
 	}
@@ -203,9 +223,10 @@ func (a *App) initSwaggerServer(_ context.Context) error {
 }
 
 func (a *App) runGRPCServer() error {
-	log.Printf("GRPC server is running on %s", a.serviceProvider.GRPCConfig().Address())
+	address := a.serviceProvider.GRPCConfig().Address()
+	logger.Info("GRPC server is running", zap.String("address", address))
 
-	list, err := net.Listen("tcp", a.serviceProvider.GRPCConfig().Address())
+	list, err := net.Listen("tcp", address)
 	if err != nil {
 		return err
 	}
@@ -219,7 +240,8 @@ func (a *App) runGRPCServer() error {
 }
 
 func (a *App) runHTTPServer() error {
-	log.Printf("HTTP server is running on %s", a.serviceProvider.HTTPConfig().Address())
+	address := a.serviceProvider.HTTPConfig().Address()
+	logger.Info("HTTP server is running", zap.String("address", address))
 
 	err := a.httpServer.ListenAndServe()
 	if err != nil {
@@ -230,7 +252,8 @@ func (a *App) runHTTPServer() error {
 }
 
 func (a *App) runSwaggerServer() error {
-	log.Printf("Swagger server is running on %s", a.serviceProvider.SwaggerConfig().Address())
+	address := a.serviceProvider.SwaggerConfig().Address()
+	logger.Info("Swagger server is running", zap.String("address", address))
 
 	err := a.swaggerServer.ListenAndServe()
 	if err != nil {
@@ -243,18 +266,19 @@ func (a *App) runSwaggerServer() error {
 //nolint:revive
 func serveSwaggerFile(path string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		log.Printf("Serving swagger file: %s", path)
+		logger.Info("Serving swagger file", zap.String("path", path))
 
 		statikFs, err := fs.New()
 		if err != nil {
+			logger.Error("Failed to init statik fs", zap.Error(err))
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
-		log.Printf("Open swagger file: %s", path)
-
+		logger.Debug("Opening swagger file", zap.String("path", path))
 		file, err := statikFs.Open(path)
 		if err != nil {
+			logger.Error("Failed to open swagger file", zap.String("path", path), zap.Error(err))
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -262,23 +286,42 @@ func serveSwaggerFile(path string) http.HandlerFunc {
 			_ = file.Close()
 		}(file)
 
-		log.Printf("Read swagger file: %s", path)
-
+		logger.Debug("Reading swagger file", zap.String("path", path))
 		content, err := io.ReadAll(file)
 		if err != nil {
+			logger.Error("Failed to read swagger file", zap.String("path", path), zap.Error(err))
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-
-		log.Printf("Write swagger file: %s", path)
 
 		w.Header().Set("Content-Type", "application/json")
 		_, err = w.Write(content)
 		if err != nil {
+			logger.Error("Failed to write swagger file to response", zap.String("path", path), zap.Error(err))
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
-		log.Printf("Served swagger file: %s", path)
+		logger.Info("Served swagger file successfully", zap.String("path", path))
 	}
+}
+
+func runPrometheus() error {
+	mux := http.NewServeMux()
+	mux.Handle("/metrics", promhttp.Handler())
+
+	prometheusServer := &http.Server{
+		Addr:              ":2112",
+		Handler:           mux,
+		ReadHeaderTimeout: 5 * time.Second,
+	}
+
+	log.Printf("Prometheus server is running on %s", "localhost:2112")
+
+	err := prometheusServer.ListenAndServe()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

@@ -13,3 +13,4 @@ generate.go
 /deploy/server_key.pem
 /deploy/server_cert.pem
 /deploy/certificate.conf
+/deploy/logs/

@@ -7,6 +7,7 @@ import (
 	"time"
 
 	user1 "github.com/Ippolid/auth/internal/api/user"
+	"github.com/Ippolid/auth/internal/logger"
 	"github.com/Ippolid/auth/internal/model"
 	"github.com/Ippolid/auth/internal/service"
 	"github.com/Ippolid/auth/internal/service/mocks"
@@ -21,6 +22,9 @@ func ptr[T any](v T) *T {
 }
 
 func TestController_Get(t *testing.T) {
+	// Инициализируем логгер для тестов
+	logger.InitLocalLogger("Info")
+
 	type userServiceMockFunc func(mc *minimock.Controller) service.UserService
 
 	type args struct {
@@ -62,15 +66,16 @@ func TestController_Get(t *testing.T) {
 				User: &user_v1.UserGet{
 					Id:        user.ID,
 					Info:      &user_v1.UserInfo{Name: *user.User.Name, Email: *user.User.Email},
-					Role:      user_v1.Role_ADMIN,           // Соответствует user.Role = true
-					CreatedAt: timestamppb.New(time.Time{}), // Нулевое значение времени
-					UpdatedAt: timestamppb.New(time.Time{}), // Нулевое значение времени
+					Role:      user_v1.Role_ADMIN,
+					CreatedAt: timestamppb.New(time.Time{}),
+					UpdatedAt: timestamppb.New(time.Time{}),
 				},
 			},
 			wantErr: nil,
 			userServiceMock: func(mc *minimock.Controller) service.UserService {
 				mock := mocks.NewUserServiceMock(mc)
-				mock.GetMock.Expect(ctx, id).Return(user, nil)
+				// Используем minimock.AnyContext вместо ctx
+				mock.GetMock.Expect(minimock.AnyContext, id).Return(user, nil)
 				return mock
 			},
 		},
@@ -81,7 +86,8 @@ func TestController_Get(t *testing.T) {
 			wantErr:  serviceErr,
 			userServiceMock: func(mc *minimock.Controller) service.UserService {
 				mock := mocks.NewUserServiceMock(mc)
-				mock.GetMock.Expect(ctx, id).Return(nil, serviceErr)
+				// Используем minimock.AnyContext вместо ctx
+				mock.GetMock.Expect(minimock.AnyContext, id).Return(nil, serviceErr)
 				return mock
 			},
 		},
@@ -95,9 +101,15 @@ func TestController_Get(t *testing.T) {
 			userService := tt.userServiceMock(mc)
 			ctrl := user1.NewController(userService)
 			resp, err := ctrl.Get(tt.args.ctx, tt.args.req)
-			fmt.Printf("User id: %d\n", id) // Для отладки
-			require.Equal(t, tt.wantResp, resp)
-			require.ErrorIs(t, err, tt.wantErr)
+
+			// Сравниваем ошибки и ответы
+			if tt.wantErr != nil {
+				require.ErrorIs(t, err, tt.wantErr)
+				require.Nil(t, resp)
+			} else {
+				require.NoError(t, err)
+				require.Equal(t, tt.wantResp, resp)
+			}
 		})
 	}
 }

@@ -160,3 +160,27 @@ vendor-proto:
 			mv vendor.protogen/openapiv2/protoc-gen-openapiv2/options/*.proto vendor.protogen/protoc-gen-openapiv2/options &&\
 			rm -rf vendor.protogen/openapiv2 ;\
 		fi
+
+grpc-load-test:
+	ghz \
+        --proto api/proto/user_v1/user.proto \
+        -i api/proto,vendor.protogen \
+        --call user_v1.UserV1.Get \
+        --data '{"id":"28"}' \
+        --rps 100 \
+        --total 300 \
+        --cacert deploy/server_cert.pem \
+        localhost:50051
+
+
+grpc-error-load-test:
+	ghz \
+		--proto api/proto/user_v1/user.proto \
+		-i api/proto,vendor.protogen \
+		--call user_v1.UserV1.Get \
+		--data '{"id":"-1	"}' \
+		--rps 100 \
+		--total 300 \
+		--cacert deploy/server_cert.pem \
+		localhost:50051
+

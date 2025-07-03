@@ -3,6 +3,8 @@ version: "3.9"
 volumes:
   postgres_volume_local:
   redis-data:
+  prometheus_data:
+  grafana_data:
 
 services:
   pg-local:
@@ -35,6 +37,7 @@ services:
       - "50051:50051"
       - "8080:8080"
       - "8090:8090"
+      - "2112:2112"
     environment:
       - PG_USER=${PG_USER}
       - PG_PASSWORD=${PG_PASSWORD}
@@ -46,6 +49,7 @@ services:
       - migrator-local
       - redis
     volumes:
+      - ./logs:/root/logs
       - ./server.crt:/deploy/server.crt:ro
       - ./server.key:/deploy/server.key:ro
       - ./server_cert.pem:/server_cert.pem:ro
@@ -59,3 +63,27 @@ services:
     volumes:
       - redis-data:/data
 
+  prometheus:
+    image: prom/prometheus:v2.37.9
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./alerts.yml:/etc/prometheus/alerts.yml
+      - prometheus_data:/prometheus
+  grafana:
+    image: grafana/grafana-oss:10.0.3
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+  jaeger:
+    image: jaegertracing/all-in-one:1.48
+    ports:
+      - "5775:5775/udp"
+      - "6831:6831/udp" # jaeger-client
+      - "6832:6832/udp"
+      - "5778:5778"
+      - "16686:16686" # web
+      - "14268:14268"
+      - "9411:9411"
