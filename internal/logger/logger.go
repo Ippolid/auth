@@ -1,9 +1,10 @@
 package logger
 
 import (
-	"gopkg.in/natefinch/lumberjack.v2"
 	"os"
 	"strings"
+
+	"gopkg.in/natefinch/lumberjack.v2"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
