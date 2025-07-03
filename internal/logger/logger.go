@@ -81,6 +81,9 @@ func Fatal(msg string, fields ...zap.Field) {
 	globalLogger.Fatal(msg, fields...)
 }
 
+func Logger() *zap.Logger {
+	return globalLogger
+}
 func WithOptions(opts ...zap.Option) *zap.Logger {
 	return globalLogger.WithOptions(opts...)
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/opentracing/opentracing-go"
 	"time"
 
 	"github.com/Ippolid/auth/internal/model"
@@ -16,7 +17,8 @@ func (s *serv) Get(ctx context.Context, id int64) (*model.User, error) {
 		errCache    error
 		err         error
 	)
-
+	span, ctx := opentracing.StartSpanFromContext(ctx, "get USER")
+	defer span.Finish()
 	userProfile, errCache = s.cache.Get(ctx, id)
 	if errCache != nil {
 		if errors.Is(errCache, model.ErrUserNotFound) {
