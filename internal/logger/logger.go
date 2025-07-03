@@ -1,6 +1,7 @@
 package logger
 
 import (
+	"gopkg.in/natefinch/lumberjack.v2"
 	"os"
 	"strings"
 
@@ -16,24 +17,24 @@ func getCore(level zap.AtomicLevel) zapcore.Core {
 	developmentCfg.EncodeLevel = zapcore.CapitalColorLevelEncoder // Цветной вывод уровня
 	consoleEncoder := zapcore.NewConsoleEncoder(developmentCfg)
 
-	// Настройка вывода в файл с ротацией
-	//file := zapcore.AddSync(&lumberjack.Logger{
-	//	Filename:   "logs/app.log", // Путь к файлу логов
-	//	MaxSize:    10,             // Размер файла в мегабайтах
-	//	MaxBackups: 3,              // Количество старых файлов для хранения
-	//	MaxAge:     7,              // Количество дней для хранения файлов
-	//	Compress:   true,           // Сжимать старые файлы
-	//})
+	//Настройка вывода в файл с ротацией
+	file := zapcore.AddSync(&lumberjack.Logger{
+		Filename:   "logs/app.log", // Путь к файлу логов
+		MaxSize:    10,             // Размер файла в мегабайтах
+		MaxBackups: 3,              // Количество старых файлов для хранения
+		MaxAge:     7,              // Количество дней для хранения файлов
+		Compress:   true,           // Сжимать старые файлы
+	})
 
 	productionCfg := zap.NewProductionEncoderConfig()
 	productionCfg.TimeKey = "timestamp"
 	productionCfg.EncodeTime = zapcore.ISO8601TimeEncoder
-	//fileEncoder := zapcore.NewJSONEncoder(productionCfg)
+	fileEncoder := zapcore.NewJSONEncoder(productionCfg)
 
 	// Объединение выводов в консоль и файл
 	return zapcore.NewTee(
 		zapcore.NewCore(consoleEncoder, stdout, level),
-		//zapcore.NewCore(fileEncoder, file, level),
+		zapcore.NewCore(fileEncoder, file, level),
 	)
 }
 
