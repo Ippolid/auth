@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+
 	"github.com/Ippolid/auth/internal/converter"
 	"github.com/Ippolid/auth/internal/logger"
 	"github.com/Ippolid/auth/pkg/user_v1"

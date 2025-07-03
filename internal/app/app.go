@@ -3,15 +3,16 @@ package app
 import (
 	"context"
 	"fmt"
-	"github.com/Ippolid/auth/internal/metric"
-	"github.com/Ippolid/auth/internal/tracing"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"io"
 	"log"
 	"net"
 	"net/http"
 	"sync"
 	"time"
+
+	"github.com/Ippolid/auth/internal/metric"
+	"github.com/Ippolid/auth/internal/tracing"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 
 	"github.com/Ippolid/auth/internal/api/middleware"
 	"github.com/Ippolid/auth/internal/config"
@@ -310,8 +311,9 @@ func runPrometheus() error {
 	mux.Handle("/metrics", promhttp.Handler())
 
 	prometheusServer := &http.Server{
-		Addr:    ":2112",
-		Handler: mux,
+		Addr:              ":2112",
+		Handler:           mux,
+		ReadHeaderTimeout: 5 * time.Second,
 	}
 
 	log.Printf("Prometheus server is running on %s", "localhost:2112")

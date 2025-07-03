@@ -1,10 +1,11 @@
 package logger
 
 import (
-	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
 	"os"
 	"strings"
+
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 func getCore(level zap.AtomicLevel) zapcore.Core {
@@ -45,6 +46,7 @@ func getAtomicLevel(level string) (zap.AtomicLevel, error) {
 	return zap.NewAtomicLevelAt(zapLevel), nil
 }
 
+// InitLocalLogger инициализирует локальный логгер с заданным уровнем
 func InitLocalLogger(level string) {
 	zaplevel, err := getAtomicLevel(level)
 	if err != nil {
@@ -57,33 +59,42 @@ func InitLocalLogger(level string) {
 
 var globalLogger *zap.Logger
 
+// Init инициализирует глобальный логгер с заданным core и опциями
 func Init(core zapcore.Core, options ...zap.Option) {
 	globalLogger = zap.New(core, options...)
 }
 
+// Debug функция для логирования отладочных сообщений
 func Debug(msg string, fields ...zap.Field) {
 	globalLogger.Debug(msg, fields...)
 }
 
+// Info функция для логирования информационных сообщений
 func Info(msg string, fields ...zap.Field) {
 	globalLogger.Info(msg, fields...)
 }
 
+// Warn функция для логирования предупреждений
 func Warn(msg string, fields ...zap.Field) {
 	globalLogger.Warn(msg, fields...)
 }
 
+// Error функция для логирования ошибок
 func Error(msg string, fields ...zap.Field) {
 	globalLogger.Error(msg, fields...)
 }
 
+// Fatal функция для логирования фатальных ошибок
 func Fatal(msg string, fields ...zap.Field) {
 	globalLogger.Fatal(msg, fields...)
 }
 
+// Logger возвращает глобальный логгер
 func Logger() *zap.Logger {
 	return globalLogger
 }
+
+// WithOptions возвращает новый логгер с заданными опциями
 func WithOptions(opts ...zap.Option) *zap.Logger {
 	return globalLogger.WithOptions(opts...)
 }

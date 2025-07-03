@@ -10,6 +10,7 @@ import (
 	"github.com/Ippolid/auth/internal/logger"
 )
 
+// LogInterceptor перехватывает запросы и логирует их
 func LogInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 	now := time.Now()
 

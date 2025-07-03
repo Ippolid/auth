@@ -12,6 +12,7 @@ import (
 
 const traceIDKey = "x-trace-id"
 
+// ServerTracingInterceptor перехватывает запросы и добавляет трассировку с помощью OpenTracing и Jaeger
 func ServerTracingInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 	span, ctx := opentracing.StartSpanFromContext(ctx, info.FullMethod)
 	defer span.Finish()
